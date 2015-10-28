@@ -1,0 +1,12 @@
+# more complex variable scoping test that redefines a variable
+
+# Output:
+# true
+# 2 TODO
+
+# Program:)
+
+int f(int t, int y) is 
+newpair 
+end
+true false null

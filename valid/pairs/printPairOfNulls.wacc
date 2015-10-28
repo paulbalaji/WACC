@@ -14,5 +14,6 @@ begin
   print "," ;
   pair(int, bool) r = snd p ;
   print r ; 
-  println ")"
+  println ")";
+  println p < q
 end
