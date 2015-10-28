@@ -1,0 +1,6 @@
+begin
+	int f() is
+		skip
+	end
+	skip
+end
