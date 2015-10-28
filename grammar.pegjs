@@ -1,32 +1,38 @@
 Program
-  = __ BEGIN __ Func* __ StatList __ END __
+  = __ BEGIN _ Func* StatList _ END __
 
 Func
-  = Type __ Ident __ LEFT_PAREN __ ParamList? __ RIGHT_PAREN __ IS __ StatList __ END __
+  = Type _ Ident __ LEFT_PAREN __ ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _
 
 /* ParamList */
 ParamList
   = Param __ (COMMA __ Param)*
 
 Param
-  = Type __ Ident
+  = Type _ Ident
 
 StatList
-  = Stat __ SEMICOLON __ StatList / Stat
+  = stat: Stat __ SEMICOLON __ list: StatList / Stat 
 
 Stat
   = SKIP
-  / BEGIN __ StatList __ END
-  / READ __ AssignLHS
-  / FREE __ Expr
-  / EXIT __ Expr
-  / RETURN __ Expr
-  / PRINTLN __ Expr
-  / PRINT __ Expr
-  / IF __ Expr __ THEN __ StatList __ ELSE __ StatList __ FI
-  / WHILE __ Expr __ DO __ StatList __ DONE
+  / BEGIN _ StatList _ END
+  / READ _ AssignLHS
+  / FREE _ Expr
+  / EXIT _ Expr
+  / RETURN _ Expr
+  / PRINTLN _ Expr
+  / PRINT _ Expr
+  / IF Predicate THEN _ StatList __ ELSE _ StatList __ FI
+  /*/ IF _ Expr __ THEN __ StatList __ ELSE __ StatList __ FI*/
+  / WHILE Predicate DO _ StatList __ DONE
   / AssignLHS __ EQUALS __ AssignRHS
-  / Type __ Ident __ EQUALS __ AssignRHS
+  / Type _ Ident __ EQUALS __ AssignRHS
+
+/* Predicate */
+Predicate
+  = LEFT_PAREN __ Expr __ RIGHT_PAREN
+  / _ Expr __ /* Broken, ask Mark */
 
 /* Type */
 Type
@@ -60,7 +66,7 @@ AssignLHS
 
 /* AssignRHS */
 AssignRHS
-  = CALL __ Ident __ LEFT_PAREN ArgList? __ RIGHT_PAREN
+  = CALL _ Ident __ LEFT_PAREN ArgList? __ RIGHT_PAREN
   / NEW_PAIR __ LEFT_PAREN __ Expr __ COMMA __ Expr __ RIGHT_PAREN
   / ArrayLiter
   / PairElem
