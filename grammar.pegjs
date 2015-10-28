@@ -1,10 +1,10 @@
 {
-///<reference path="node.d.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+///<reference path="node.d.ts"/>
 var TreeNode = (function () {
     function TreeNode() {
     }
@@ -198,7 +198,7 @@ UnaryOp
 
 /* ArrayElem */
 ArrayElem
-  = ident:Ident __ indices:(LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+ { console.log(indices);return {arrName: ident, indices: indices };}
+  = Ident __ (LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+
 
 /* Ident */
 Ident
@@ -212,7 +212,7 @@ IdentNormal
 
 /* PairLiter */
 PairLiter
-  = NULL { return {}; } /* Broken, replace with new ...() */
+  = NULL
 
 /* IntLiter */
 IntLiter
@@ -226,15 +226,15 @@ IntSign
 
 /* BoolLiter */
 BoolLiter
-  = TRUE { return true; } / FALSE { return false; }
+  = TRUE / FALSE
 
 /* CharLiter */
 CharLiter
- = "'" ch:Character "'" {return ch;}
+ = "'" Character "'"
 
 /* StrLiter */
 StrLiter
- = '"' chars:Character* '"' { return chars.join('');}
+ = '"' Character* '"'
 
 Character
   = '\\' EscapedChar / [^\'"]

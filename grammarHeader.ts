@@ -1,6 +1,5 @@
 ///<reference path="node.d.ts"/>
- 
-class TreeNode implements Visitable{
+ class TreeNode implements Visitable{
         visit(visitor:Visitor):number {
                 console.error('Node():visit not overridden');
                 return -1;
@@ -16,7 +15,7 @@ interface Visitor {
         visitMultNode(node:MultNode):number;
         visitNumNode(node:NumNode):number;
 }
- 
+
 class BinNode extends TreeNode{
         op: string;
         left: TreeNode;

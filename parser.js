@@ -21,7 +21,7 @@ fs.readFile(filename, 'utf8', function(err, data) {
                 }
 
 
-                // console.log(ast);
+                //console.log(ast);
         } catch (e) {
                 if (errorFlag === 'error') {
                     console.log(filename);
