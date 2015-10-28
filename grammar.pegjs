@@ -123,7 +123,7 @@ UnaryOp
 
 /* ArrayElem */
 ArrayElem
-  = Ident __ (LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+
+  = ident:Ident __ indices:(LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+ { console.log(indices);return {arrName: ident, indices: indices };}
 
 /* Ident */
 Ident
@@ -137,7 +137,7 @@ IdentNormal
 
 /* PairLiter */
 PairLiter
-  = NULL
+  = NULL { return {}; } /* Broken, replace with new ...() */
 
 /* IntLiter */
 IntLiter
@@ -151,15 +151,15 @@ IntSign
 
 /* BoolLiter */
 BoolLiter
-  = TRUE / FALSE
+  = TRUE { return true; } / FALSE { return false; }
 
 /* CharLiter */
 CharLiter
- = "'" Character "'"
+ = "'" ch:Character "'" {return ch;}
 
 /* StrLiter */
 StrLiter
- = '"' Character* '"'
+ = '"' chars:Character* '"' { return chars.join('');}
 
 Character
   = '\\' EscapedChar / [^\'"]
