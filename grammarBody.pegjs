@@ -1,61 +1,3 @@
-{
-///<reference path="node.d.ts"/>
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var TreeNode = (function () {
-    function TreeNode() {
-    }
-    TreeNode.prototype.visit = function (visitor) {
-        console.error('Node():visit not overridden');
-        return -1;
-    };
-    return TreeNode;
-})();
-var BinNode = (function (_super) {
-    __extends(BinNode, _super);
-    function BinNode(op, left, right) {
-        _super.call(this);
-        this.op = op;
-        this.left = left;
-        this.right = right;
-    }
-    return BinNode;
-})(TreeNode);
-var PlusNode = (function (_super) {
-    __extends(PlusNode, _super);
-    function PlusNode(left, right) {
-        _super.call(this, '+', left, right);
-    }
-    PlusNode.prototype.visit = function (visitor) {
-        return visitor.visitPlusNode(this);
-    };
-    return PlusNode;
-})(BinNode);
-var MultNode = (function (_super) {
-    __extends(MultNode, _super);
-    function MultNode(left, right) {
-        _super.call(this, '*', left, right);
-    }
-    MultNode.prototype.visit = function (visitor) {
-        return visitor.visitMultNode(this);
-    };
-    return MultNode;
-})(BinNode);
-var NumNode = (function (_super) {
-    __extends(NumNode, _super);
-    function NumNode(n) {
-        _super.call(this);
-        this.num = n;
-    }
-    NumNode.prototype.visit = function (visitor) {
-        return visitor.visitNumNode(this);
-    };
-    return NumNode;
-})(TreeNode);
-}
 Program
   = __ BEGIN _ Func* StatList _ END __
 
@@ -198,7 +140,7 @@ UnaryOp
 
 /* ArrayElem */
 ArrayElem
-  = ident:Ident __ indices:(LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+ { console.log(indices);return {arrName: ident, indices: indices };}
+  = Ident __ (LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+
 
 /* Ident */
 Ident
@@ -212,7 +154,7 @@ IdentNormal
 
 /* PairLiter */
 PairLiter
-  = NULL { return {}; } /* Broken, replace with new ...() */
+  = NULL
 
 /* IntLiter */
 IntLiter
@@ -226,15 +168,15 @@ IntSign
 
 /* BoolLiter */
 BoolLiter
-  = TRUE { return true; } / FALSE { return false; }
+  = TRUE / FALSE
 
 /* CharLiter */
 CharLiter
- = "'" ch:Character "'" {return ch;}
+ = "'" Character "'"
 
 /* StrLiter */
 StrLiter
- = '"' chars:Character* '"' { return chars.join('');}
+ = '"' Character* '"'
 
 Character
   = '\\' EscapedChar / [^\'"]
