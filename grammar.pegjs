@@ -87,8 +87,8 @@ PairElem
 
 /* Expr */
 Expr
-  = BaseExpr __ BinaryOp __ Expr
-  / BaseExpr 
+  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { return {left: left, op: binOp, right: right}; }
+  / BaseExpr
 
 BaseExpr
   = IntLiter
@@ -97,9 +97,9 @@ BaseExpr
   / StrLiter
   / PairLiter
   / ArrayElem
-  / UnaryOp __ Expr
+  / unOp:UnaryOp __ expr:Expr { return {unOp: unOp, expr: expr}}
   / Ident
-  / LEFT_PAREN __ Expr __ RIGHT_PAREN
+  / LEFT_PAREN __ expr:Expr __ RIGHT_PAREN { return expr; }
 
 /* BinaryOp */
 BinaryOp
@@ -141,7 +141,7 @@ PairLiter
 
 /* IntLiter */
 IntLiter
-  = IntSign? __ Digit+
+  = sign:IntSign? __ digits:Digit+ { return parseInt((sign ? sign : '') + digits.join(''), 10); }
 
 Digit
   = [0-9]
