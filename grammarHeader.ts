@@ -1,64 +1,108 @@
 ///<reference path="node.d.ts"/>
- class TreeNode implements Visitable{
-        visit(visitor:Visitor):number {
+class TreeNode implements Visitable{
+        /*visit(visitor:Visitor):number {
                 console.error('Node():visit not overridden');
                 return -1;
-        }
+        }*/
 }
  
 interface Visitable {
-        visit(visitor:Visitor):number;
+        //visit(visitor:Visitor):number;
 }
  
 interface Visitor {
-        visitPlusNode(node:PlusNode):number;
-        visitMultNode(node:MultNode):number;
-        visitNumNode(node:NumNode):number;
+        
 }
 
-class BinNode extends TreeNode{
-        op: string;
-        left: TreeNode;
-        right: TreeNode;
-        constructor(op:string, left: TreeNode, right: TreeNode) {
+class ProgramNode extends TreeNode {
+        functionList: [FuncNode];
+        statList:     [StatNode];
+
+        constructor(functionList:[FuncNode], statList:[StatNode]) {
                 super();
-                this.op = op;
-                this.left = left;
-                this.right = right;
+                this.functionList = functionList;
+                this.statList = statList;
         }
-       
 }
- 
-class PlusNode extends BinNode {
-        constructor(left: TreeNode, right: TreeNode) {
-                super('+', left, right)
-        }
- 
-        visit(visitor:Visitor):number {
-                return visitor.visitPlusNode(this);
-        }
- 
+
+class AssignRHSNode {
+
 }
- 
-class MultNode extends BinNode {
-        constructor(left: TreeNode, right: TreeNode) {
-                super('*', left, right)
-        }
- 
-        visit(visitor:Visitor):number {
-                return visitor.visitMultNode(this);
-        }
- 
+
+class PairElemNode {
+
 }
- 
-class NumNode extends TreeNode {
-        num:number;
-        constructor(n:number) {
-                super();
-                this.num = n;
+
+class FuncNode {
+
+}
+
+interface StatNode extends TreeNode {
+
+}
+
+interface ExprNode extends TreeNode {
+
+}
+
+class BeginEndBlockNode implements StatNode {
+        statList:[StatNode]
+
+        constructor(statList:[StatNode]) {
+                this.statList = statList;
         }
- 
-        visit(visitor:Visitor):number {
-                return visitor.visitNumNode(this);
+}
+
+class ReturnNode implements StatNode {
+        returnExpr: ExprNode
+
+        constructor(returnExpr:ExprNode) {
+                this.returnExpr = returnExpr;
+        }
+}
+
+class WhileNode implements StatNode {
+        predicateExpr: ExprNode
+        loopBody: [StatNode]
+
+        constructor(predicateExpr:ExprNode, loopBody:[StatNode]) {
+                this.predicateExpr = predicateExpr;
+                this.loopBody = loopBody;
+        }
+}
+
+interface TypeNode extends TreeNode, AssignRHSNode {}
+
+class PairTypeNode implements TypeNode {
+        type1: TypeNode;
+        type2: TypeNode;
+
+        constructor(type1:TypeNode, type2:TypeNode) {
+                this.type1 = type1;
+                this.type2 = type2;
+        }
+}
+
+class PairElemSndNode implements PairElemNode {
+        expr: ExprNode
+
+        constructor(expr:ExprNode) {
+                this.expr = expr;
+        }
+}
+
+class ArrayLiterNode implements AssignRHSNode {
+        list: [ExprNode];
+
+        constructor(list:[ExprNode]) {
+                this.list = list;
+        }
+}
+
+class CharLiterNode implements ExprNode {
+        ch: string;
+
+        constructor(ch:string) {
+                this.ch = ch;
         }
 }

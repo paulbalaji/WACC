@@ -1,5 +1,5 @@
 Program
-  = __ BEGIN _ Func* StatList _ END __
+  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {return new ProgramNode(functionList, statList);}
 
 Func
   = Type _ Ident __ LEFT_PAREN __ ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _
@@ -29,27 +29,27 @@ Stat
   = SKIP {
     return null;
   }
-  / BEGIN _ stats:StatList _ END {
-    return {stats : stats};
+  / BEGIN _ statList:StatList _ END {
+    return new BeginEndBlockNode(statList);
   }
   / READ _ dest:AssignLHS {
     return null;
   }
   / FREE _ Expr
   / EXIT _ Expr
-  / RETURN _ Expr
+  / RETURN _ returnExpr:Expr { return new ReturnNode(returnExpr)}
   / PRINTLN _ Expr
   / PRINT _ Expr
   / IF Predicate THEN _ StatList __ ELSE _ StatList __ FI
   /*/ IF _ Expr __ THEN __ StatList __ ELSE __ StatList __ FI*/
-  / WHILE Predicate DO _ StatList __ DONE
+  / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new WhileNode(predicateExpr, loopBody)}
   / AssignLHS __ EQUALS __ AssignRHS
   / Type _ Ident __ EQUALS __ AssignRHS
 
 /* Predicate */
 Predicate
-  = LEFT_PAREN __ Expr __ RIGHT_PAREN
-  / _ Expr __ /* Broken, ask Mark */
+  = LEFT_PAREN __ expr:Expr __ RIGHT_PAREN  {return expr;}
+  / _ expr:Expr __ { return expr; } /* Broken, ask Mark */
 
 /* Type */
 Type
@@ -67,7 +67,7 @@ ArrayType
   = (BaseType / PairType) __ (LEFT_SQUARE RIGHT_SQUARE)+
 
 PairType
-  = PAIR __ LEFT_PAREN __ PairElemType __ COMMA __ PairElemType __ RIGHT_PAREN
+  = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new PairTypeNode(type1, type2); }
 
 PairElemType
   = ArrayType
@@ -95,16 +95,33 @@ ArgList
 
 /* ArrayLiter */
 ArrayLiter
-  = LEFT_SQUARE __ (Expr __ (COMMA __ Expr)*)? __ RIGHT_SQUARE
+  = LEFT_SQUARE __ exprList:ExprList? __ RIGHT_SQUARE { return new ArrayLiterNode(exprList);}
+
+ExprList
+  = expr:Expr __ COMMA __ exprs:ExprList {
+      if (expr !== null) {
+        exprs.unshift(expr)
+      }
+
+      return exprs;
+    }
+  / expr:Expr {
+
+      if (expr === null) {
+        return [];
+      }
+      return [expr];
+    }
+
 
 /* PairElem */
 PairElem
   = FST __ Expr
-  / SND __ Expr
+  / SND __ expr:Expr {return new PairElemSndNode(expr);}
 
 /* Expr */
 Expr
-  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { return {left: left, op: binOp, right: right}; }
+  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { }
   / BaseExpr
 
 BaseExpr
@@ -172,7 +189,7 @@ BoolLiter
 
 /* CharLiter */
 CharLiter
- = "'" Character "'"
+ = "'" ch:Character "'" { return new CharLiterNode(ch); }
 
 /* StrLiter */
 StrLiter
