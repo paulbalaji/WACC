@@ -1,5 +1,5 @@
 ///<reference path="node.d.ts"/>
-class TreeNode implements Visitable{
+interface TreeNode extends Visitable{
         /*visit(visitor:Visitor):number {
                 console.error('Node():visit not overridden');
                 return -1;
@@ -14,18 +14,40 @@ interface Visitor {
         
 }
 
-class ProgramNode extends TreeNode {
+
+
+class ProgramNode implements TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
 
     constructor(functionList:[FuncNode], statList:[StatNode]) {
-        super();
+    
         this.functionList = functionList;
         this.statList = statList;
     }
 }
 
+class FuncNode implements TreeNode {
+    type : TypeNode;
+    ident : IdentNode;
+    paramList : [ParamNode];
+    statList : [StatNode];
+    constructor(type : TypeNode, ident : IdentNode, paramList : [ParamNode], statList: [StatNode]) {
+        this.type = type;
+        this.ident = ident;
+        this.paramList = paramList;
+        this.statList = statList;
+    }
+
+}
+
+
+
 class AssignRHSNode {
+
+}
+
+class AssignLHSNode {
 
 }
 
@@ -33,7 +55,7 @@ class PairElemNode {
 
 }
 
-class FuncNode {
+class ParamNode {
 
 }
 
@@ -43,6 +65,69 @@ interface StatNode extends TreeNode {
 
 interface ExprNode extends TreeNode {
 
+}
+
+class ReadNode implements StatNode {
+    readTarget : AssignLHSNode
+    constructor(lhsNode:AssignLHSNode) {
+        this.readTarget = lhsNode;
+    }
+}
+
+class PrintlnNode implements StatNode {
+    expr : ExprNode;
+    constructor(expr : ExprNode) {
+        this.expr = expr;
+
+    }
+}
+
+class PairElemTypePAIRNode implements TypeNode {
+    // This is supposed to be empty, dont you worry child
+
+}
+
+class PairElemTypeNode implements StatNode {
+    type : TypeNode;
+
+    constructor(type:TypeNode) {
+        this.type = type;
+    }
+}
+
+class IdentNode implements ExprNode, AssignLHSNode {
+    ident : string;
+    constructor(ident : string) {
+        this.ident = ident;
+    }
+}
+
+class BinOpExprNode implements ExprNode {
+    leftOperand : ExprNode;
+    rightOperand : ExprNode;
+    operator : string;
+    constructor(leftOperand : ExprNode, rightOperand : ExprNode, operator : string) {
+        this.leftOperand = leftOperand;
+        this.rightOperand = rightOperand;
+        this.operator = operator;
+    }
+}
+
+class StrLiterNode implements ExprNode {
+    str : string;
+
+    constructor(str : string) {
+        this.str = str;
+    }
+}
+
+class AssignNode implements StatNode {
+    lhs : AssignLHSNode;
+    rhs : AssignRHSNode;
+    constructor(lhs : AssignRHSNode, rhs : AssignLHSNode) {
+        this.lhs = lhs;
+        this.rhs = rhs;
+    }
 }
 
 class BeginEndBlockNode implements StatNode {
