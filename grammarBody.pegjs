@@ -2,27 +2,28 @@ Program
   = __ BEGIN _ functionList:Func* statList:StatList _ END __ {return new ProgramNode(functionList, statList);}
 
 Func
-  = Type _ Ident __ LEFT_PAREN __ ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _
+  = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
+    return new FuncNode(type, ident, params, stats);
+  }
 
 /* ParamList */
 ParamList
-  = Param __ (COMMA __ Param)*
+  = param:Param __ COMMA __ params:ParamList {
+    return generateListFromRecursiveRule(param, params);
+  }
+  / param:Param {
+    return generateSingletonListFromRule(param);
+  }
 
 Param
   = Type _ Ident
 
 StatList
   = stat: Stat __ SEMICOLON __ stats: StatList {
-      if (stat !== null) {
-        stats.unshift(stat)
-      }
-      return stats;
+      return generateListFromRecursiveRule(stat, stats);
     }  
   / stat:Stat {
-    if (stat === null) {
-      return [];
-    }
-    return [stat];
+      return generateSingletonListFromRule(stat);
   }
 
 Stat
@@ -33,17 +34,22 @@ Stat
     return new BeginEndBlockNode(statList);
   }
   / READ _ dest:AssignLHS {
-    return null;
+    return new ReadNode(dest);
   }
-  / FREE _ Expr
+  / FREE _ Expr 
   / EXIT _ Expr
   / RETURN _ returnExpr:Expr { return new ReturnNode(returnExpr); }
-  / PRINTLN _ Expr
+  / PRINTLN _ expr:Expr {
+    return new PrintlnNode(expr); 
+  }
   / PRINT _ Expr
   / IF Predicate THEN _ StatList __ ELSE _ StatList __ FI
   /*/ IF _ Expr __ THEN __ StatList __ ELSE __ StatList __ FI*/
   / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new WhileNode(predicateExpr, loopBody); }
-  / AssignLHS __ EQUALS __ AssignRHS
+  / lhs:AssignLHS __ EQUALS __ rhs:AssignRHS {
+    return new AssignNode(lhs,rhs);
+
+  }
   / Type _ Ident __ EQUALS __ AssignRHS
 
 /* Predicate */
@@ -70,9 +76,11 @@ PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new PairTypeNode(type1, type2); }
 
 PairElemType
-  = ArrayType
-  / BaseType
-  / PAIR
+  = type:(ArrayType 
+  / BaseType 
+  / PAIR) {
+    return new PairElemTypeNode(type);
+  }
 
 /* AssignLHS */
 AssignLHS
@@ -99,18 +107,10 @@ ArrayLiter
 
 ExprList
   = expr:Expr __ COMMA __ exprs:ExprList {
-      if (expr !== null) {
-        exprs.unshift(expr)
-      }
-
-      return exprs;
+      return generateListFromRecursiveRule(expr, exprs);
     }
   / expr:Expr {
-
-      if (expr === null) {
-        return [];
-      }
-      return [expr];
+      return generateSingletonListFromRule(expr);
     }
 
 
@@ -121,7 +121,9 @@ PairElem
 
 /* Expr */
 Expr
-  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { }
+  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { 
+    return new BinOpExprNode(left,right, binOp);
+  }
   / BaseExpr
 
 BaseExpr
@@ -161,7 +163,10 @@ ArrayElem
 
 /* Ident */
 Ident
-  = IdentStart IdentNormal*
+  = front:IdentStart rest:(IdentNormal*) {
+    var ident = front + rest.join('')
+    return new IdentNode(ident);
+  }
 
 IdentStart
   = '_' / [a-z] / [A-Z]
@@ -193,7 +198,9 @@ CharLiter
 
 /* StrLiter */
 StrLiter
- = '"' Character* '"'
+ = '"' str:Character* '"' {
+  return new StrLiterNode(str)
+ }
 
 Character
   = '\\' EscapedChar / [^\'"]
