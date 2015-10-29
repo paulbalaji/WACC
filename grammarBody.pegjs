@@ -37,18 +37,18 @@ Stat
   }
   / FREE _ Expr
   / EXIT _ Expr
-  / RETURN _ returnExpr:Expr { return new ReturnNode(returnExpr)}
+  / RETURN _ returnExpr:Expr { return new ReturnNode(returnExpr); }
   / PRINTLN _ Expr
   / PRINT _ Expr
   / IF Predicate THEN _ StatList __ ELSE _ StatList __ FI
   /*/ IF _ Expr __ THEN __ StatList __ ELSE __ StatList __ FI*/
-  / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new WhileNode(predicateExpr, loopBody)}
+  / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new WhileNode(predicateExpr, loopBody); }
   / AssignLHS __ EQUALS __ AssignRHS
   / Type _ Ident __ EQUALS __ AssignRHS
 
 /* Predicate */
 Predicate
-  = LEFT_PAREN __ expr:Expr __ RIGHT_PAREN  {return expr;}
+  = LEFT_PAREN __ expr:Expr __ RIGHT_PAREN  { return expr; }
   / _ expr:Expr __ { return expr; } /* Broken, ask Mark */
 
 /* Type */
@@ -204,10 +204,10 @@ EscapedChar
 /* Utils */
 
 _
-  = (WhiteSpace / LineTerminatorSequence / Comment)+
+  = (WhiteSpace / LineTerminatorSequence / Comment)+ { return null; }
 
 __
-  = (WhiteSpace / LineTerminatorSequence / Comment)*
+  = (WhiteSpace / LineTerminatorSequence / Comment)* { return null; }
 WhiteSpace "whitespace"
   = "\t"
   / "\v"
