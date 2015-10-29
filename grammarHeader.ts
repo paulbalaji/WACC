@@ -177,7 +177,7 @@ class PairElemSndNode implements PairElemNode {
 }
 
 class ArrayLiterNode implements AssignRHSNode {
-        list: [ExprNode];
+     list: [ExprNode];
 
         constructor(list:[ExprNode]) {
                 this.list = list;
@@ -190,4 +190,19 @@ class CharLiterNode implements ExprNode {
         constructor(ch:string) {
                 this.ch = ch;
         }
+}
+
+function generateListFromRecursiveRule(head : TreeNode, tail : [TreeNode]) {
+    if (head !== null) {
+        tail.unshift(head);
+    }
+    return tail;
+
+}
+
+function generateSingletonListFromRule(elem : TreeNode) {
+    if (elem === null) {
+        return  [];
+    }
+    return [elem];
 }
