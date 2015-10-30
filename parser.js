@@ -1,4 +1,6 @@
 var parser = require('./grammar');
+var util = require('util');
+var printTree = require('./node_modules/printTree');
 
 var fs = require('fs')
   , filename = process.argv[2]
@@ -19,9 +21,8 @@ fs.readFile(filename, 'utf8', function(err, data) {
                 if (errorFlag === 'success') {  
                   console.log(filename); 
                 }
-
-
-                //console.log(ast);
+                printTree(ast, 'ROOT');
+                console.log(util.inspect(ast, false, null));
         } catch (e) {
                 if (errorFlag === 'error') {
                     console.log(filename);
