@@ -21,8 +21,8 @@ fs.readFile(filename, 'utf8', function(err, data) {
                 if (errorFlag === 'success') {  
                   console.log(filename); 
                 }
-                printTree(ast, 'ROOT');
-                console.log(util.inspect(ast, false, null));
+                //printTree(ast, 'ROOT');
+                //console.log(util.inspect(ast, false, null));
         } catch (e) {
                 if (errorFlag === 'error') {
                     console.log(filename);

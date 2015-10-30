@@ -3,7 +3,7 @@ Program
 
 Func
   = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
-    return new FuncNode(type, ident, params, stats);
+    return new FuncNode(type, ident, params ? params : [], stats);
   }
 
 /* ParamList */
@@ -16,7 +16,9 @@ ParamList
   }
 
 Param
-  = Type _ Ident
+  = type:Type _ ident:Ident {
+    return new ParamNode(type, ident);
+  }
 
 StatList
   = stat: Stat __ SEMICOLON __ stats: StatList {
@@ -28,7 +30,7 @@ StatList
 
 Stat
   = SKIP {
-    return null;
+    return new SkipNode();
   }
   / BEGIN _ statList:StatList _ END {
     return new BeginEndBlockNode(statList);
@@ -36,21 +38,31 @@ Stat
   / READ _ dest:AssignLHS {
     return new ReadNode(dest);
   }
-  / FREE _ Expr 
-  / EXIT _ Expr
+  / FREE _ expr:Expr {
+    return new FreeNode(expr);
+  }
+  / EXIT _ expr:Expr {
+    return new ExitNode(expr);
+  }
   / RETURN _ returnExpr:Expr { return new ReturnNode(returnExpr); }
   / PRINTLN _ expr:Expr {
     return new PrintlnNode(expr); 
   }
-  / PRINT _ Expr
-  / IF Predicate THEN _ StatList __ ELSE _ StatList __ FI
-  /*/ IF _ Expr __ THEN __ StatList __ ELSE __ StatList __ FI*/
+  / PRINT _ expr:Expr {
+    return new PrintNode(expr);
+  }
+  / IF predicate:Predicate THEN _ trueStats:StatList
+                        __ ELSE _ falseStats:StatList __ FI {
+                          return new IfNode(predicate, trueStats, falseStats)
+  }
   / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new WhileNode(predicateExpr, loopBody); }
   / lhs:AssignLHS __ EQUALS __ rhs:AssignRHS {
     return new AssignNode(lhs,rhs);
 
   }
-  / Type _ Ident __ EQUALS __ AssignRHS
+  / type:Type _ ident:Ident __ EQUALS __ rhs:AssignRHS {
+    return new DeclareNode(type, ident, rhs);
+  }
 
 /* Predicate */
 Predicate
@@ -64,14 +76,15 @@ Type
   / BaseType
 
 BaseType
-  = INT
+  = typeName:(INT
   / BOOL
   / CHAR
-  / STRING
+  / STRING) { return new BaseTypeNode(typeName);}
 
 ArrayType
-  = (BaseType / PairType) __ (LEFT_SQUARE RIGHT_SQUARE)+
-
+  = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
+    return new ArrayTypeNode(type, array.length);
+  }
 PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new PairTypeNode(type1, type2); }
 
@@ -91,8 +104,13 @@ AssignLHS
 
 /* AssignRHS */
 AssignRHS
-  = CALL _ Ident __ LEFT_PAREN ArgList? __ RIGHT_PAREN
-  / NEW_PAIR __ LEFT_PAREN __ Expr __ COMMA __ Expr __ RIGHT_PAREN
+  = CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
+    return new CallNode(ident, exprList);
+  }
+  / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
+                     COMMA __ sndExpr:Expr __ RIGHT_PAREN {
+                      return new NewPairNode(fstExpr, sndExpr);
+  }
   / ArrayLiter
   / PairElem
   / Expr
@@ -116,7 +134,9 @@ ExprList
 
 /* PairElem */
 PairElem
-  = FST __ Expr
+  = FST __ expr:Expr {
+    return new PairElemFstNode(expr);
+  }
   / SND __ expr:Expr {return new PairElemSndNode(expr);}
 
 /* Expr */
@@ -133,7 +153,7 @@ BaseExpr
   / StrLiter
   / PairLiter
   / ArrayElem
-  / unOp:UnaryOp __ expr:Expr { return {unOp: unOp, expr: expr}}
+  / unOp:UnaryOp __ expr:Expr { return new UnOpNode(unOp, expr); }
   / Ident
   / LEFT_PAREN __ expr:Expr __ RIGHT_PAREN { return expr; }
 
@@ -159,7 +179,17 @@ UnaryOp
 
 /* ArrayElem */
 ArrayElem
-  = Ident __ (LEFT_SQUARE __ Expr __ RIGHT_SQUARE)+
+  = ident:Ident __ exprList:ArrayElemIndexList {
+    return new ArrayElemNode(ident, exprList);
+  }
+
+ArrayElemIndexList
+ = (LEFT_SQUARE __ expr:Expr __ RIGHT_SQUARE) exprs:ArrayElemIndexList {
+  return generateListFromRecursiveRule(expr, exprs);
+ }
+  / (LEFT_SQUARE __ expr:Expr __ RIGHT_SQUARE) {
+  return generateSingletonListFromRule(expr);
+ }
 
 /* Ident */
 Ident
@@ -176,11 +206,16 @@ IdentNormal
 
 /* PairLiter */
 PairLiter
-  = NULL
+  = NULL {
+    return new PairLiterNode();
+  }
 
 /* IntLiter */
 IntLiter
-  = sign:IntSign? __ digits:Digit+ { return parseInt((sign ? sign : '') + digits.join(''), 10); }
+  = sign:IntSign? __ digits:Digit+ { 
+    var num = parseInt((sign ? sign : '') + digits.join(''), 10);
+    return new IntLiterNode(num);
+  }
 
 Digit
   = [0-9]
@@ -190,7 +225,8 @@ IntSign
 
 /* BoolLiter */
 BoolLiter
-  = TRUE / FALSE
+  = TRUE { return new BoolLiterNode(true); }
+  / FALSE { return new BoolLiterNode(false); }
 
 /* CharLiter */
 CharLiter
