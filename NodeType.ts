@@ -2,91 +2,71 @@
 
 import Const = require('./Constants');
 
-interface TreeNode extends Visitable{
+export interface TreeNode extends Visitable{
     visit(v:Visitor):void;
 }
  
-interface Visitable {
-    visit(visitor:Visitor):void;
-}
- 
-interface Visitor {
+export interface Visitor {
     visitProgramNode(node:ProgramNode):void;
-    visitBinOpExprNode(node:BinOpExprNode);
-    visitStrLiterNode(node:StrLiterNode);
-    visitReturnNode(node:ReturnNode);
-    visitAssignNode(node:AssignNode);
-    visitBeginEndBlockNode(node:BeginEndBlockNode);
-    visitWhileNode(node:WhileNode);
-    visitPairTypeNode(node:PairTypeNode);
-    visitPairElemSndNode(node:PairElemSndNode);
-    visitArrayLiterNode(node:ArrayLiterNode);
-    visitCharLiterNode(node: CharLiterNode);
-    visitParamNode(node: ParamNode);
-    visitFreeNode(node: FreeNode);
-    visitPrintNode(node: PrintNode);
-    visitDeclareNode(node: DeclareNode);
-    visitArrayElemNode(node: ArrayElemNode);
-    visitCallNode(node: CallNode);
-    visitPairLiterNode(node: PairLiterNode);
-    visitIntLiterNode(node: IntLiterNode);
-    visitFuncNode(node: FuncNode);
-
-    visitIdentNode(node: IdentNode);
-
-    visitSkipNode(node: SkipNode);
-
-    visitReadNode(node: ReadNode);
-
-    visitPrintlnNode(node: PrintlnNode);
-
-    visitBaseTypeNode(node: BaseTypeNode);
-
-    visitPairElemTypeNode(node: PairElemTypeNode);
-    visitUnOpNode(node: UnOpNode): void;
-    visitSkipNode(node: SkipNode): void;
-    visitExitNode(node: ExitNode): void;
-    visitIfNode(node: IfNode): void;
-    visitArrayTypeNode(node: ArrayTypeNode): void;
-    visitPairElemFstNode(node: PairElemFstNode): void;
-    visitNewPairNode(node: NewPairNode): void;
-    visitBoolLiterNode(node: BoolLiterNode): void;
-
-    visitPairElemTypePAIRNode(node: PairElemTypePAIRNode): void;
-
+    visitBinOpExprNode(node:BinOpExprNode):void;
+    visitStrLiterNode(node:StrLiterNode):void;
+    visitReturnNode(node:ReturnNode):void;
+    visitAssignNode(node:AssignNode):void;
+    visitBeginEndBlockNode(node:BeginEndBlockNode):void;
+    visitWhileNode(node:WhileNode):void;
+    visitPairTypeNode(node:PairTypeNode):void;
+    visitPairElemSndNode(node:PairElemSndNode):void;
+    visitArrayLiterNode(node:ArrayLiterNode):void;
+    visitCharLiterNode(node:CharLiterNode):void;
+    visitParamNode(node:ParamNode):void;
+    visitFreeNode(node:FreeNode):void;
+    visitPrintNode(node:PrintNode):void;
+    visitDeclareNode(node:DeclareNode):void;
+    visitArrayElemNode(node:ArrayElemNode):void;
+    visitCallNode(node:CallNode):void;
+    visitPairLiterNode(node:PairLiterNode):void;
+    visitIntLiterNode(node:IntLiterNode):void;
+    visitFuncNode(node:FuncNode):void;
+    visitIdentNode(node:IdentNode):void;
+    visitSkipNode(node:SkipNode):void;
+    visitReadNode(node:ReadNode):void;
+    visitPrintlnNode(node:PrintlnNode):void;
+    visitBaseTypeNode(node:BaseTypeNode):void;
+    visitPairElemTypeNode(node:PairElemTypeNode):void;
+    visitUnOpNode(node:UnOpNode): void;
+    visitSkipNode(node:SkipNode): void;
+    visitExitNode(node:ExitNode): void;
+    visitIfNode(node:IfNode): void;
+    visitArrayTypeNode(node:ArrayTypeNode): void;
+    visitPairElemFstNode(node:PairElemFstNode): void;
+    visitNewPairNode(node:NewPairNode): void;
+    visitBoolLiterNode(node:BoolLiterNode): void;
+    visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
 }
 
- 
-interface Visitable {
+export interface Visitable {
         visit(v:Visitor):void;
 }
 
- 
-interface Visitable {
-       visit(visitor:Visitor):void;
+export interface StatNode extends TreeNode {
 
 }
 
-
-interface StatNode extends TreeNode {
-
-}
-
-interface ExprNode extends TreeNode {
+export interface ExprNode extends TreeNode {
 
 }
 
-interface AssignLHSNode extends TreeNode {
+export interface AssignLHSNode extends TreeNode {
 
 }
 
-interface AssignRHSNode extends TreeNode {
+export interface AssignRHSNode extends TreeNode {
 
 }
 
-interface TypeNode extends TreeNode, AssignRHSNode {}
+export interface TypeNode extends TreeNode, AssignRHSNode {}
 
-interface PairElemNode extends TreeNode {
+export interface PairElemNode extends TreeNode {
 
 }
 

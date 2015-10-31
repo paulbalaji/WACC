@@ -16,6 +16,9 @@
 
 ./node_modules/pegjs/bin/pegjs grammar/grammar.pegjs grammar/grammar.ts
 ./node_modules/tsc/bin/tsc --module commonjs grammar/grammar.ts
+./node_modules/tsc/bin/tsc --module commonjs parser.ts
+
+
 
 
 
