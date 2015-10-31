@@ -1,5 +1,4 @@
 ///<reference path="node.d.ts"/>
-///<reference path="Constants.ts"/>
 
 import Const = require('./Constants');
 
