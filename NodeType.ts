@@ -1,4 +1,8 @@
 ///<reference path="node.d.ts"/>
+///<reference path="Constants.ts"/>
+
+import Const = require('./Constants');
+
 interface TreeNode extends Visitable{
         /*visit(visitor:Visitor):number {
                 console.error('Node():visit not overridden');
@@ -37,7 +41,7 @@ interface PairElemNode extends TreeNode {
 
 }
 
-class ProgramNode implements TreeNode {
+export class ProgramNode implements TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
 
@@ -48,7 +52,7 @@ class ProgramNode implements TreeNode {
     }
 }
 
-class FuncNode implements TreeNode {
+export class FuncNode implements TreeNode {
     type : TypeNode;
     ident : IdentNode;
     paramList : [ParamNode];
@@ -63,7 +67,7 @@ class FuncNode implements TreeNode {
 }
 
 
-class SkipNode implements StatNode {
+export class SkipNode implements StatNode {
     constructor() {
     }
  
@@ -73,14 +77,14 @@ class SkipNode implements StatNode {
 }
 
 
-class ReadNode implements StatNode {
+export class ReadNode implements StatNode {
     readTarget : AssignLHSNode
     constructor(lhsNode:AssignLHSNode) {
         this.readTarget = lhsNode;
     }
 }
 
-class PrintlnNode implements StatNode {
+export class PrintlnNode implements StatNode {
     expr : ExprNode;
     constructor(expr : ExprNode) {
         this.expr = expr;
@@ -88,12 +92,12 @@ class PrintlnNode implements StatNode {
     }
 }
 
-class PairElemTypePAIRNode implements TypeNode {
+export class PairElemTypePAIRNode implements TypeNode {
     // This is supposed to be empty, dont you worry child
 
 }
 
-class BaseTypeNode implements TypeNode {
+export class BaseTypeNode implements TypeNode {
     typeName: String;
 
     constructor(typeName:String) {
@@ -101,7 +105,7 @@ class BaseTypeNode implements TypeNode {
     }
 }
 
-class PairElemTypeNode implements StatNode {
+export class PairElemTypeNode implements StatNode {
     type : TypeNode;
 
     constructor(type:TypeNode) {
@@ -109,14 +113,14 @@ class PairElemTypeNode implements StatNode {
     }
 }
 
-class IdentNode implements ExprNode, AssignLHSNode {
+export class IdentNode implements ExprNode, AssignLHSNode {
     identStr : string;
     constructor(identStr : string) {
         this.identStr = identStr;
     }
 }
 
-class BinOpExprNode implements ExprNode {
+export class BinOpExprNode implements ExprNode {
     leftOperand : ExprNode;
     rightOperand : ExprNode;
     operator : string;
@@ -127,7 +131,7 @@ class BinOpExprNode implements ExprNode {
     }
 }
 
-class StrLiterNode implements ExprNode {
+export class StrLiterNode implements ExprNode {
     str : string;
 
     constructor(str : string) {
@@ -135,7 +139,7 @@ class StrLiterNode implements ExprNode {
     }
 }
 
-class AssignNode implements StatNode {
+export class AssignNode implements StatNode {
     lhs : AssignLHSNode;
     rhs : AssignRHSNode;
     constructor(lhs : AssignLHSNode, rhs : AssignRHSNode) {
@@ -144,7 +148,10 @@ class AssignNode implements StatNode {
     }
 }
 
-class BeginEndBlockNode implements StatNode {
+// check lhs ident is declared previously in any of the parent scopes
+// check lhs is the same type as rhs, or can be cast
+
+export class BeginEndBlockNode implements StatNode {
     statList:[StatNode]
 
     constructor(statList:[StatNode]) {
@@ -152,7 +159,7 @@ class BeginEndBlockNode implements StatNode {
     }
 }
 
-class ReturnNode implements StatNode {
+export class ReturnNode implements StatNode {
     returnExpr: ExprNode
 
     constructor(returnExpr:ExprNode) {
@@ -160,7 +167,7 @@ class ReturnNode implements StatNode {
     }
 }
 
-class WhileNode implements StatNode {
+export class WhileNode implements StatNode {
     predicateExpr: ExprNode
     loopBody: [StatNode]
 
@@ -170,7 +177,7 @@ class WhileNode implements StatNode {
     }
 }
 
-class PairTypeNode implements TypeNode {
+export class PairTypeNode implements TypeNode {
     type1: TypeNode;
     type2: TypeNode;
 
@@ -180,7 +187,7 @@ class PairTypeNode implements TypeNode {
     }
 }
 
-class PairElemSndNode implements PairElemNode {
+export class PairElemSndNode implements PairElemNode {
     expr: ExprNode
 
     constructor(expr:ExprNode) {
@@ -188,7 +195,7 @@ class PairElemSndNode implements PairElemNode {
     }
 }
 
-class ArrayLiterNode implements AssignRHSNode {
+export class ArrayLiterNode implements AssignRHSNode {
      list: [ExprNode];
 
         constructor(list:[ExprNode]) {
@@ -196,7 +203,7 @@ class ArrayLiterNode implements AssignRHSNode {
         }
 }
 
-class CharLiterNode implements ExprNode {
+export class CharLiterNode implements ExprNode {
         ch: string;
 
         constructor(ch:string) {
@@ -204,7 +211,7 @@ class CharLiterNode implements ExprNode {
         }
 }
 
-class ExitNode implements StatNode {
+export class ExitNode implements StatNode {
     expr: ExprNode;
     constructor(expr: ExprNode) {
         this.expr = expr;
@@ -215,7 +222,7 @@ class ExitNode implements StatNode {
     // }
 }
  
-class IfNode implements StatNode {
+export class IfNode implements StatNode {
     predicateExp: ExprNode;
     trueStatList: [StatNode];
     falseStatList: [StatNode];
@@ -234,7 +241,7 @@ class IfNode implements StatNode {
     // }
 }
  
-class ArrayTypeNode implements TypeNode {
+export class ArrayTypeNode implements TypeNode {
     type: TypeNode;
  
     constructor(type: TypeNode, depth: number) {
@@ -246,7 +253,7 @@ class ArrayTypeNode implements TypeNode {
     // }
 }
  
-class PairElemFstNode implements PairElemNode {
+export class PairElemFstNode implements PairElemNode {
     expr: ExprNode;
  
     constructor(expr: ExprNode) {
@@ -258,7 +265,7 @@ class PairElemFstNode implements PairElemNode {
     // }
 }
  
-class NewPairNode implements AssignRHSNode {
+export class NewPairNode implements AssignRHSNode {
     fstExpr: ExprNode;
     sndExpr: ExprNode;
  
@@ -272,7 +279,7 @@ class NewPairNode implements AssignRHSNode {
     // }
 }
  
-class BoolLiterNode implements ExprNode {
+export class BoolLiterNode implements ExprNode {
     bool: boolean;
  
     constructor(bool: boolean) {
@@ -284,7 +291,7 @@ class BoolLiterNode implements ExprNode {
     // }
 }
  
-class UnOpNode implements ExprNode {
+export class UnOpNode implements ExprNode {
     unOp: string;
     expr: ExprNode;
  
@@ -298,7 +305,7 @@ class UnOpNode implements ExprNode {
     // }
 }
 
-class ParamNode {
+export class ParamNode {
     type: TypeNode;
     ident: IdentNode;
 
@@ -309,7 +316,7 @@ class ParamNode {
     
 }
 
-class FreeNode implements StatNode {
+export class FreeNode implements StatNode {
     expr : ExprNode;
 
     constructor(expr:ExprNode) {
@@ -318,7 +325,7 @@ class FreeNode implements StatNode {
 
 }
 
-class PrintNode implements StatNode {
+export class PrintNode implements StatNode {
     expr: ExprNode;
 
     constructor(expr:ExprNode) {
@@ -326,7 +333,7 @@ class PrintNode implements StatNode {
     }
 }
 
-class DeclareNode implements StatNode {
+export class DeclareNode implements StatNode {
     type: TypeNode;
     ident: IdentNode;
     rhs: AssignRHSNode;
@@ -338,7 +345,9 @@ class DeclareNode implements StatNode {
     }
 }
 
-class ArrayElemNode {
+// check type is the type of rhs
+
+export class ArrayElemNode {
     ident: IdentNode;
     exprList: [ExprNode];
 
@@ -348,7 +357,7 @@ class ArrayElemNode {
     }
 }
 
-class CallNode implements AssignRHSNode {
+export class CallNode implements AssignRHSNode {
     ident: IdentNode;
     exprList: [ExprNode];
 
@@ -359,15 +368,30 @@ class CallNode implements AssignRHSNode {
     
 }
 
-class PairLiterNode implements ExprNode {
+export class PairLiterNode implements ExprNode {
 
 }
 
-class IntLiterNode implements ExprNode {
+export class IntLiterNode implements ExprNode {
     num : number; 
 
     constructor(num:number) {
         this.num = num;
     }
 
+    check():boolean {
+        if (this.num > Const.WACC_MAX_INT) {
+            console.log('Error exceeds maxint');
+        }
+
+        if (this.num < Const.WACC_MIN_INT) {
+            console.log('Error exceeds maxint');
+        }
+
+
+        return true;
+    }
+
 }
+
+// check overflow

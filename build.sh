@@ -1,18 +1,21 @@
-> grammar/grammar.pegjs;
-cat node.d.ts > /tmp/node.d.ts;
-
-cat NodeType.ts > /tmp/grammarHeaderComplete.ts
-cat grammar/grammarHeader.ts >> /tmp/grammarHeaderComplete.ts
-tsc /tmp/grammarHeaderComplete.ts
-
-echo "{" > grammar/grammar.pegjs;
-cat /tmp/grammarHeaderComplete.js >> grammar/grammar.pegjs
-echo "}" >> grammar/grammar.pegjs;
-
-cat grammar/grammarBody.pegjs >> grammar/grammar.pegjs;
-pegjs grammar/grammar.pegjs
+# > grammar/grammar.pegjs;
+# cat node.d.ts > /tmp/node.d.ts;
+# cat Constants.ts > /tmp/Constants.ts;
 
 
+# cat NodeType.ts > /tmp/grammarHeaderComplete.ts
+# cat grammar/grammarHeader.ts >> /tmp/grammarHeaderComplete.ts
+# tsc --module commonjs /tmp/grammarHeaderComplete.ts
+
+# echo "{" > grammar/grammar.pegjs;
+# cat /tmp/grammarHeaderComplete.js >> grammar/grammar.pegjs
+# echo "}" >> grammar/grammar.pegjs;
+
+# cat grammar/grammarBody.pegjs >> grammar/grammar.pegjs;
+# pegjs grammar/grammar.pegjs
+
+./node_modules/pegjs/bin/pegjs grammar/grammar.pegjs grammar/grammar.ts
+tsc --module commonjs grammar/grammar.ts
 
 
 
