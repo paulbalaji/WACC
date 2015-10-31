@@ -1,4 +1,4 @@
-var parser = require('./grammar');
+var parser = require('./grammar/grammar');
 var util = require('util');
 var printTree = require('./node_modules/printTree');
 
