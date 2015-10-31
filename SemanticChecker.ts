@@ -1,13 +1,25 @@
 import NodeType = require('./NodeType');
-import _ = require('./node_modules/underscore');
-class SemanticVisitor implements NodeType.Visitor {
-	errors = [];
+import WACCError = 
+var _ = require('underscore');
+
+export class SemanticVisitor implements NodeType.Visitor {
+    errors: any[];
+
+    constructor() {
+        this.errors = [];
+    }
+
 	visitProgramNode(node:NodeType.ProgramNode):void {
+        console.log('visiting a program node!');
 		_.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
 		_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
 	}
 
-	 visitBinOpExprNode(node: NodeType.BinOpExprNode):void {}
+    visitFuncNode(node:NodeType.FuncNode) {
+        this.errors.push({ msg: 'You fucked up function semantics' });
+    }
+
+	visitBinOpExprNode(node: NodeType.BinOpExprNode):void {}
     visitStrLiterNode(node: NodeType.StrLiterNode):void {}
     visitReturnNode(node: NodeType.ReturnNode):void {}
     visitAssignNode(node: NodeType.AssignNode):void {}
@@ -25,7 +37,6 @@ class SemanticVisitor implements NodeType.Visitor {
     visitCallNode(node: NodeType.CallNode):void {}
     visitPairLiterNode(node: NodeType.PairLiterNode):void {}
     visitIntLiterNode(node: NodeType.IntLiterNode):void {}
-    visitFuncNode(node: NodeType.FuncNode):void {}
 
     visitIdentNode(node: NodeType.IdentNode):void {}
 

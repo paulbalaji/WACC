@@ -1,13 +1,16 @@
 ///<reference path="Constants.ts"/>
 
-import parser = require('./grammar/grammar');
+var parser = require('./grammar/grammar');
+var _ = require('underscore');
+var printTree = require('./node_modules/printTree');
+
 import util = require('util');
-import printTree = require('./node_modules/printTree');
 import NodeType = require('./NodeType');
 import SemanticChecker = require('./SemanticChecker');
 
 
-import fs = require('fs')
+import fs = require('fs');
+
 var filename : string = process.argv[2];
 var errorFlag :  string = process.argv[3];
 var verbose : string  = process.argv[4];
@@ -20,6 +23,12 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
 
                 var ast : NodeType.Visitable = parser.parse(data);
                 // console.log('TEST SUCCEEDED ON FILE NAME ' + filename);
+
+                var semanticVisitor = new SemanticChecker.SemanticVisitor();
+                ast.visit(semanticVisitor);
+
+                // Print errors out from semanticVisitor
+                _.map(semanticVisitor.errors, (e) => console.log(e));
 
                 if (errorFlag === 'success') {  
                   console.log(filename); 
