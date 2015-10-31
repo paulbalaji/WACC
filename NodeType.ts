@@ -4,7 +4,6 @@ import Const = require('./Constants');
 
 interface TreeNode extends Visitable{
     visit(v:Visitor):void;
-
 }
  
 interface Visitable {
@@ -31,9 +30,43 @@ interface Visitor {
     visitCallNode(node: CallNode);
     visitPairLiterNode(node: PairLiterNode);
     visitIntLiterNode(node: IntLiterNode);
+    visitFuncNode(node: FuncNode);
 
+    visitIdentNode(node: IdentNode);
+
+    visitSkipNode(node: SkipNode);
+
+    visitReadNode(node: ReadNode);
+
+    visitPrintlnNode(node: PrintlnNode);
+
+    visitBaseTypeNode(node: BaseTypeNode);
+
+    visitPairElemTypeNode(node: PairElemTypeNode);
+    visitUnOpNode(node: UnOpNode): void;
+    visitSkipNode(node: SkipNode): void;
+    visitExitNode(node: ExitNode): void;
+    visitIfNode(node: IfNode): void;
+    visitArrayTypeNode(node: ArrayTypeNode): void;
+    visitPairElemFstNode(node: PairElemFstNode): void;
+    visitNewPairNode(node: NewPairNode): void;
+    visitBoolLiterNode(node: BoolLiterNode): void;
+
+    visitPairElemTypePAIRNode(node: PairElemTypePAIRNode): void;
 
 }
+
+ 
+interface Visitable {
+        visit(v:Visitor):void;
+}
+
+ 
+interface Visitable {
+       visit(visitor:Visitor):void;
+
+}
+
 
 interface StatNode extends TreeNode {
 
@@ -83,6 +116,9 @@ export class FuncNode implements TreeNode {
         this.paramList = paramList;
         this.statList = statList;
     }
+    visit(v:Visitor):void {
+        v.visitFuncNode(this);
+    }
 
 }
 
@@ -91,9 +127,9 @@ export class SkipNode implements StatNode {
     constructor() {
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitSkipNode(this);
-    // }
+    visit(v:Visitor) {
+         return v.visitSkipNode(this);
+    }
 }
 
 
@@ -101,6 +137,10 @@ export class ReadNode implements StatNode {
     readTarget : AssignLHSNode
     constructor(lhsNode:AssignLHSNode) {
         this.readTarget = lhsNode;
+    }
+
+    visit(v:Visitor):void {
+        v.visitReadNode(this);
     }
 }
 
@@ -110,10 +150,18 @@ export class PrintlnNode implements StatNode {
         this.expr = expr;
 
     }
+
+    visit(v:Visitor):void {
+        v.visitPrintlnNode(this);
+    }
 }
 
 export class PairElemTypePAIRNode implements TypeNode {
     // This is supposed to be empty, dont you worry child
+
+    visit(v:Visitor):void {
+        v.visitPairElemTypePAIRNode(this);
+    }
 
 }
 
@@ -123,6 +171,10 @@ export class BaseTypeNode implements TypeNode {
     constructor(typeName:String) {
         this.typeName = typeName;
     }
+
+     visit(v:Visitor):void {
+        v.visitBaseTypeNode(this);
+    }
 }
 
 export class PairElemTypeNode implements StatNode {
@@ -131,12 +183,19 @@ export class PairElemTypeNode implements StatNode {
     constructor(type:TypeNode) {
         this.type = type;
     }
+
+     visit(v:Visitor):void {
+        v.visitPairElemTypeNode(this);
+    }
 }
 
 export class IdentNode implements ExprNode, AssignLHSNode {
     identStr : string;
     constructor(identStr : string) {
         this.identStr = identStr;
+    }
+     visit(v:Visitor):void {
+        v.visitIdentNode(this);
     }
 }
 
@@ -277,9 +336,9 @@ export class ExitNode implements StatNode {
         this.expr = expr;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitExitNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitExitNode(this);
+    }
 }
  
 export class IfNode implements StatNode {
@@ -296,9 +355,9 @@ export class IfNode implements StatNode {
         this.falseStatList = falseStatList;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitIfNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitIfNode(this);
+    }
 }
  
 export class ArrayTypeNode implements TypeNode {
@@ -308,9 +367,9 @@ export class ArrayTypeNode implements TypeNode {
         this.type = depth === 1 ? type : new ArrayTypeNode(type, depth - 1);
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitArrayTypeNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitArrayTypeNode(this);
+    }
 }
  
 export class PairElemFstNode implements PairElemNode {
@@ -320,9 +379,9 @@ export class PairElemFstNode implements PairElemNode {
         this.expr = expr;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitPairElemFstNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitPairElemFstNode(this);
+    }
 }
  
 export class NewPairNode implements AssignRHSNode {
@@ -334,9 +393,9 @@ export class NewPairNode implements AssignRHSNode {
         this.sndExpr = sndExpr;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitNewPairNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitNewPairNode(this);
+    }
 }
  
 export class BoolLiterNode implements ExprNode {
@@ -346,9 +405,9 @@ export class BoolLiterNode implements ExprNode {
         this.bool = bool;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitBoolLiterNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitBoolLiterNode(this);
+    }
 }
  
 export class UnOpNode implements ExprNode {
@@ -360,9 +419,9 @@ export class UnOpNode implements ExprNode {
         this.expr = expr;
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitUnOpNode(this);
-    // }
+    visit(v:Visitor) {
+        return v.visitUnOpNode(this);
+    }
 }
 
 export class ParamNode {
