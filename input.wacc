@@ -1,6 +1,5 @@
 begin
-	int f() is
-		skip
-	end
-	skip
+    int[] a = [1,2];
+    int[] b = [1,2,3];
+    int[][] x = [a, b]
 end
