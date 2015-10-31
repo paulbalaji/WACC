@@ -4,18 +4,28 @@
 import Const = require('./Constants');
 
 interface TreeNode extends Visitable{
-        /*visit(visitor:Visitor):number {
-                console.error('Node():visit not overridden');
-                return -1;
-        }*/
+    visit(v: Visitor): void;
 }
  
 interface Visitable {
-        //visit(visitor:Visitor):number;
+        visit(v:Visitor):void;
 }
  
-interface Visitor {
-        
+interface Visitor {  
+       visitFuncNode(node:FuncNode);
+
+       visitIdentNode(node: IdentNode);
+
+       visitSkipNode(node: SkipNode);
+
+       visitReadNode(node: ReadNode);
+
+       visitPrintlnNode(node:PrintlnNode);
+
+       visitBaseTypeNode(node: BaseTypeNode);
+
+       visitPairElemTypeNode(node: PairElemTypeNode);
+
 }
 
 interface StatNode extends TreeNode {
@@ -63,6 +73,9 @@ export class FuncNode implements TreeNode {
         this.paramList = paramList;
         this.statList = statList;
     }
+    visit(v:Visitor):void {
+        v.visitFuncNode(this);
+    }
 
 }
 
@@ -71,9 +84,9 @@ export class SkipNode implements StatNode {
     constructor() {
     }
  
-    // visit(visitor:Visitor) {
-    //     return visitor.visitSkipNode(this);
-    // }
+    visit(v:Visitor) {
+         return v.visitSkipNode(this);
+    }
 }
 
 
@@ -82,6 +95,10 @@ export class ReadNode implements StatNode {
     constructor(lhsNode:AssignLHSNode) {
         this.readTarget = lhsNode;
     }
+
+    visit(v:Visitor):void {
+        v.visitReadNode(this);
+    }
 }
 
 export class PrintlnNode implements StatNode {
@@ -89,6 +106,10 @@ export class PrintlnNode implements StatNode {
     constructor(expr : ExprNode) {
         this.expr = expr;
 
+    }
+
+    visit(v:Visitor):void {
+        v.visitPrintlnNode(this);
     }
 }
 
@@ -103,6 +124,10 @@ export class BaseTypeNode implements TypeNode {
     constructor(typeName:String) {
         this.typeName = typeName;
     }
+
+     visit(v:Visitor):void {
+        v.visitBaseTypeNode(this);
+    }
 }
 
 export class PairElemTypeNode implements StatNode {
@@ -111,12 +136,19 @@ export class PairElemTypeNode implements StatNode {
     constructor(type:TypeNode) {
         this.type = type;
     }
+
+     visit(v:Visitor):void {
+        v.visitPairElemTypeNode(this);
+    }
 }
 
 export class IdentNode implements ExprNode, AssignLHSNode {
     identStr : string;
     constructor(identStr : string) {
         this.identStr = identStr;
+    }
+     visit(v:Visitor):void {
+        v.visitIdentNode(this);
     }
 }
 
