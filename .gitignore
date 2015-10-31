@@ -2,6 +2,7 @@
 
 #ignore typescript related stuff
 grammar.js
+grammar.pegjs
 grammarHeader.js
 
 #ignore temp files
