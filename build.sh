@@ -1,17 +1,16 @@
-> grammar.pegjs;
+> grammar/grammar.pegjs;
 cat node.d.ts > /tmp/node.d.ts;
 
-
 cat NodeType.ts > /tmp/grammarHeaderComplete.ts
-cat grammarHeader.ts >> /tmp/grammarHeaderComplete.ts
+cat grammar/grammarHeader.ts >> /tmp/grammarHeaderComplete.ts
 tsc /tmp/grammarHeaderComplete.ts
 
-echo "{" > grammar.pegjs;
-cat /tmp/grammarHeaderComplete.js >> grammar.pegjs
-echo "}" >> grammar.pegjs;
+echo "{" > grammar/grammar.pegjs;
+cat /tmp/grammarHeaderComplete.js >> grammar/grammar.pegjs
+echo "}" >> grammar/grammar.pegjs;
 
-cat grammarBody.pegjs >> grammar.pegjs;
-pegjs grammar.pegjs
+cat grammar/grammarBody.pegjs >> grammar/grammar.pegjs;
+pegjs grammar/grammar.pegjs
 
 
 
