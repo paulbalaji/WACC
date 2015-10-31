@@ -3,18 +3,36 @@
 import Const = require('./Constants');
 
 interface TreeNode extends Visitable{
-        /*visit(visitor:Visitor):number {
-                console.error('Node():visit not overridden');
-                return -1;
-        }*/
+    visit(v:Visitor):void;
+
 }
  
 interface Visitable {
-        //visit(visitor:Visitor):number;
+    visit(visitor:Visitor):void;
 }
  
 interface Visitor {
-        
+    visitProgramNode(node:ProgramNode):void;
+    visitBinOpExprNode(node:BinOpExprNode);
+    visitStrLiterNode(node:StrLiterNode);
+    visitReturnNode(node:ReturnNode);
+    visitAssignNode(node:AssignNode);
+    visitBeginEndBlockNode(node:BeginEndBlockNode);
+    visitWhileNode(node:WhileNode);
+    visitPairTypeNode(node:PairTypeNode);
+    visitPairElemSndNode(node:PairElemSndNode);
+    visitArrayLiterNode(node:ArrayLiterNode);
+    visitCharLiterNode(node: CharLiterNode);
+    visitParamNode(node: ParamNode);
+    visitFreeNode(node: FreeNode);
+    visitPrintNode(node: PrintNode);
+    visitDeclareNode(node: DeclareNode);
+    visitArrayElemNode(node: ArrayElemNode);
+    visitCallNode(node: CallNode);
+    visitPairLiterNode(node: PairLiterNode);
+    visitIntLiterNode(node: IntLiterNode);
+
+
 }
 
 interface StatNode extends TreeNode {
@@ -24,7 +42,6 @@ interface StatNode extends TreeNode {
 interface ExprNode extends TreeNode {
 
 }
-
 
 interface AssignLHSNode extends TreeNode {
 
@@ -48,6 +65,10 @@ export class ProgramNode implements TreeNode {
     
         this.functionList = functionList;
         this.statList = statList;
+    }
+
+    visit(v:Visitor):void {
+        v.visitProgramNode(this);        
     }
 }
 
@@ -128,6 +149,10 @@ export class BinOpExprNode implements ExprNode {
         this.rightOperand = rightOperand;
         this.operator = operator;
     }
+
+    visit(v:Visitor):void {
+        v.visitBinOpExprNode(this);
+    }
 }
 
 export class StrLiterNode implements ExprNode {
@@ -135,6 +160,10 @@ export class StrLiterNode implements ExprNode {
 
     constructor(str : string) {
         this.str = str;
+    }
+
+    visit(v:Visitor):void {
+        v.visitStrLiterNode(this);
     }
 }
 
@@ -144,6 +173,10 @@ export class AssignNode implements StatNode {
     constructor(lhs : AssignLHSNode, rhs : AssignRHSNode) {
         this.lhs = lhs;
         this.rhs = rhs;
+    }
+
+    visit(v:Visitor):void {
+        v.visitAssignNode(this);
     }
 }
 
@@ -156,6 +189,10 @@ export class BeginEndBlockNode implements StatNode {
     constructor(statList:[StatNode]) {
             this.statList = statList;
     }
+
+    visit(v:Visitor): void {
+        v.visitBeginEndBlockNode(this);
+    }
 }
 
 export class ReturnNode implements StatNode {
@@ -163,6 +200,10 @@ export class ReturnNode implements StatNode {
 
     constructor(returnExpr:ExprNode) {
             this.returnExpr = returnExpr;
+    }
+
+    visit(v:Visitor): void {
+        v.visitReturnNode(this);
     }
 }
 
@@ -174,6 +215,10 @@ export class WhileNode implements StatNode {
             this.predicateExpr = predicateExpr;
             this.loopBody = loopBody;
     }
+
+    visit(v:Visitor): void {
+        v.visitWhileNode(this);
+    }
 }
 
 export class PairTypeNode implements TypeNode {
@@ -184,6 +229,10 @@ export class PairTypeNode implements TypeNode {
             this.type1 = type1;
             this.type2 = type2;
     }
+
+    visit(v:Visitor): void {
+        v.visitPairTypeNode(this);
+    }
 }
 
 export class PairElemSndNode implements PairElemNode {
@@ -192,22 +241,34 @@ export class PairElemSndNode implements PairElemNode {
     constructor(expr:ExprNode) {
             this.expr = expr;
     }
+
+    visit(v:Visitor):void {
+        v.visitPairElemSndNode(this);
+    }
 }
 
 export class ArrayLiterNode implements AssignRHSNode {
      list: [ExprNode];
 
-        constructor(list:[ExprNode]) {
-                this.list = list;
-        }
+     constructor(list:[ExprNode]) {
+            this.list = list;
+     }
+
+     visit(v:Visitor):void {
+         v.visitArrayLiterNode(this);
+     }
 }
 
 export class CharLiterNode implements ExprNode {
-        ch: string;
+    ch: string;
 
-        constructor(ch:string) {
-                this.ch = ch;
-        }
+    constructor(ch:string) {
+            this.ch = ch;
+    }
+
+    visit(v:Visitor):void {
+        v.visitCharLiterNode(this);
+    }
 }
 
 export class ExitNode implements StatNode {
@@ -313,6 +374,9 @@ export class ParamNode {
         this.ident = ident;
     }
     
+    visit(v: Visitor): void {
+        v.visitParamNode(this);
+    }
 }
 
 export class FreeNode implements StatNode {
@@ -322,6 +386,10 @@ export class FreeNode implements StatNode {
         this.expr = expr;
     }
 
+    visit(v: Visitor): void {
+        v.visitFreeNode(this);
+    }
+
 }
 
 export class PrintNode implements StatNode {
@@ -329,6 +397,10 @@ export class PrintNode implements StatNode {
 
     constructor(expr:ExprNode) {
         this.expr = expr;
+    }
+
+    visit(v: Visitor): void {
+        v.visitPrintNode(this);
     }
 }
 
@@ -342,6 +414,10 @@ export class DeclareNode implements StatNode {
         this.ident = ident;
         this.rhs = rhs;
     }
+
+    visit(v: Visitor): void {
+        v.visitDeclareNode(this);
+    }
 }
 
 // check type is the type of rhs
@@ -354,6 +430,10 @@ export class ArrayElemNode {
         this.ident = ident;
         this.exprList = exprList;
     }
+
+    visit(v: Visitor): void {
+        v.visitArrayElemNode(this);
+    }
 }
 
 export class CallNode implements AssignRHSNode {
@@ -364,11 +444,18 @@ export class CallNode implements AssignRHSNode {
         this.ident = ident;
         this.exprList = exprList;
     }
+
+    visit(v: Visitor): void {
+        v.visitCallNode(this);
+    }
     
 }
 
 export class PairLiterNode implements ExprNode {
 
+    visit(v: Visitor): void {
+        v.visitPairLiterNode(this);
+    }
 }
 
 export class IntLiterNode implements ExprNode {
@@ -391,6 +478,8 @@ export class IntLiterNode implements ExprNode {
         return true;
     }
 
-}
+    visit(v: Visitor): void {
+        v.visitIntLiterNode(this);
+    }
 
-// check overflow
+}
