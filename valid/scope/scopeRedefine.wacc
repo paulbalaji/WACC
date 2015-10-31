@@ -2,11 +2,17 @@
 
 # Output:
 # true
-# 2 TODO
+# 2
 
-# Program:)
+# Program:
 
-int f(int t, int y) is 
-newpair 
+begin
+  int x = 1 ;
+  begin
+    x = 2 ;
+    bool x = true ;
+    println x
+  end ;
+  println x 
 end
-true false null
+
