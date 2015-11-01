@@ -151,10 +151,10 @@ ExprList
 
 /* PairElem */
 PairElem
-  = FST __ expr:Expr {
-    return new NodeType.PairElemFstNode(expr);
+  = FST __ ident:Ident {
+    return new NodeType.PairElemFstNode(ident);
   }
-  / SND __ expr:Expr {return new NodeType.PairElemSndNode(expr);}
+  / SND __ ident:Ident {return new NodeType.PairElemSndNode(ident);}
 
 /* Expr */
 Expr

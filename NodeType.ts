@@ -53,18 +53,18 @@ export interface StatNode extends TreeNode {
 }
 
 export interface ExprNode extends TreeNode {
-
+    type : TypeNode;
 }
 
 export interface AssignLHSNode extends TreeNode {
-
+    type:TypeNode;
 }
 
 export interface AssignRHSNode extends TreeNode {
-
+    type : TypeNode;
 }
 
-export interface TypeNode extends TreeNode, AssignRHSNode {}
+export interface TypeNode extends TreeNode {}
 
 export interface PairElemNode extends TreeNode {
 
@@ -83,6 +83,7 @@ export class ProgramNode implements TreeNode {
     visit(v:Visitor):void {
         v.visitProgramNode(this);        
     }
+
 }
 
 export class FuncNode implements TreeNode {
@@ -99,6 +100,8 @@ export class FuncNode implements TreeNode {
     visit(v:Visitor):void {
         v.visitFuncNode(this);
     }
+
+
 
 }
 
@@ -122,6 +125,7 @@ export class ReadNode implements StatNode {
     visit(v:Visitor):void {
         v.visitReadNode(this);
     }
+ 
 }
 
 export class PrintlnNode implements StatNode {
@@ -134,6 +138,7 @@ export class PrintlnNode implements StatNode {
     visit(v:Visitor):void {
         v.visitPrintlnNode(this);
     }
+
 }
 
 export class PairElemTypePAIRNode implements TypeNode {
@@ -167,15 +172,21 @@ export class PairElemTypeNode implements StatNode {
      visit(v:Visitor):void {
         v.visitPairElemTypeNode(this);
     }
+
 }
 
 export class IdentNode implements ExprNode, AssignLHSNode {
     identStr : string;
+    type : TypeNode; // Filled by semantic visitor
+
     constructor(identStr : string) {
         this.identStr = identStr;
     }
-     visit(v:Visitor):void {
+     visit(v:Visitor) : void {
         v.visitIdentNode(this);
+    }
+    toString() : string {
+        return this.identStr;
     }
 }
 
@@ -183,6 +194,9 @@ export class BinOpExprNode implements ExprNode {
     leftOperand : ExprNode;
     rightOperand : ExprNode;
     operator : string;
+
+    type : TypeNode; // Filled by semantic visitor
+
     constructor(leftOperand : ExprNode, rightOperand : ExprNode, operator : string) {
         this.leftOperand = leftOperand;
         this.rightOperand = rightOperand;
@@ -192,9 +206,13 @@ export class BinOpExprNode implements ExprNode {
     visit(v:Visitor):void {
         v.visitBinOpExprNode(this);
     }
+
+
 }
 
 export class StrLiterNode implements ExprNode {
+    type : TypeNode; // Filled by semantic visitor
+
     str : string;
 
     constructor(str : string) {
@@ -287,6 +305,8 @@ export class PairElemSndNode implements PairElemNode {
 }
 
 export class ArrayLiterNode implements AssignRHSNode {
+     type : TypeNode; // Filled by semantic visitor
+
      list: [ExprNode];
 
      constructor(list:[ExprNode]) {
@@ -300,6 +320,7 @@ export class ArrayLiterNode implements AssignRHSNode {
 
 export class CharLiterNode implements ExprNode {
     ch: string;
+    type : TypeNode; // Filled by semantic visitor
 
     constructor(ch:string) {
             this.ch = ch;
@@ -353,10 +374,10 @@ export class ArrayTypeNode implements TypeNode {
 }
  
 export class PairElemFstNode implements PairElemNode {
-    expr: ExprNode;
+    ident : IdentNode;
  
-    constructor(expr: ExprNode) {
-        this.expr = expr;
+    constructor(ident: IdentNode) {
+        this.ident = ident;
     }
  
     visit(v:Visitor) {
@@ -365,6 +386,8 @@ export class PairElemFstNode implements PairElemNode {
 }
  
 export class NewPairNode implements AssignRHSNode {
+    type : TypeNode; // Filled by semantic visitor
+
     fstExpr: ExprNode;
     sndExpr: ExprNode;
  
@@ -380,6 +403,8 @@ export class NewPairNode implements AssignRHSNode {
  
 export class BoolLiterNode implements ExprNode {
     bool: boolean;
+    type : TypeNode; // Filled by semantic visitor
+
  
     constructor(bool: boolean) {
         this.bool = bool;
@@ -393,6 +418,8 @@ export class BoolLiterNode implements ExprNode {
 export class UnOpNode implements ExprNode {
     unOp: string;
     expr: ExprNode;
+    type : TypeNode; // Filled by semantic visitor
+
  
     constructor(unOp: string, expr: ExprNode) {
         this.unOp = unOp;
@@ -461,9 +488,11 @@ export class DeclareNode implements StatNode {
 
 // check type is the type of rhs
 
-export class ArrayElemNode {
+export class ArrayElemNode implements AssignLHSNode, ExprNode{
     ident: IdentNode;
     exprList: [ExprNode];
+    type : TypeNode; // Filled by semantic visitor
+
 
     constructor(ident: IdentNode, exprList: [ExprNode]) {
         this.ident = ident;
@@ -478,6 +507,8 @@ export class ArrayElemNode {
 export class CallNode implements AssignRHSNode {
     ident: IdentNode;
     exprList: [ExprNode];
+    type : TypeNode; // Filled by semantic visitor
+
 
     constructor(ident:IdentNode, exprList:[ExprNode]) {
         this.ident = ident;
@@ -491,6 +522,8 @@ export class CallNode implements AssignRHSNode {
 }
 
 export class PairLiterNode implements ExprNode {
+    type : TypeNode; // Filled by semantic visitor
+
 
     visit(v: Visitor): void {
         v.visitPairLiterNode(this);
@@ -499,6 +532,8 @@ export class PairLiterNode implements ExprNode {
 
 export class IntLiterNode implements ExprNode {
     num : number; 
+    type : TypeNode; // Filled by semantic visitor
+
 
     constructor(num:number) {
         this.num = num;

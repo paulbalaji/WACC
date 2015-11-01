@@ -25,7 +25,7 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 // console.log('TEST SUCCEEDED ON FILE NAME ' + filename);
 
                 var semanticVisitor = new SemanticChecker.SemanticVisitor();
-                ast.visit(semanticVisitor);
+                // ast.visit(semanticVisitor);
 
                 // Print errors out from semanticVisitor
                 _.map(semanticVisitor.errors, (e) => console.log(e));

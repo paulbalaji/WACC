@@ -109,10 +109,10 @@
         peg$c28 = function(expr) {
               return generateSingletonListFromRule(expr);
             },
-        peg$c29 = function(expr) {
-            return new NodeType.PairElemFstNode(expr);
+        peg$c29 = function(ident) {
+            return new NodeType.PairElemFstNode(ident);
           },
-        peg$c30 = function(expr) {return new NodeType.PairElemSndNode(expr);},
+        peg$c30 = function(ident) {return new NodeType.PairElemSndNode(ident);},
         peg$c31 = function(left, binOp, right) { 
             return new NodeType.BinOpExprNode(left,right, binOp);
           },
@@ -1802,7 +1802,7 @@
       if (s1 !== peg$FAILED) {
         s2 = peg$parse__();
         if (s2 !== peg$FAILED) {
-          s3 = peg$parseExpr();
+          s3 = peg$parseIdent();
           if (s3 !== peg$FAILED) {
             peg$savedPos = s0;
             s1 = peg$c29(s3);
@@ -1825,7 +1825,7 @@
         if (s1 !== peg$FAILED) {
           s2 = peg$parse__();
           if (s2 !== peg$FAILED) {
-            s3 = peg$parseExpr();
+            s3 = peg$parseIdent();
             if (s3 !== peg$FAILED) {
               peg$savedPos = s0;
               s1 = peg$c30(s3);

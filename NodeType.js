@@ -34,7 +34,7 @@ var SkipNode = (function () {
 })();
 exports.SkipNode = SkipNode;
 var ReadNode = (function () {
-    function ReadNode(lhsnode) {
+    function ReadNode(lhsNode) {
         this.readTarget = lhsNode;
     }
     ReadNode.prototype.visit = function (v) {
@@ -89,6 +89,9 @@ var IdentNode = (function () {
     }
     IdentNode.prototype.visit = function (v) {
         v.visitIdentNode(this);
+    };
+    IdentNode.prototype.toString = function () {
+        return this.identStr;
     };
     return IdentNode;
 })();
@@ -233,8 +236,8 @@ var ArrayTypeNode = (function () {
 })();
 exports.ArrayTypeNode = ArrayTypeNode;
 var PairElemFstNode = (function () {
-    function PairElemFstNode(expr) {
-        this.expr = expr;
+    function PairElemFstNode(ident) {
+        this.ident = ident;
     }
     PairElemFstNode.prototype.visit = function (v) {
         return v.visitPairElemFstNode(this);
