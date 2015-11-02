@@ -1,10 +1,7 @@
 ///<reference path="node.d.ts"/>
 
 import Const = require('./Constants');
-export  var INT_TYPE = new BaseTypeNode('int');
-export  var CHAR_TYPE = new BaseTypeNode('char');
-export  var BOOL_TYPE = new BaseTypeNode('bool');
-export var ANY_TYPE = null;
+
 export interface TreeNode extends Visitable{
     visit(v:Visitor):void;
 }
@@ -560,3 +557,8 @@ export class IntLiterNode implements ExprNode {
     }
 
 }
+
+export  var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
+export  var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
+export  var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
+export var ANY_TYPE:BaseTypeNode   = null;
