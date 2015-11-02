@@ -119,7 +119,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Visit all expressions
         _.map(node.exprList, (expr: NodeType.Visitable) => expr.visit(this));
 
-        if (_.isEmpty(node.exprList) === 0) { // The case that the list is empty
+        if (_.isEmpty(node.exprList)) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
             node.type = null;
             []
@@ -166,9 +166,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         /*
-         In the case that rhs is an array liter node, if it is a list of empty expressions, 
-         then it is the rspsonsibility of declare node to fill in the type. 
-          As an ArrayLiterNode, [] cannot know its type!
+         In the case that rhs is an array liter node, we must consider the case that is empty ([]).
+         If it is a list of empty expressions, then it is the rspsonsibility of declare node to fill
+         in the type. 
+         This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
 
           If you have enjoyed my essay then please leave me a mark out of 10 in the fields below:
           Jan:
