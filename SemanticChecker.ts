@@ -37,13 +37,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node:NodeType.ProgramNode):void {
-        console.log('visiting a program node!');
+        //console.log('visiting a program node!');
         _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
-        throw 'You fucked up function semantics';
+        //throw 'You fucked up function semantics';
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -55,7 +55,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         var CHAR_TYPE = new NodeType.BaseTypeNode('char');
         var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
         var ANY_TYPE = undefined;
-
         
         var opMap = {};
         function OperatorInfo(possibleTypes, returnType) {
@@ -63,21 +62,21 @@ export class SemanticVisitor implements NodeType.Visitor {
             this.returnType = returnType;
         }
 
-        opMap['+']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['-']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['*']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['/']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['%']  = new OperatorInfo([INT_TYPE], BOOL_TYPE);
-        opMap['>']  = new OperatorInfo([INT_TYPE,  CHAR_TYPE], BOOL_TYPE);
-        opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-        opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-        opMap['<='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['+']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['-']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['*']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['/']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.BOOL_TYPE);
+        opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['<='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
 
-        opMap['=='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
-        opMap['!='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
+        opMap['=='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
+        opMap['!='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
 
-        opMap['&&'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
-        opMap['||'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+        opMap['&&'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
+        opMap['||'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
 
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
@@ -95,6 +94,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
+
         node.type = opMap[node.operator].returnType;
     }
 
@@ -112,38 +112,83 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
     }
+
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
     visitWhileNode(node: NodeType.WhileNode):void {}
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
     visitPairElemSndNode(node: NodeType.PairElemSndNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
-        _.map(node.list, (expr: NodeType.Visitable) => expr.visit(this));
+        _.map(node.exprList, (expr: NodeType.Visitable) => expr.visit(this));
 
-        // All expressions must be the same type
-        // Some code here to check that...
+        if (_.isEmpty(node.exprList)) { // The case that the list is empty
+            // Nothing more to check, just fill in the node type as null
+            node.type = null;
+            
+        } else { // The case that the list is not empty
+            // Check that all expressions are of the same type
+            var type = node.exprList[0].type;
+            // Check that all types are equal to type
 
-        // Now fill in the type
-        // TODO - fix below line. Assumes there is an elem in the list, returns null if there is not. ArrayDepth assumed to be 1
-        node.type = node.list[0] ? new NodeType.ArrayTypeNode(node.list[0].type, 1): new NodeType.BaseTypeNode('lol');
+            // mismatchedTypes is a list of types which do not match the first one in the list
+            var mismatchedTypes = _.filter(node.exprList, (expr) => !this.checkSameType(type, expr.type));
 
+            if (!_.isEmpty(mismatchedTypes)) {
+                throw 'Deary deary me.  In an array literal all expressions must be of the same type';
+            }
+
+            if (node.exprList[0].type instanceof NodeType.ArrayTypeNode) {
+                var n: any = node.exprList[0].type;
+                node.type = new NodeType.ArrayTypeNode(n.type, n.depth + 1);
+
+            } else {
+                node.type = new NodeType.ArrayTypeNode(node.exprList[0].type, 1);
+            }
+
+        }
 
     }
+
     visitCharLiterNode(node: NodeType.CharLiterNode):void {
+        node.type = NodeType.CHAR_TYPE;
+    }
+
+    visitParamNode(node: NodeType.ParamNode):void {
+
+        node.type.visit(this);
+        node.ident.visit(this);
 
     }
-    visitParamNode(node: NodeType.ParamNode):void {}
+
     visitFreeNode(node: NodeType.FreeNode):void {}
     visitPrintNode(node: NodeType.PrintNode):void {}
     visitDeclareNode(node: NodeType.DeclareNode):void {
         node.type.visit(this);
-        node.ident.visit(this);
+        
         node.rhs.visit(this);
-
         var res = this.ST.lookupAll(node.ident);
         if (res) {
             throw 'you fucked it - redeclaration';
             return;
+        }
+
+        /*
+         In the case that rhs is an array liter node, we must consider the case that is empty ([]).
+         If it is a list of empty expressions, then it is the rspsonsibility of declare node to fill
+         in the type. 
+         This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
+
+          If you have enjoyed my essay then please leave me a mark out of 10 in the fields below:
+          Jan:
+          Andrea:
+          Paul:
+        */
+        
+        if(node.rhs instanceof NodeType.ArrayLiterNode) {
+            var arrayLiter:any = node.rhs;
+            if(_.isEmpty(arrayLiter.exprList)) {
+                arrayLiter.type = node.type;
+            }
         }
 
         if (!this.checkSameType(node.type, node.rhs.type)) {
@@ -151,9 +196,36 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         this.ST.insert(node.ident, node.type);
+        node.ident.visit(this);
     }
 
-    visitArrayElemNode(node: NodeType.ArrayElemNode):void {}
+    visitArrayElemNode(node: NodeType.ArrayElemNode):void {
+        _.map(node.exprList, (exprNode: NodeType.Visitable) => exprNode.visit(this));
+        node.ident.visit(this);
+        // Check if every index is an integer
+        console.log("Hi")
+        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE))) {
+            throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
+        }
+        var res = this.ST.lookupAll(node.ident);
+        if (!res) {
+            throw 'Mate, fucking declare your arrays before you use them.';
+        }
+        console.log(res)
+        if (!(res instanceof NodeType.ArrayTypeNode)) {
+            throw "Mate, you are trying to index something which is not an array. have you been drinking?";
+        }
+
+        if (!(res.depth != node.exprList.length)) {
+            throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
+
+        }
+        node.type = res.type;
+
+
+
+    }
+
     visitCallNode(node: NodeType.CallNode):void {
         node.ident.visit(this);
         node.argList = _.map(node.argList, (arg) => arg.visit(this));
@@ -188,7 +260,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
-        node.type = this.ST.lookupAll(node.identStr);
+        var res = this.ST.lookupAll(node.identStr);
+        
+        if (!res) {
+            throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
+        }
+
+        node.type = res;
     }
 
     visitReadNode(node: NodeType.ReadNode):void {}
@@ -246,9 +324,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (res) {
             if (!(res.type instanceof NodeType.PairTypeNode)) {
                 throw 'you fucker, ident named ' + res.ident + ' is no pair !!!';
-            } 
+            }
 
-        } else { 
+        } else {
             throw 'bullshit';
         }
     }

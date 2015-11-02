@@ -307,10 +307,10 @@ export class PairElemSndNode implements PairElemNode {
 export class ArrayLiterNode implements AssignRHSNode {
      type : TypeNode; // Filled by semantic visitor
 
-     list: [ExprNode];
+     exprList: [ExprNode];
 
-     constructor(list:[ExprNode]) {
-            this.list = list;
+     constructor(exprList:[ExprNode]) {
+            this.exprList = exprList;
      }
 
      visit(v:Visitor):void {
@@ -363,9 +363,10 @@ export class IfNode implements StatNode {
  
 export class ArrayTypeNode implements TypeNode {
     type: TypeNode;
- 
+    depth : number;
     constructor(type: TypeNode, depth: number) {
-        this.type = depth === 1 ? type : new ArrayTypeNode(type, depth - 1);
+        this.type = type;
+        this.depth = depth;
     }
  
     visit(v:Visitor) {
@@ -557,3 +558,8 @@ export class IntLiterNode implements ExprNode {
     }
 
 }
+
+export var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
+export var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
+export var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
+export var ANY_TYPE:BaseTypeNode  = null;
