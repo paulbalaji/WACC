@@ -36,11 +36,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
     }
 
-	visitProgramNode(node:NodeType.ProgramNode):void {
+    visitProgramNode(node:NodeType.ProgramNode):void {
         console.log('visiting a program node!');
-		_.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
-		_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
-	}
+        _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
+        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+    }
 
     visitFuncNode(node:NodeType.FuncNode) {
         this.errors.push({ msg: 'You fucked up function semantics' });
@@ -49,7 +49,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
         node.leftOperand.visit(this);
         node.rightOperand.visit(this);
-       
+
         // REMEMBER however the two express ions must be the SAME type aswell as a required one
         var INT_TYPE = new NodeType.BaseTypeNode('int');
         var CHAR_TYPE = new NodeType.BaseTypeNode('char');
@@ -57,7 +57,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         var ANY_TYPE = undefined;
 
         
-         var opMap = {};
+        var opMap = {};
         function OperatorInfo(possibleTypes, returnType) {
             this.possibleTypes = possibleTypes;
             this.returnType = returnType;
@@ -69,8 +69,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         opMap['/']  = new OperatorInfo([INT_TYPE], INT_TYPE);
         opMap['%']  = new OperatorInfo([INT_TYPE], BOOL_TYPE);
         opMap['>']  = new OperatorInfo([INT_TYPE,  CHAR_TYPE], BOOL_TYPE);
-          opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-         opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
         opMap['<=' ] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
 
         opMap['=='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
@@ -82,26 +82,24 @@ export class SemanticVisitor implements NodeType.Visitor {
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
         
-        // Attempt to match the left operands type with an allowed type
-        
-        var matchedLeftType = _.filter(allowedTypes,  (t) =>  this.checkSameType(node.leftOperand.type, t));
-        
-        if (!matchedLeftType) {
-               throw ('Oh my, your type on lhs is  not v alid for the operator');
-        } 
-        
+        // If any type is allowed, we do not need to check
+        if (allowedTypes[0]) {
+
+            // Attempt to match the left operands type with an allowed type
+            var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.leftOperand.type, t));
+
+            if (!matchedLeftType) {
+                throw ('Oh my, your type on lhs is  not v alid for the operator');
+            }
+        }
         // MID: Left type is  correct, check that the rhs type is the same
         
- if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
+        if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
-        
-        
-        
-
-          
-
+        node.type = opMap[node.operator].returnType;
     }
+
     visitStrLiterNode(node: NodeType.StrLiterNode):void {
         node.type = new NodeType.BaseTypeNode('string');
     }
@@ -141,7 +139,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
         node.ident.visit(this);
         node.rhs.visit(this);
-       
+
         var res = this.ST.lookupAll(node.ident);
         if (res) {
             this.errors.push("you fucked it - redeclaration")
