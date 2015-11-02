@@ -128,6 +128,23 @@ var SemanticVisitor = (function () {
         var _this = this;
         node.ident.visit(this);
         node.argList = _.map(node.argList, function (arg) { return arg.visit(_this); });
+        var funcNode = { argList: node.argList, ident: node.ident };
+        //compare arguments
+        if (node.argList.length === funcNode.argList.length) {
+            for (var i = 0; i < node.argList.length; i++) {
+                if (!this.checkSameType(node.argList[i], funcNode.argList[i])) {
+                    throw 'Come on man, pass the correct arguments ffs';
+                }
+            }
+        }
+        else {
+            throw 'Learn how to count, get the number of arguments right';
+        }
+        //compare return types
+        if (!this.checkSameType(node.ident, funcNode.ident)) {
+            throw 'Is it so hard to return the right fricking things?';
+        }
+        node.type = node.ident.type;
     };
     SemanticVisitor.prototype.visitPairLiterNode = function (node) {
     };

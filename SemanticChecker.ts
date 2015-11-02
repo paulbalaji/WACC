@@ -158,7 +158,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.ident.visit(this);
         node.argList = _.map(node.argList, (arg) => arg.visit(this));
 
-        var funcNode = {};
+        var funcNode = { argList : node.argList, ident : node.ident};
         //compare arguments
         if (node.argList.length === funcNode.argList.length) {
             for (var i = 0; i < node.argList.length; i++) {
@@ -166,6 +166,8 @@ export class SemanticVisitor implements NodeType.Visitor {
                     throw 'Come on man, pass the correct arguments ffs'
                 }
             }
+        } else {
+            throw 'Learn how to count, get the number of arguments right'
         }
 
         //compare return types
