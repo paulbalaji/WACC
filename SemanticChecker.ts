@@ -153,8 +153,23 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {
         _.map(node.exprList, (exprNode: NodeType.Visitable) => exprNode.visit(this));
         node.ident.visit(this);
-        node.type.visit(this);
-        _.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE ))
+        // Check if every index is an integer
+        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE))) {
+            throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
+        }
+        var res = this.ST.lookupAll(node.ident);
+        if (!res) {
+            throw 'Mate, fucking declare your arrays before you use them.';
+        }
+        if (!(res.type instanceof NodeType.ArrayTypeNode)) {
+            throw "Mate, you are trying to index something which is not an array. have you been drinking?";
+        }
+        if (!(res.type.depth != node.exprList.length)) {
+            throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
+
+        }
+        node.type = res;
+
         if (node.exprList.length > 1) {
             throw "Oh fuck, nested array, did not see that coming."
         }
@@ -188,9 +203,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (res) {
             if (!(res.type instanceof NodeType.PairTypeNode)) {
                 throw 'you fucker, ident named ' + res.ident + ' is no pair !!!';
-            } 
+            }
 
-        } else { 
+        } else {
             throw 'bullshit';
         }
     }

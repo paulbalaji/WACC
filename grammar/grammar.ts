@@ -94,7 +94,9 @@
           },
         peg$c22 = function(type1, type2) { return new NodeType.PairTypeNode(type1, type2); },
         peg$c23 = function(type) {
-            return new NodeType.PairElemTypeNode(type);
+            // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
+            // Below line added in replacement of above line.  Note that below line is not nescessary as returning the generated object for type will automatically happen.
+            return type; 
           },
         peg$c24 = function(ident, exprList) {
             return new NodeType.CallNode(ident, exprList);
