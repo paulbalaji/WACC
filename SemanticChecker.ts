@@ -162,7 +162,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             var exprType = this.ST.lookupAll(node.expr);
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
-                throw 'Fuck sake. You have done it again!A free statements expression must be an ident referencing an array type or pair type.';
+                throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
             }
 
         } else {
@@ -183,7 +183,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         /*
          In the case that rhs is an array liter node, we must consider the case that is empty ([]).
-         If it is a list of empty expressions, then it is the rspsonsibility of declare node to fill
+         If it is a list of empty expressions, then it is the responsibility of declare node to fill
          in the type. 
          This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
 
@@ -212,7 +212,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         _.map(node.exprList, (exprNode: NodeType.Visitable) => exprNode.visit(this));
         node.ident.visit(this);
         // Check if every index is an integer
-        console.log("Hi")
+
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE))) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
@@ -220,7 +220,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (!res) {
             throw 'Mate, fucking declare your arrays before you use them.';
         }
-        console.log(res)
         if (!(res instanceof NodeType.ArrayTypeNode)) {
             throw "Mate, you are trying to index something which is not an array. have you been drinking?";
         }
@@ -279,8 +278,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitReadNode(node: NodeType.ReadNode):void {}
-    visitPrintlnNode(node: NodeType.PrintlnNode):void {}
+    
+    visitPrintlnNode(node: NodeType.PrintlnNode):void {
+        node.expr.visit(this);
+    }
     visitBaseTypeNode(node: NodeType.BaseTypeNode):void {}
+    
     visitPairElemTypeNode(node: NodeType.PairElemTypeNode):void {}
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
