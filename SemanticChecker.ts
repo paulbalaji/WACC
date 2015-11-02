@@ -315,7 +315,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
     }
 
-    visitIfNode(node: NodeType.IfNode): void {}   
+    visitIfNode(node: NodeType.IfNode): void {}
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
     visitPairElemFstNode(node: NodeType.PairElemFstNode): void {
         var res : NodeType.DeclareNode = this.ST.lookupAll(node.ident);
@@ -328,7 +328,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'bullshit';
         }
     }
-    
+
     visitNewPairNode(node: NodeType.NewPairNode): void {
         node.fstExpr.visit(this);
         node.sndExpr.visit(this);
