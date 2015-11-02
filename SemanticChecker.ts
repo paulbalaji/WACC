@@ -46,7 +46,62 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.errors.push({ msg: 'You fucked up function semantics' });
     }
 
-	visitBinOpExprNode(node: NodeType.BinOpExprNode):void {}
+    visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
+        node.leftOperand.visit(this);
+        node.rightOperand.visit(this);
+       
+        // REMEMBER however the two express ions must be the SAME type aswell as a required one
+        var INT_TYPE = new NodeType.BaseTypeNode('int');
+        var CHAR_TYPE = new NodeType.BaseTypeNode('char');
+        var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
+        var ANY_TYPE = undefined;
+
+        
+         var opMap = {};
+        function OperatorInfo(possibleTypes, returnType) {
+            this.possibleTypes = possibleTypes;
+            this.returnType = returnType;
+        }
+
+        opMap['+']  = new OperatorInfo([INT_TYPE], INT_TYPE);
+        opMap['-']  = new OperatorInfo([INT_TYPE], INT_TYPE);
+        opMap['*']  = new OperatorInfo([INT_TYPE], INT_TYPE);
+        opMap['/']  = new OperatorInfo([INT_TYPE], INT_TYPE);
+        opMap['%']  = new OperatorInfo([INT_TYPE], BOOL_TYPE);
+        opMap['>']  = new OperatorInfo([INT_TYPE,  CHAR_TYPE], BOOL_TYPE);
+          opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+         opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['<=' ] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+
+        opMap['=='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
+        opMap['!='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
+
+        opMap['&&'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+        opMap['!!'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+
+        // First check that lhs of the binop is a required type for the operator
+        var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
+        
+        // Attempt to match the left operands type with an allowed type
+        
+        var matchedLeftType = _.filter(allowedTypes,  (t) =>  this.checkSameType(node.leftOperand.type, t));
+        
+        if (!matchedLeftType) {
+               throw ('Oh my, your type on lhs is  not v alid for the operator');
+        } 
+        
+        // MID: Left type is  correct, check that the rhs type is the same
+        
+ if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
+            throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
+        }
+        
+        
+        
+
+          
+
+    }
     visitStrLiterNode(node: NodeType.StrLiterNode):void {
         node.type = new NodeType.BaseTypeNode('string');
     }
