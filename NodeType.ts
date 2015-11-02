@@ -417,13 +417,13 @@ export class BoolLiterNode implements ExprNode {
 }
  
 export class UnOpNode implements ExprNode {
-    unOp: string;
+    operator: string;
     expr: ExprNode;
     type : TypeNode; // Filled by semantic visitor
 
  
-    constructor(unOp: string, expr: ExprNode) {
-        this.unOp = unOp;
+    constructor(operator: string, expr: ExprNode) {
+        this.operator = operator;
         this.expr = expr;
     }
  
@@ -507,13 +507,13 @@ export class ArrayElemNode implements AssignLHSNode, ExprNode{
 
 export class CallNode implements AssignRHSNode {
     ident: IdentNode;
-    exprList: [ExprNode];
+    argList: [ExprNode];
     type : TypeNode; // Filled by semantic visitor
 
 
-    constructor(ident:IdentNode, exprList:[ExprNode]) {
+    constructor(ident:IdentNode, argList:[ExprNode]) {
         this.ident = ident;
-        this.exprList = exprList;
+        this.argList = argList;
     }
 
     visit(v: Visitor): void {
@@ -559,7 +559,7 @@ export class IntLiterNode implements ExprNode {
 
 }
 
-export  var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
-export  var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
-export  var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
-export var ANY_TYPE:BaseTypeNode   = null;
+export var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
+export var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
+export var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
+export var ANY_TYPE:BaseTypeNode  = null;

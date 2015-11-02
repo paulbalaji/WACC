@@ -267,8 +267,8 @@ var BoolLiterNode = (function () {
 })();
 exports.BoolLiterNode = BoolLiterNode;
 var UnOpNode = (function () {
-    function UnOpNode(unOp, expr) {
-        this.unOp = unOp;
+    function UnOpNode(operator, expr) {
+        this.operator = operator;
         this.expr = expr;
     }
     UnOpNode.prototype.visit = function (v) {
@@ -333,9 +333,9 @@ var ArrayElemNode = (function () {
 })();
 exports.ArrayElemNode = ArrayElemNode;
 var CallNode = (function () {
-    function CallNode(ident, exprList) {
+    function CallNode(ident, argList) {
         this.ident = ident;
-        this.exprList = exprList;
+        this.argList = argList;
     }
     CallNode.prototype.visit = function (v) {
         v.visitCallNode(this);

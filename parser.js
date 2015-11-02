@@ -16,7 +16,7 @@ fs.readFile(filename, 'utf8', function (err, data) {
         var ast = parser.parse(data);
         // console.log('TEST SUCCEEDED ON FILE NAME ' + filename);
         var semanticVisitor = new SemanticChecker.SemanticVisitor();
-        // ast.visit(semanticVisitor);
+        ast.visit(semanticVisitor);
         // Print errors out from semanticVisitor
         _.map(semanticVisitor.errors, function (e) { return console.log(e); });
         if (errorFlag === 'success') {

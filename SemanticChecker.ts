@@ -50,7 +50,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.leftOperand.visit(this);
         node.rightOperand.visit(this);
 
-        // REMEMBER however the two express ions must be the SAME type aswell as a required one
+        // REMEMBER however the two expressions must be the SAME type aswell as a required one
+        var INT_TYPE = new NodeType.BaseTypeNode('int');
+        var CHAR_TYPE = new NodeType.BaseTypeNode('char');
+        var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
+        var ANY_TYPE = undefined;
         
         var opMap = {};
         function OperatorInfo(possibleTypes, returnType) {
@@ -82,7 +86,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             // Attempt to match the left operands type with an allowed type
             var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.leftOperand.type, t));
             if (matchedLeftType.length === 0) {
-                throw ('Oh my, your type on lhs is not v alid for the operator');
+                throw ('Oh my, your type on lhs is not valid for the operator');
             }
         }
         // MID: Left type is  correct, check that the rhs type is the same
@@ -222,7 +226,30 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     }
 
-    visitCallNode(node: NodeType.CallNode):void {}
+    visitCallNode(node: NodeType.CallNode):void {
+        node.ident.visit(this);
+        node.argList = _.map(node.argList, (arg) => arg.visit(this));
+
+        var funcNode = { argList : node.argList, ident : node.ident};
+        //compare arguments
+        if (node.argList.length === funcNode.argList.length) {
+            for (var i = 0; i < node.argList.length; i++) {
+                if(!this.checkSameType(node.argList[i], funcNode.argList[i])) {
+                    throw 'Come on man, pass the correct arguments ffs'
+                }
+            }
+        } else {
+            throw 'Learn how to count, get the number of arguments right'
+        }
+
+        //compare return types
+        if(!this.checkSameType(node.ident, funcNode.ident)) {
+            throw 'Is it so hard to return the right fricking things?'
+        }
+
+        node.type = node.ident.type;
+    }
+
     visitPairLiterNode(node: NodeType.PairLiterNode):void {
 
 
@@ -246,7 +273,48 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPrintlnNode(node: NodeType.PrintlnNode):void {}
     visitBaseTypeNode(node: NodeType.BaseTypeNode):void {}
     visitPairElemTypeNode(node: NodeType.PairElemTypeNode):void {}
-    visitUnOpNode(node: NodeType.UnOpNode): void {}
+    
+    visitUnOpNode(node: NodeType.UnOpNode): void {
+        node.expr.visit(this);
+
+        var INT_TYPE = new NodeType.BaseTypeNode('int');
+        var CHAR_TYPE = new NodeType.BaseTypeNode('char');
+        var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
+        var STRING_TYPE = new NodeType.BaseTypeNode('string');
+        var ANY_TYPE = undefined;
+
+        if (node.expr.type instanceof NodeType.ArrayTypeNode) {
+            var ARRAY_TYPE = node.expr.type;
+        }
+
+        var opMap = {};
+        function OperatorInfo(possibleTypes, returnType) {
+            this.possibleTypes = possibleTypes;
+            this.returnType = returnType;
+        }
+
+        opMap['!'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+        opMap['-'] = new OperatorInfo([INT_TYPE], INT_TYPE);
+        opMap['len'] = new OperatorInfo([STRING_TYPE, ARRAY_TYPE], INT_TYPE);
+        opMap['ord'] = new OperatorInfo([CHAR_TYPE], INT_TYPE);
+        opMap['chr'] = new OperatorInfo([INT_TYPE], CHAR_TYPE);
+
+        // First check that lhs of the binop is a required type for the operator
+        var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
+        
+        // If any type is allowed, we do not need to check
+        if (allowedTypes[0]) {
+            // Attempt to match the left operands type with an allowed type
+            var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.expr.type, t));
+            if (matchedLeftType.length === 0) {
+                throw ('Oh my, your type is not valid for this unary operator');
+            }
+        }
+
+        node.type = opMap[node.operator].returnType;
+
+    }
+    
     visitSkipNode(node: NodeType.SkipNode): void {}
     visitExitNode(node: NodeType.ExitNode): void {}
     visitIfNode(node: NodeType.IfNode): void {}
