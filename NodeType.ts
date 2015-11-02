@@ -363,9 +363,10 @@ export class IfNode implements StatNode {
  
 export class ArrayTypeNode implements TypeNode {
     type: TypeNode;
- 
+    depth : number;
     constructor(type: TypeNode, depth: number) {
-        this.type = depth === 1 ? type : new ArrayTypeNode(type, depth - 1);
+        this.type = type;
+        this.depth = depth;
     }
  
     visit(v:Visitor) {
