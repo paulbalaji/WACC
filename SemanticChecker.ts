@@ -43,7 +43,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
-        this.errors.push({ msg: 'You fucked up function semantics' });
+        throw 'You fucked up function semantics';
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -71,25 +71,23 @@ export class SemanticVisitor implements NodeType.Visitor {
         opMap['>']  = new OperatorInfo([INT_TYPE,  CHAR_TYPE], BOOL_TYPE);
         opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
         opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-        opMap['<=' ] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['<='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
 
         opMap['=='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
         opMap['!='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
 
         opMap['&&'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
-        opMap['!!'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+        opMap['||'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
 
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
         
         // If any type is allowed, we do not need to check
         if (allowedTypes[0]) {
-
             // Attempt to match the left operands type with an allowed type
             var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.leftOperand.type, t));
-
-            if (!matchedLeftType) {
-                throw ('Oh my, your type on lhs is  not v alid for the operator');
+            if (matchedLeftType.length === 0) {
+                throw ('Oh my, your type on lhs is not v alid for the operator');
             }
         }
         // MID: Left type is  correct, check that the rhs type is the same
@@ -110,7 +108,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!this.checkSameType(node.lhs.type, node.rhs.type)) {
-            this.errors.push('AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs));
+            throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
         }
 
     }
@@ -131,7 +129,9 @@ export class SemanticVisitor implements NodeType.Visitor {
 
 
     }
-    visitCharLiterNode(node: NodeType.CharLiterNode):void {}
+    visitCharLiterNode(node: NodeType.CharLiterNode):void {
+
+    }
     visitParamNode(node: NodeType.ParamNode):void {}
     visitFreeNode(node: NodeType.FreeNode):void {}
     visitPrintNode(node: NodeType.PrintNode):void {}
@@ -142,24 +142,24 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         var res = this.ST.lookupAll(node.ident);
         if (res) {
-            this.errors.push("you fucked it - redeclaration")
+            throw 'you fucked it - redeclaration';
             return;
         }
-        
+
         if (!this.checkSameType(node.type, node.rhs.type)) {
-            this.errors.push("Absolute nightmare.  Declare node: type of rhs does not match given type");
+            throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
-       // console.log('inserting ' + node.ident + ' into ST with type ');
-        // console.log(node.type);
         this.ST.insert(node.ident, node.type);
-
-
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {}
     visitCallNode(node: NodeType.CallNode):void {}
-    visitPairLiterNode(node: NodeType.PairLiterNode):void {}
+    visitPairLiterNode(node: NodeType.PairLiterNode):void {
+
+
+    }
+
     visitIntLiterNode(node: NodeType.IntLiterNode):void {
         node.type = new NodeType.BaseTypeNode('int');
     }
@@ -181,11 +181,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res : NodeType.DeclareNode = this.ST.lookupAll(node.ident);
         if (res) {
             if (!(res.type instanceof NodeType.PairTypeNode)) {
-                this.errors.push("you fucker, ident named " + res.ident + " is no pair !!!")
+                throw 'you fucker, ident named ' + res.ident + ' is no pair !!!';
             } 
 
         } else { 
-            this.errors.push('bullshit');
+            throw 'bullshit';
         }
     }
     visitNewPairNode(node: NodeType.NewPairNode): void {
