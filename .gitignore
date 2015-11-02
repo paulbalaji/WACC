@@ -3,6 +3,7 @@
 #ignore typescript related stuff
 *.js
 *.wacc
+grammar/grammar.ts
 
 #ignore temp files
 *~
