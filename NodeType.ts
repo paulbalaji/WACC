@@ -307,10 +307,10 @@ export class PairElemSndNode implements PairElemNode {
 export class ArrayLiterNode implements AssignRHSNode {
      type : TypeNode; // Filled by semantic visitor
 
-     list: [ExprNode];
+     exprList: [ExprNode];
 
-     constructor(list:[ExprNode]) {
-            this.list = list;
+     constructor(exprList:[ExprNode]) {
+            this.exprList = exprList;
      }
 
      visit(v:Visitor):void {
