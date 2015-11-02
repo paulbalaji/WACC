@@ -106,12 +106,12 @@ PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new NodeType.PairTypeNode(type1, type2); }
 
 PairElemType
-  = type:(ArrayType 
-  / BaseType 
-  / PAIR) {
+  = (ArrayType 
+  / BaseType)
+  / PAIR {
     // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
     // Below line added in replacement of above line.  Note that below line is not nescessary as returning the generated object for type will automatically happen.
-    return type; 
+    return new NodeType.BaseType('null');
   }
 
 /* AssignLHS */
@@ -128,7 +128,7 @@ AssignRHS
   }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
-                      return new NodeType.NewPairNode(fstExpr, sndExpr);
+        return new NodeType.NewPairNode(fstExpr, sndExpr);
   }
   / ArrayLiter
   / PairElem

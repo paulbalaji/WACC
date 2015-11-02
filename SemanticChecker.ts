@@ -43,6 +43,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
+
         //throw 'You fucked up function semantics';
     }
 
@@ -154,7 +155,21 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     }
 
-    visitFreeNode(node: NodeType.FreeNode):void {}
+    visitFreeNode(node: NodeType.FreeNode):void {
+        node.expr.visit(this);
+
+        if (node.expr instanceof NodeType.IdentNode) {
+            var exprType = this.ST.lookupAll(node.expr);
+
+            if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
+                throw 'Fuck sake. You have done it again!A free statements expression must be an ident referencing an array type or pair type.';
+            }
+
+        } else {
+            throw 'You absolute dumb shit you need to free on an ident'
+        }
+
+    }
     visitPrintNode(node: NodeType.PrintNode):void {}
     visitDeclareNode(node: NodeType.DeclareNode):void {
         node.type.visit(this);
