@@ -51,10 +51,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rightOperand.visit(this);
 
         // REMEMBER however the two express ions must be the SAME type aswell as a required one
-        var INT_TYPE = new NodeType.BaseTypeNode('int');
-        var CHAR_TYPE = new NodeType.BaseTypeNode('char');
-        var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
-        var ANY_TYPE = undefined;
+
 
         
         var opMap = {};
@@ -63,21 +60,21 @@ export class SemanticVisitor implements NodeType.Visitor {
             this.returnType = returnType;
         }
 
-        opMap['+']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['-']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['*']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['/']  = new OperatorInfo([INT_TYPE], INT_TYPE);
-        opMap['%']  = new OperatorInfo([INT_TYPE], BOOL_TYPE);
-        opMap['>']  = new OperatorInfo([INT_TYPE,  CHAR_TYPE], BOOL_TYPE);
-        opMap['>='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-        opMap['<']  = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
-        opMap['<='] = new OperatorInfo([INT_TYPE, CHAR_TYPE], BOOL_TYPE);
+        opMap['+']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['-']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['*']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['/']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
+        opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.BOOL_TYPE);
+        opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['<='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
 
-        opMap['=='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
-        opMap['!='] = new OperatorInfo([ANY_TYPE], BOOL_TYPE);
+        opMap['=='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
+        opMap['!='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
 
-        opMap['&&'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
-        opMap['||'] = new OperatorInfo([BOOL_TYPE], BOOL_TYPE);
+        opMap['&&'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
+        opMap['||'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
 
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
@@ -153,7 +150,16 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.ST.insert(node.ident, node.type);
     }
 
-    visitArrayElemNode(node: NodeType.ArrayElemNode):void {}
+    visitArrayElemNode(node: NodeType.ArrayElemNode):void {
+        _.map(node.exprList, (exprNode: NodeType.Visitable) => exprNode.visit(this));
+        node.ident.visit(this);
+        node.type.visit(this);
+        _.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE ))
+        if (node.exprList.length > 1) {
+            throw "Oh fuck, nested array, did not see that coming."
+        }
+
+    }
     visitCallNode(node: NodeType.CallNode):void {}
     visitPairLiterNode(node: NodeType.PairLiterNode):void {
 
