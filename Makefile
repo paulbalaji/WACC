@@ -1,34 +1,15 @@
-# Sample Makefile for the WACC Compiler lab: edit this to build your own comiler
-# Locations
 
-ANTLR_DIR	:= antlr
-SOURCE_DIR	:= src
-OUTPUT_DIR	:= bin 
+PEGJS = ./node_modules/pegjs/bin/pegjs
+TSC = ./node_modules/tsc/bin/tsc
+TSC_FLAGS = --module commonjs
 
-# Tools
-
-ANTLR	:= antlrBuild
-FIND	:= find
-RM	:= rm -rf
-MKDIR	:= mkdir -p
-JAVA	:= java
-JAVAC	:= javac
-
-JFLAGS	:= -sourcepath $(SOURCE_DIR) -d $(OUTPUT_DIR) -cp lib/antlr-4.4-complete.jar 
-
-# the make rules
-
-all: rules
-
-# runs the antlr build script then attempts to compile all .java files within src
-rules:
-	cd $(ANTLR_DIR) && ./$(ANTLR) 
-	$(FIND) $(SOURCE_DIR) -name '*.java' > $@
-	$(MKDIR) $(OUTPUT_DIR)
-	$(JAVAC) $(JFLAGS) @$@
-	$(RM) rules
+default:
+	@echo "Making Grammar..."
+	@$(PEGJS) grammar/grammar.pegjs grammar/grammar.ts
+	@$(TSC) $(TSC_FLAGS) grammar/grammar.ts
+	@echo "Generating Parser..."
+	@$(TSC) $(TSC_FLAGS) parser.ts
 
 clean:
-	$(RM) rules $(OUTPUT_DIR)
-
-
+	@echo "Removing all generated files..."
+	@rm *.js grammar/grammar.ts
