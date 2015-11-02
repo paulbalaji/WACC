@@ -562,4 +562,5 @@ export class IntLiterNode implements ExprNode {
 export var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
 export var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
 export var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
+export var STRING_TYPE:BaseTypeNode = new BaseTypeNode('string');
 export var ANY_TYPE:BaseTypeNode  = null;

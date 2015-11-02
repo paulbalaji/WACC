@@ -184,8 +184,8 @@ var PairElemSndNode = (function () {
 })();
 exports.PairElemSndNode = PairElemSndNode;
 var ArrayLiterNode = (function () {
-    function ArrayLiterNode(list) {
-        this.list = list;
+    function ArrayLiterNode(exprList) {
+        this.exprList = exprList;
     }
     ArrayLiterNode.prototype.visit = function (v) {
         v.visitArrayLiterNode(this);
@@ -227,7 +227,8 @@ var IfNode = (function () {
 exports.IfNode = IfNode;
 var ArrayTypeNode = (function () {
     function ArrayTypeNode(type, depth) {
-        this.type = depth === 1 ? type : new ArrayTypeNode(type, depth - 1);
+        this.type = type;
+        this.depth = depth;
     }
     ArrayTypeNode.prototype.visit = function (v) {
         return v.visitArrayTypeNode(this);
@@ -371,3 +372,8 @@ var IntLiterNode = (function () {
     return IntLiterNode;
 })();
 exports.IntLiterNode = IntLiterNode;
+exports.INT_TYPE = new BaseTypeNode('int');
+exports.CHAR_TYPE = new BaseTypeNode('char');
+exports.BOOL_TYPE = new BaseTypeNode('bool');
+exports.STRING_TYPE = new BaseTypeNode('string');
+exports.ANY_TYPE = null;
