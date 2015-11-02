@@ -54,7 +54,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         var INT_TYPE = new NodeType.BaseTypeNode('int');
         var CHAR_TYPE = new NodeType.BaseTypeNode('char');
         var BOOL_TYPE = new NodeType.BaseTypeNode('bool');
-        var ANY_TYPE = undefined;
+        var ANY_TYPE = null;
 
         
         var opMap = {};
@@ -112,6 +112,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
     }
+
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
     visitWhileNode(node: NodeType.WhileNode):void {}
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
@@ -120,18 +121,32 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Visit all expressions
         _.map(node.list, (expr: NodeType.Visitable) => expr.visit(this));
 
-        // All expressions must be the same type
-        // Some code here to check that...
+        if (node.list.length === 0) { // The case that the list is empty
+            // Nothing more to check, just fill in the node type as null
+            node.type = null;
+        } else { // The case that the list is not empty
+
+            // Check that all expressions are of the same type
+            var type = node.list[0].type;
+
+            // Check that all types are equal to type
+            if (!_.isEmpty(_.filter(node.list, (expr) => this.checkSameType(type, expr)))) {
+                throw 'Deary deary me.  In an array liter node all expressions must be of the same type';
+            }
+
+            node.type = new NodeType.ArrayTypeNode(node.list[0].type, 1);
+
+        }
 
         // Now fill in the type
-        // TODO - fix below line. Assumes there is an elem in the list, returns null if there is not. ArrayDepth assumed to be 1
-        node.type = node.list[0] ? new NodeType.ArrayTypeNode(node.list[0].type, 1): new NodeType.BaseTypeNode('lol');
-
+        // If the list is not empty, set its type to corresponding array type, otherwise set type null§
 
     }
+
     visitCharLiterNode(node: NodeType.CharLiterNode):void {
 
     }
+
     visitParamNode(node: NodeType.ParamNode):void {}
     visitFreeNode(node: NodeType.FreeNode):void {}
     visitPrintNode(node: NodeType.PrintNode):void {}
