@@ -93,16 +93,16 @@
             return new NodeType.ArrayTypeNode(type, array.length);
           },
         peg$c22 = function(type1, type2) { return new NodeType.PairTypeNode(type1, type2); },
-        peg$c23 = function(type) {
+        peg$c23 = function() {
             // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
             // Below line added in replacement of above line.  Note that below line is not nescessary as returning the generated object for type will automatically happen.
-            return type; 
+            return new NodeType.BaseType('null');
           },
         peg$c24 = function(ident, exprList) {
             return new NodeType.CallNode(ident, exprList);
           },
         peg$c25 = function(fstExpr, sndExpr) {
-                              return new NodeType.NewPairNode(fstExpr, sndExpr);
+                return new NodeType.NewPairNode(fstExpr, sndExpr);
           },
         peg$c26 = function(exprList) { return new NodeType.ArrayLiterNode(exprList);},
         peg$c27 = function(expr, exprs) {
@@ -1443,19 +1443,19 @@
     function peg$parsePairElemType() {
       var s0, s1;
 
-      s0 = peg$currPos;
-      s1 = peg$parseArrayType();
-      if (s1 === peg$FAILED) {
-        s1 = peg$parseBaseType();
-        if (s1 === peg$FAILED) {
-          s1 = peg$parsePAIR();
+      s0 = peg$parseArrayType();
+      if (s0 === peg$FAILED) {
+        s0 = peg$parseBaseType();
+      }
+      if (s0 === peg$FAILED) {
+        s0 = peg$currPos;
+        s1 = peg$parsePAIR();
+        if (s1 !== peg$FAILED) {
+          peg$savedPos = s0;
+          s1 = peg$c23();
         }
+        s0 = s1;
       }
-      if (s1 !== peg$FAILED) {
-        peg$savedPos = s0;
-        s1 = peg$c23(s1);
-      }
-      s0 = s1;
 
       return s0;
     }

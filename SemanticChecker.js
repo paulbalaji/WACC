@@ -122,7 +122,18 @@ var SemanticVisitor = (function () {
         node.type.visit(this);
         node.ident.visit(this);
     };
-    SemanticVisitor.prototype.visitFreeNode = function (node) { };
+    SemanticVisitor.prototype.visitFreeNode = function (node) {
+        node.expr.visit(this);
+        if (node.expr instanceof NodeType.IdentNode) {
+            var exprType = this.ST.lookupAll(node.expr);
+            if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
+                throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
+            }
+        }
+        else {
+            throw 'You absolute dumb shit you need to free on an ident';
+        }
+    };
     SemanticVisitor.prototype.visitPrintNode = function (node) { };
     SemanticVisitor.prototype.visitDeclareNode = function (node) {
         node.type.visit(this);
@@ -134,7 +145,7 @@ var SemanticVisitor = (function () {
         }
         /*
          In the case that rhs is an array liter node, we must consider the case that is empty ([]).
-         If it is a list of empty expressions, then it is the rspsonsibility of declare node to fill
+         If it is a list of empty expressions, then it is the responsibility of declare node to fill
          in the type.
          This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
 
@@ -160,7 +171,6 @@ var SemanticVisitor = (function () {
         _.map(node.exprList, function (exprNode) { return exprNode.visit(_this); });
         node.ident.visit(this);
         // Check if every index is an integer
-        console.log("Hi");
         if (!_.every(node.exprList, function (exprNode) { return _this.checkSameType(exprNode.type, NodeType.INT_TYPE); })) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
@@ -168,7 +178,6 @@ var SemanticVisitor = (function () {
         if (!res) {
             throw 'Mate, fucking declare your arrays before you use them.';
         }
-        console.log(res);
         if (!(res instanceof NodeType.ArrayTypeNode)) {
             throw "Mate, you are trying to index something which is not an array. have you been drinking?";
         }
@@ -212,7 +221,9 @@ var SemanticVisitor = (function () {
         node.type = res;
     };
     SemanticVisitor.prototype.visitReadNode = function (node) { };
-    SemanticVisitor.prototype.visitPrintlnNode = function (node) { };
+    SemanticVisitor.prototype.visitPrintlnNode = function (node) {
+        node.expr.visit(this);
+    };
     SemanticVisitor.prototype.visitBaseTypeNode = function (node) { };
     SemanticVisitor.prototype.visitPairElemTypeNode = function (node) { };
     SemanticVisitor.prototype.visitUnOpNode = function (node) {
