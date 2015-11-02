@@ -416,13 +416,13 @@ export class BoolLiterNode implements ExprNode {
 }
  
 export class UnOpNode implements ExprNode {
-    unOp: string;
+    operator: string;
     expr: ExprNode;
     type : TypeNode; // Filled by semantic visitor
 
  
-    constructor(unOp: string, expr: ExprNode) {
-        this.unOp = unOp;
+    constructor(operator: string, expr: ExprNode) {
+        this.operator = operator;
         this.expr = expr;
     }
  
@@ -506,13 +506,13 @@ export class ArrayElemNode implements AssignLHSNode, ExprNode{
 
 export class CallNode implements AssignRHSNode {
     ident: IdentNode;
-    exprList: [ExprNode];
+    argList: [ExprNode];
     type : TypeNode; // Filled by semantic visitor
 
 
-    constructor(ident:IdentNode, exprList:[ExprNode]) {
+    constructor(ident:IdentNode, argList:[ExprNode]) {
         this.ident = ident;
-        this.exprList = exprList;
+        this.argList = argList;
     }
 
     visit(v: Visitor): void {
