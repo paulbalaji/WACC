@@ -37,13 +37,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node:NodeType.ProgramNode):void {
-        console.log('visiting a program node!');
+        //console.log('visiting a program node!');
         _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
-        throw 'You fucked up function semantics';
+        //throw 'You fucked up function semantics';
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -92,6 +92,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
+
         node.type = opMap[node.operator].returnType;
     }
 
@@ -116,40 +117,46 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPairElemSndNode(node: NodeType.PairElemSndNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
-        _.map(node.list, (expr: NodeType.Visitable) => expr.visit(this));
+        _.map(node.exprList, (expr: NodeType.Visitable) => expr.visit(this));
 
-        if (node.list.length === 0) { // The case that the list is empty
+        if (_.isEmpty(node.exprList) === 0) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
             node.type = null;
+            []
         } else { // The case that the list is not empty
-
             // Check that all expressions are of the same type
-            var type = node.list[0].type;
-
+            var type = node.exprList[0].type;
             // Check that all types are equal to type
-            if (!_.isEmpty(_.filter(node.list, (expr) => this.checkSameType(type, expr)))) {
-                throw 'Deary deary me.  In an array liter node all expressions must be of the same type';
+
+            // mismatchedTypes is a list of types which do not match the first one in the list
+            var mismatchedTypes = _.filter(node.exprList, (expr) => !this.checkSameType(type, expr.type));
+
+            if (!_.isEmpty(mismatchedTypes)) {
+                throw 'Deary deary me.  In an array literal all expressions must be of the same type';
             }
 
-            node.type = new NodeType.ArrayTypeNode(node.list[0].type, 1);
+            node.type = new NodeType.ArrayTypeNode(node.exprList[0].type, 1);
 
         }
-
-        // Now fill in the type
-        // If the list is not empty, set its type to corresponding array type, otherwise set type null§
 
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode):void {
+        node.type = NodeType.CHAR_TYPE;
+    }
+
+    visitParamNode(node: NodeType.ParamNode):void {
+
+        node.type.visit(this);
+        node.ident.visit(this);
 
     }
 
-    visitParamNode(node: NodeType.ParamNode):void {}
     visitFreeNode(node: NodeType.FreeNode):void {}
     visitPrintNode(node: NodeType.PrintNode):void {}
     visitDeclareNode(node: NodeType.DeclareNode):void {
         node.type.visit(this);
-        node.ident.visit(this);
+        
         node.rhs.visit(this);
 
         var res = this.ST.lookupAll(node.ident);
@@ -158,11 +165,30 @@ export class SemanticVisitor implements NodeType.Visitor {
             return;
         }
 
+        /*
+         In the case that rhs is an array liter node, if it is a list of empty expressions, 
+         then it is the rspsonsibility of declare node to fill in the type. 
+          As an ArrayLiterNode, [] cannot know its type!
+
+          If you have enjoyed my essay then please leave me a mark out of 10 in the fields below:
+          Jan:
+          Andrea:
+          Paul:
+        */
+        
+        if(node.rhs instanceof NodeType.ArrayLiterNode) {
+            var arrayLiter:any = node.rhs;
+            if(_.isEmpty(arrayLiter.exprList)) {
+                arrayLiter.type = node.type;
+            }
+        }
+
         if (!this.checkSameType(node.type, node.rhs.type)) {
             throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
         this.ST.insert(node.ident, node.type);
+        node.ident.visit(this);
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {
@@ -175,6 +201,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
     }
+
     visitCallNode(node: NodeType.CallNode):void {}
     visitPairLiterNode(node: NodeType.PairLiterNode):void {
 
@@ -186,7 +213,11 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
+
         node.type = this.ST.lookupAll(node.identStr);
+        if (!node.type) {
+            throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
+        }
     }
 
     visitReadNode(node: NodeType.ReadNode):void {}
