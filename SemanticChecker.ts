@@ -51,8 +51,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rightOperand.visit(this);
 
         // REMEMBER however the two express ions must be the SAME type aswell as a required one
-
-
         
         var opMap = {};
         function OperatorInfo(possibleTypes, returnType) {
@@ -122,7 +120,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (_.isEmpty(node.exprList)) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
             node.type = null;
-            []
+            
         } else { // The case that the list is not empty
             // Check that all expressions are of the same type
             var type = node.exprList[0].type;
@@ -135,7 +133,13 @@ export class SemanticVisitor implements NodeType.Visitor {
                 throw 'Deary deary me.  In an array literal all expressions must be of the same type';
             }
 
-            node.type = new NodeType.ArrayTypeNode(node.exprList[0].type, 1);
+            if (node.exprList[0].type instanceof NodeType.ArrayTypeNode) {
+                var n: any = node.exprList[0].type;
+                node.type = new NodeType.ArrayTypeNode(n.type, n.depth + 1);
+
+            } else {
+                node.type = new NodeType.ArrayTypeNode(node.exprList[0].type, 1);
+            }
 
         }
 
@@ -158,7 +162,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
         
         node.rhs.visit(this);
-
         var res = this.ST.lookupAll(node.ident);
         if (res) {
             throw 'you fucked it - redeclaration';
@@ -229,11 +232,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
-
-        node.type = this.ST.lookupAll(node.identStr);
-        if (!node.type) {
+        var res = this.ST.lookupAll(node.identStr);
+        
+        if (!res) {
             throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
         }
+
+        node.type = res;
     }
 
     visitReadNode(node: NodeType.ReadNode):void {}
