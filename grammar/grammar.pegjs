@@ -109,7 +109,9 @@ PairElemType
   = type:(ArrayType 
   / BaseType 
   / PAIR) {
-    return new NodeType.PairElemTypeNode(type);
+    // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
+    // Below line added in replacement of above line.  Note that below line is not nescessary as returning the generated object for type will automatically happen.
+    return type; 
   }
 
 /* AssignLHS */

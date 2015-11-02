@@ -6,6 +6,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     errors: any[];
     ST: any;
 
+    getType(obj):string {
+        return obj.constructor.name;
+    }
+
+    checkSameType(obj1, obj2):boolean {
+        return this.getType(obj1) === this.getType(obj2) && _.isEqual(obj1, obj2);
+    }
 
     constructor() {
         this.errors = [];
@@ -40,22 +47,17 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
 	visitBinOpExprNode(node: NodeType.BinOpExprNode):void {}
-    visitStrLiterNode(node: NodeType.StrLiterNode):void {}
+    visitStrLiterNode(node: NodeType.StrLiterNode):void {
+        node.type = new NodeType.BaseTypeNode('string');
+    }
+
     visitReturnNode(node: NodeType.ReturnNode):void {}
     visitAssignNode(node: NodeType.AssignNode):void {
         node.lhs.visit(this);
         node.rhs.visit(this);
 
-        if (!checkSameType(node.lhs.type, node.rhs.type)) {
-            this.errors.push('AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + getType(node.lhs) + ' . rhs type is ' + getType(node.rhs));
-        }
-
-        function getType(obj) {
-            return obj.constructor.name;
-        }
-
-        function checkSameType(obj1, obj2) {
-            return getType(obj1) === getType(obj2);
+        if (!this.checkSameType(node.lhs.type, node.rhs.type)) {
+            this.errors.push('AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs));
         }
 
     }
@@ -63,7 +65,19 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitWhileNode(node: NodeType.WhileNode):void {}
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
     visitPairElemSndNode(node: NodeType.PairElemSndNode):void {}
-    visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {}
+    visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
+        // Visit all expressions
+        _.map(node.list, (expr: NodeType.Visitable) => expr.visit(this));
+
+        // All expressions must be the same type
+        // Some code here to check that...
+
+        // Now fill in the type
+        // TODO - fix below line. Assumes there is an elem in the list, returns null if there is not. ArrayDepth assumed to be 1
+        node.type = node.list[0] ? new NodeType.ArrayTypeNode(node.list[0].type, 1): new NodeType.BaseTypeNode('lol');
+
+
+    }
     visitCharLiterNode(node: NodeType.CharLiterNode):void {}
     visitParamNode(node: NodeType.ParamNode):void {}
     visitFreeNode(node: NodeType.FreeNode):void {}
@@ -72,23 +86,34 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
         node.ident.visit(this);
         node.rhs.visit(this);
-
+       
         var res = this.ST.lookupAll(node.ident);
         if (res) {
             this.errors.push("you fucked it - redeclaration")
             return;
         }
-        this.ST.insert(node.ident, node);
+        
+        if (!this.checkSameType(node.type, node.rhs.type)) {
+            this.errors.push("Absolute nightmare.  Declare node: type of rhs does not match given type");
+        }
+
+       // console.log('inserting ' + node.ident + ' into ST with type ');
+        // console.log(node.type);
+        this.ST.insert(node.ident, node.type);
+
+
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {}
     visitCallNode(node: NodeType.CallNode):void {}
     visitPairLiterNode(node: NodeType.PairLiterNode):void {}
     visitIntLiterNode(node: NodeType.IntLiterNode):void {
-        node.type = new IntTypeNode();
+        node.type = new NodeType.BaseTypeNode('int');
     }
 
-    visitIdentNode(node: NodeType.IdentNode):void {}
+    visitIdentNode(node: NodeType.IdentNode):void {
+        node.type = this.ST.lookupAll(node.identStr);
+    }
 
     visitReadNode(node: NodeType.ReadNode):void {}
     visitPrintlnNode(node: NodeType.PrintlnNode):void {}
@@ -113,9 +138,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitNewPairNode(node: NodeType.NewPairNode): void {
         node.fstExpr.visit(this);
         node.sndExpr.visit(this);
+
+        // The type of the node is the type of the pair
+        node.type = new NodeType.PairTypeNode(node.fstExpr.type, node.sndExpr.type);
     }
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
-        node.type = new BoolTypeNode();
+        node.type = new NodeType.BaseTypeNode('bool');
         // There is nothing to check here
     }
 
