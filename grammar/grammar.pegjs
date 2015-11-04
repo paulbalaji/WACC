@@ -17,14 +17,15 @@
       if (tail.length == 0) {
         return head
       }
+      tail = _.map(tail, (row) => _.filter(row, (elem) => elem))
       // Filter out all nulls corresponding to whitespace
-      tail[tail.length - 1] = _.filter(tail[tail.length - 1], (elem) => elem)
+      
 
       // Set last element as a right most element
       var result = tail[tail.length - 1][1];
       // Iterate backwards through list (left associativity)
       for (var i = tail.length - 2; i >= 0; i--) {
-        tail[i] = _.filter(tail[i], (elem) => elem)
+       
         result = new NodeType.BinOpExprNode(tail[i][1], result, tail[i+1][0]);
 
       }
