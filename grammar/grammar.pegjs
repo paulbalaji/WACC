@@ -150,9 +150,9 @@ ExprList
 /* PairElem */
 PairElem
   = FST __ ident:Ident {
-    return new NodeType.PairElemFstNode(ident);
+    return new NodeType.PairElemNode(ident, 0);
   }
-  / SND __ ident:Ident {return new NodeType.PairElemSndNode(ident);}
+  / SND __ ident:Ident {return new NodeType.PairElemNode(ident, 1);}
 
 /* Expr */
 Expr

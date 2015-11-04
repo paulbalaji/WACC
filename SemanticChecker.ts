@@ -113,7 +113,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.BOOL_TYPE);
         opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
         opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE, NodeType.NULL_TYPE], NodeType.BOOL_TYPE);
+        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
         opMap['<='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
 
         opMap['=='] = new OperatorInfo([null], NodeType.BOOL_TYPE);
@@ -334,8 +334,31 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = res.type;
     }
 
-    visitReadNode(node: NodeType.ReadNode):void {}
-    
+    visitReadNode(node: NodeType.ReadNode):void {
+        var target = node.readTarget;
+        if (this.isSameType(target, NodeType.IdentNode)) {
+
+            var name = this.ST.lookupAll(target).node;
+            if (!name) {
+                throw 'Mate, you should declare the things you read to...'
+            }
+        }
+        if (this.isSameType(target, NodeType.ArrayElemNode)) {
+            
+            var name = this.ST.lookupAll((<NodeType.ArrayElemNode> target).ident).node;
+            if (!name) {
+                throw 'Mate, you should declare the things you read to...'
+            }
+        } 
+        if (this.isSameType(target, NodeType.PairElemNode)) {
+            var name = this.ST.lookupAll(( <NodeType.PairElemNode> target).ident).node;
+            if (!name) {
+                throw 'Mate, you should declare the things you read to...'
+            }
+        }       
+        var res =   this.ST.lookupAll(node.readTarget);
+    }
+
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
         node.expr.visit(this);
     }
@@ -395,23 +418,9 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitIfNode(node: NodeType.IfNode): void {}
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
-    visitPairElemFstNode(node: NodeType.PairElemFstNode): void {
-        node.ident.visit(this);
-        var res = this.ST.lookupAll(node.ident);
-        if (res) {
 
-            if (!(res.type instanceof NodeType.PairTypeNode)) {
-                throw 'you fucker, ident named ' + node.ident + ' is no pair !!!';
-            }
 
-        } else {
-            throw 'bullshit';
-        }
-
-        node.type = res.type.type1;
-    }
-
-    visitPairElemSndNode(node: NodeType.PairElemSndNode):void {
+    visitPairElemNode(node: NodeType.PairElemNode):void {
          node.ident.visit(this);
         var res = this.ST.lookupAll(node.ident);
         if (res) {
@@ -423,8 +432,12 @@ export class SemanticVisitor implements NodeType.Visitor {
         } else {
             throw 'bullshit';
         }
+        if (node.index === 0) {
+            node.type = res.type.type1;
+        } else {
+            node.type = res.type.type2;
+        }
 
-        node.type = res.type.type2;
 
     }
 
