@@ -1,10 +1,13 @@
 import NodeType = require('./NodeType');
-
+import SemanticUtil = require('./SemanticUtil');
 var _ = require('underscore');
+
 
 export class SemanticVisitor implements NodeType.Visitor {
     errors: any[];
-    ST: any;
+
+    currentST: SemanticUtil.SymbolTable;
+    functionST: SemanticUtil.SymbolTable;
 
     getType(obj):string {
         return obj.constructor.name;
@@ -49,34 +52,8 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     constructor() {
         this.errors = [];
-        this.ST = {};
-        this.ST.table = {};
-        this.ST.funcTable = {};
-        this.ST.parent = null;
-        this.ST.lookupAll = function (ident : string) {
-            var result = this.table[ident];
-            if (result) {
-                return result;
-            }
-            if (this.parent) {
-                return this.parent.lookupAll(ident);
-            }
-            return null;
-        }
-
-        this.ST.insert = function (ident : string, infoObj):void {
-            // PRE: the key is not already in the map
-            // InfoObj is made up of node and type
-            this.table[ident] = infoObj;
-        }
-
-        this.ST.insertFunc = function (ident:string, infoObj):void {
-            this.funcTable[ident] = infoObj;
-        }
-
-        this.ST.lookupFunc = function (ident:string): void {
-            return this.funcTable[ident] ? this.funcTable[ident] : null;
-        }
+        this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
+        this.functionST = new SemanticUtil.SymbolTable(null);
     }
 
     visitProgramNode(node:NodeType.ProgramNode):void {
@@ -87,8 +64,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitFuncNode(node:NodeType.FuncNode) {
         // Temporary function node visit
-        this.ST.insertFunc(node.ident, {type: node.type, node: node});
-         _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
+
+        if (this.functionST.lookupAll(node.ident)) {
+            throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
+        }
+        this.functionST.insert(node.ident, {type: node.type, node: node});
+        _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
          node.ident.type = node.type;
         //node.ident.visit(this); NO LONGER NEEDED
         //throw 'You fucked up function semantics';
@@ -155,8 +136,6 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
         }
 
-
-
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
@@ -207,7 +186,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
 
         if (node.expr instanceof NodeType.IdentNode) {
-            var exprType = this.ST.lookupAll(node.expr).type;
+            var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
                 throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
@@ -224,7 +203,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
         node.rhs.visit(this);
 
-        var res = this.ST.lookupAll(node.ident);
+        var res = this.currentST.lookupAll(node.ident);
         if (res) {
             throw 'you fucked it - redeclaration';
         }
@@ -242,7 +221,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         */
         
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
-            var arrayLiter:any = node.rhs;
+            var arrayLiter:NodeType.ArrayLiterNode = <NodeType.ArrayLiterNode>node.rhs;
             if(_.isEmpty(arrayLiter.exprList)) {
                 arrayLiter.type = node.type;
             }
@@ -252,7 +231,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
-        this.ST.insert(node.ident, {type: node.type, node: node});
+        this.currentST.insert(node.ident, {type: node.type, node: node});
 
         node.ident.visit(this);
 
@@ -266,7 +245,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.isSameType(exprNode.type, NodeType.INT_TYPE))) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
-        var res = this.ST.lookupAll(node.ident);
+        var res = this.currentST.lookupAll(node.ident);
         if (!res) {
             throw 'Mate, fucking declare your arrays before you use them.';
         }
@@ -288,7 +267,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         
          _.map(node.argList, (arg) => arg.visit(this));
 
-        var res = this.ST.lookupFunc(node.ident);
+        var res = this.functionST.lookupAll(node.ident);
 
         if (!res) {
             throw 'Mate, you cannot just call a function which hasnt been defined - get a grip.';
@@ -325,7 +304,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
-        var res = this.ST.lookupAll(node.identStr);
+        var res = this.currentST.lookupAll(node);
         
         if (!res) {
             throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
@@ -420,9 +399,10 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
 
 
+
     visitPairElemNode(node: NodeType.PairElemNode):void {
          node.ident.visit(this);
-        var res = this.ST.lookupAll(node.ident);
+        var res = this.currentST.lookupAll(node.ident);
         if (res) {
 
             if (!(res.type instanceof NodeType.PairTypeNode)) {
