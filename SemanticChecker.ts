@@ -1,3 +1,4 @@
+import Const = require('./Constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
 var _ = require('underscore');
@@ -56,14 +57,11 @@ export class SemanticVisitor implements NodeType.Visitor {
             this.isSameType(typeObj, NodeType.CHAR_TYPE);
     }
 
-    isType(type) {
-
-        if (arguments[1]) {
-            throw 'isType() error, at least 1 type must be given to compare against'
+    isType(type, ...compareTypes) {
+        if (compareTypes[0] instanceof Array) {
+            compareTypes = compareTypes[0];
         }
-
-        var argList = arguments[1] instanceof Array ? arguments[1] : arguments.slice(1, arguments.length);
-        return _.some(_.map(argList, _.partial(this.isSameType, type)));
+        return _.some(_.map(compareTypes, _.partial(this.isSameType.bind(this), type)));
     }
 
     constructor() {
@@ -247,6 +245,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
+
         this.currentST.insert(node.ident, {type: node.type, node: node});
 
         node.ident.visit(this);
@@ -317,6 +316,14 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitIntLiterNode(node: NodeType.IntLiterNode):void {
         node.type = NodeType.INT_TYPE;
+
+        if (node.num > Const.WACC_MAX_INT) {
+            throw 'IntLiter number is too big';
+        }
+
+        if (node.num < Const.WACC_MIN_INT) {
+            throw 'IntLiter number is smaller than the lowest possible WACC number'
+        }
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
