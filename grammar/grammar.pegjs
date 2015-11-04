@@ -49,7 +49,7 @@ Stat
   = SKIP {
     return new NodeType.SkipNode();
   }
-  / BEGIN _ statList:StatList _ END {
+  / BEGIN _ statList:StatList __ END {
     return new NodeType.BeginEndBlockNode(statList);
   }
   / READ _ dest:AssignLHS {
