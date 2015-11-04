@@ -50,6 +50,12 @@ export class SemanticVisitor implements NodeType.Visitor {
         return this.getType(typeObj1) === this.getType(typeObj2);
     }
 
+    isReadableType(typeObj) {
+        // Base types are INT, BOOL, CHAR
+        return this.isSameType(typeObj, NodeType.INT_TYPE) ||
+            this.isSameType(typeObj, NodeType.CHAR_TYPE);
+    }
+
     constructor() {
         this.errors = [];
         this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
@@ -102,7 +108,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         opMap['&&'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
         opMap['||'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
-
+        
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
         // If any type is allowed, we do not need to check
@@ -315,32 +321,34 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitReadNode(node: NodeType.ReadNode):void {
         var target = node.readTarget;
-        if (this.isSameType(target, NodeType.IdentNode)) {
-
-            var identObject = this.currentST.lookupAll(target);
-
-            if (!identObject) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-            if (!isBaseType(identObject.type)) {
+        target.visit(this);
+        if (!this.isReadableType(target.type)) {
+           
                 throw 'Mate, you can only read into the basic types.'
+     
+        } else {
+            return;
+        }
+
+        if (this.isSameType(target.type, NodeType.ArrayElemNode)) {
+
+
+            var name = this.currentST.lookupAll((<NodeType.ArrayElemNode>target).ident).node;
+
+            if (!name) {
+                throw 'Mate, you should declare the things you read to...'
             }
         }
-        if (this.isSameType(target, NodeType.ArrayElemNode)) {
-            
-            var name = this.currentST.lookupAll((<NodeType.ArrayElmNode> target).ident).node;
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        } 
-        if (this.isSameType(target, NodeType.PairElemNode)) {
-            var name = this.currentST.lookpAll(( <NodeType.PairElmNode> target).ident).node;
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        } 
-        throw "Buddy, know your types... You can only read to "      
+        else if (this.isSameType(target.type, NodeType.PairElemNode)) {
 
+            var name = this.currentST.lookupAll((<NodeType.PairElemNode>target).ident).node;
+            if (!name) {
+                throw 'Mate, you should declare the things you read to...'
+            }
+        }
+        else {
+            throw "Buddy, know your types... You can only read to "
+        }
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode):void {

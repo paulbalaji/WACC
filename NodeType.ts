@@ -37,6 +37,7 @@ export interface Visitor {
     visitExitNode(node:ExitNode): void;
     visitIfNode(node:IfNode): void;
     visitArrayTypeNode(node:ArrayTypeNode): void;
+
     visitNewPairNode(node:NewPairNode): void;
     visitBoolLiterNode(node:BoolLiterNode): void;
     visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
