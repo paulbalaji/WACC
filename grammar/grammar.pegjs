@@ -1,5 +1,5 @@
 {
-
+  var _ = require('underscore');
   function generateListFromRecursiveRule(head, tail) {
     if (head !== null) {
       tail.unshift(head);
@@ -12,6 +12,27 @@
     }
     return [elem];
   }
+
+  function buildBinaryExpTree(head, tail) {
+      if (tail.length == 0) {
+        return head
+      }
+      // Filter out all nulls corresponding to whitespace
+      tail[tail.length - 1] = _.filter(tail[tail.length - 1], (elem) => elem)
+
+      // Set last element as a right most element
+      var result = tail[tail.length - 1][1];
+      // Iterate backwards through list (left associativity)
+      for (var i = tail.length - 2; i >= 0; i--) {
+        tail[i] = _.filter(tail[i], (elem) => elem)
+        result = new NodeType.BinOpExprNode(tail[i][1], result, tail[i+1][0]);
+
+      }
+      // Stick the head and first operand as root
+      return new NodeType.BinOpExprNode(head, result, tail[0][0])
+  }
+
+
 
 }
 
@@ -156,41 +177,34 @@ PairElem
 
 /* Expr */
 Expr
-  = left:AndExpr __ binOp:DOUBLE_PIPE __ right:Expr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:AndExpr tail:(__ DOUBLE_PIPE __ AndExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / AndExpr
 
 AndExpr
-  = left:EqualsExpr __ binOp:DOUBLE_AMP __ right:AndExpr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:EqualsExpr tail:(__ DOUBLE_AMP __ EqualsExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / EqualsExpr
 
 EqualsExpr
-  = left:CompareExpr __ binOp:EqualsOp __ right:EqualsExpr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:CompareExpr tail:(__ EqualsOp __ CompareExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / CompareExpr
 
 CompareExpr
-  = left:PlusMinusExpr __ binOp:CompareOp __ right:CompareExpr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:PlusMinusExpr tail:(__ CompareOp __ PlusMinusExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / PlusMinusExpr
 
 PlusMinusExpr
-  = left:FactorExpr __ binOp:PlusMinusOp __ right:Expr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:FactorExpr tail:(__ PlusMinusOp __ FactorExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / FactorExpr
-
 
 FactorExpr
-  = left:BaseExpr __ binOp:FactorOp __ right:FactorExpr { 
-    return new NodeType.BinOpExprNode(left,right, binOp);
+  = head:BaseExpr tail:(__ FactorOp __ BaseExpr)* { 
+    return buildBinaryExpTree(head, tail)
   }
-  / BaseExpr
 
 BaseExpr
   = IntLiter
