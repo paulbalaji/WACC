@@ -37,12 +37,11 @@ export interface Visitor {
     visitExitNode(node:ExitNode): void;
     visitIfNode(node:IfNode): void;
     visitArrayTypeNode(node:ArrayTypeNode): void;
-    visitPairElemFstNode(node:PairElemFstNode): void;
-    visitPairElemSndNode(node:PairElemSndNode):void;
+
     visitNewPairNode(node:NewPairNode): void;
     visitBoolLiterNode(node:BoolLiterNode): void;
     visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
-
+    visitPairElemNode(node:PairElemNode): void;
     visitIntTypeNode(node:IntTypeNode): void;
     visitBoolTypeNode(node:BoolTypeNode): void;
     visitCharTypeNode(node:CharTypeNode): void;
@@ -74,9 +73,6 @@ export interface AssignRHSNode extends TreeNode {
 
 export interface TypeNode extends TreeNode {}
 
-export interface PairElemNode extends TreeNode {
-
-}
 
 export class ProgramNode implements TreeNode {
     functionList: [FuncNode];
@@ -397,31 +393,18 @@ export class ArrayTypeNode implements TypeNode {
     }
 }
  
-export class PairElemFstNode implements PairElemNode {
+export class PairElemNode implements AssignLHSNode {
     type : TypeNode; // Filled by semantic visitor
-
     ident : IdentNode;
+    index : number;
     
-    constructor(ident: IdentNode) {
+    constructor(ident : IdentNode, index : number) {
         this.ident = ident;
+        this.index = index;
     }
  
     visit(v:Visitor) {
-        return v.visitPairElemFstNode(this);
-    }
-}
-
-export class PairElemSndNode implements PairElemNode {
-    type : TypeNode; // Filled by semantic visitor
-
-    ident: IdentNode;
-
-    constructor(ident:IdentNode) {
-        this.ident = ident;
-    }
-
-    visit(v:Visitor):void {
-        v.visitPairElemSndNode(this);
+        return v.visitPairElemNode(this);
     }
 }
  
