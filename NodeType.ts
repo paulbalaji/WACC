@@ -15,7 +15,6 @@ export interface Visitor {
     visitBeginEndBlockNode(node:BeginEndBlockNode):void;
     visitWhileNode(node:WhileNode):void;
     visitPairTypeNode(node:PairTypeNode):void;
-    visitPairElemSndNode(node:PairElemSndNode):void;
     visitArrayLiterNode(node:ArrayLiterNode):void;
     visitCharLiterNode(node:CharLiterNode):void;
     visitParamNode(node:ParamNode):void;
@@ -39,6 +38,7 @@ export interface Visitor {
     visitIfNode(node:IfNode): void;
     visitArrayTypeNode(node:ArrayTypeNode): void;
     visitPairElemFstNode(node:PairElemFstNode): void;
+    visitPairElemSndNode(node:PairElemSndNode):void;
     visitNewPairNode(node:NewPairNode): void;
     visitBoolLiterNode(node:BoolLiterNode): void;
     visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
