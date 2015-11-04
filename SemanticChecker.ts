@@ -126,6 +126,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         node.type = opMap[node.operator].returnType;
+        
     }
 
     visitStrLiterNode(node: NodeType.StrLiterNode):void {
@@ -145,7 +146,16 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
-    visitWhileNode(node: NodeType.WhileNode):void {}
+    visitWhileNode(node: NodeType.WhileNode):void {
+
+        var childST : SemanticUtil.SymbolTable = new SemanticUtil.SymbolTable(this.currentST);
+        node.predicateExpr.visit(this);
+        _.map(node.loopBody, (stat: NodeType.Visitable) => stat.visit(this));
+        if (!this.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
+            throw "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
+        }
+        this.currentST = childST.parent;
+    }
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions

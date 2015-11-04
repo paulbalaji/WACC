@@ -156,7 +156,38 @@ PairElem
 
 /* Expr */
 Expr
-  = left:BaseExpr __ binOp:BinaryOp __ right:Expr { 
+  = left:AndExpr __ binOp:DOUBLE_PIPE __ right:Expr { 
+    return new NodeType.BinOpExprNode(left,right, binOp);
+  }
+  / AndExpr
+
+AndExpr
+  = left:EqualsExpr __ binOp:DOUBLE_AMP __ right:AndExpr { 
+    return new NodeType.BinOpExprNode(left,right, binOp);
+  }
+  / EqualsExpr
+
+EqualsExpr
+  = left:CompareExpr __ binOp:EqualsOp __ right:EqualsExpr { 
+    return new NodeType.BinOpExprNode(left,right, binOp);
+  }
+  / CompareExpr
+
+CompareExpr
+  = left:PlusMinusExpr __ binOp:CompareOp __ right:CompareExpr { 
+    return new NodeType.BinOpExprNode(left,right, binOp);
+  }
+  / PlusMinusExpr
+
+PlusMinusExpr
+  = left:FactorExpr __ binOp:PlusMinusOp __ right:Expr { 
+    return new NodeType.BinOpExprNode(left,right, binOp);
+  }
+  / FactorExpr
+
+
+FactorExpr
+  = left:BaseExpr __ binOp:FactorOp __ right:FactorExpr { 
     return new NodeType.BinOpExprNode(left,right, binOp);
   }
   / BaseExpr
@@ -173,20 +204,24 @@ BaseExpr
   / LEFT_PAREN __ expr:Expr __ RIGHT_PAREN { return expr; }
 
 /* BinaryOp */
-BinaryOp
-  = STAR
-  / SLASH
-  / MODULO
-  / PLUS
+PlusMinusOp
+  = PLUS
   / MINUS
-  / GREATER_OR_EQUAL
+
+CompareOp 
+  = GREATER_OR_EQUAL
   / GREATER_THAN
   / LESS_OR_EQUAL
   / LESS_THAN
-  / DOUBLE_EQUALS
+
+EqualsOp
+  = DOUBLE_EQUALS
   / NOT_EQUALS
-  / DOUBLE_AMP
-  / DOUBLE_PIPE
+
+FactorOp
+  = STAR
+  / SLASH
+  / MODULO
 
 /* UnaryOp */
 UnaryOp
