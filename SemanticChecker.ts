@@ -57,6 +57,16 @@ export class SemanticVisitor implements NodeType.Visitor {
             this.isSameType(typeObj, NodeType.CHAR_TYPE);
     }
 
+    isType(type) {
+
+        if (arguments[1]) {
+            throw 'isType() error, at least 1 type must be given to compare against'
+        }
+
+        var argList = arguments[1] instanceof Array ? arguments[1] : arguments.slice(1, arguments.length);
+        return _.some(_.map(argList, _.partial(this.isSameType, type)));
+    }
+
     constructor() {
         this.errors = [];
         this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
