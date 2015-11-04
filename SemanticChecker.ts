@@ -186,8 +186,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
 
         if (node.expr instanceof NodeType.IdentNode) {
-            var identNode:any = node.expr;
-            var exprType = this.currentST.lookupAll(identNode).type;
+            var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
                 throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
@@ -222,7 +221,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         */
         
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
-            var arrayLiter:any = node.rhs;
+            var arrayLiter:NodeType.ArrayLiterNode = <NodeType.ArrayLiterNode>node.rhs;
             if(_.isEmpty(arrayLiter.exprList)) {
                 arrayLiter.type = node.type;
             }
