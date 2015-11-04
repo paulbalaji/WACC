@@ -10,6 +10,10 @@ export class SemanticVisitor implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
+    enterNewScope():void {
+        this.currentST = new SemanticUtil.SymbolTable(this.currentST);
+    }
+
     getType(obj):string {
         return obj.constructor.name;
     }
@@ -153,7 +157,11 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     }
 
-    visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
+    visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {
+        this.enterNewScope();
+
+    }
+
     visitWhileNode(node: NodeType.WhileNode):void {
 
         var childST : SemanticUtil.SymbolTable = new SemanticUtil.SymbolTable(this.currentST);
@@ -164,6 +172,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
         this.currentST = childST.parent;
     }
+
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
