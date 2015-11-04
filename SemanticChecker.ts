@@ -50,10 +50,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         return this.getType(typeObj1) === this.getType(typeObj2);
     }
 
-    isBaseType(typeObj) {
+    isReadableType(typeObj) {
         // Base types are INT, BOOL, CHAR
         return this.isSameType(typeObj, NodeType.INT_TYPE) ||
-            this.isSameType(typeObj, NodeType.BOOL_TYPE) ||
             this.isSameType(typeObj, NodeType.CHAR_TYPE);
     }
 
@@ -332,27 +331,34 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitReadNode(node: NodeType.ReadNode):void {
         var target = node.readTarget;
-        if (this.isSameType(target, NodeType.IdentNode)) {
+        target.visit(this);
+        if (!this.isReadableType(target.type)) {
+           
+                throw 'Mate, you can only read into the basic types.'
+     
+        } else {
+            return;
+        }
 
-            var name = this.currentST.lookupAll(target).node;
+        if (this.isSameType(target.type, NodeType.ArrayElemNode)) {
+
+
+            var name = this.currentST.lookupAll((<NodeType.ArrayElemNode>target).ident).node;
+
             if (!name) {
                 throw 'Mate, you should declare the things you read to...'
             }
         }
-        if (this.isSameType(target, NodeType.ArrayElemNode)) {
-            
-            var name = this.currentST.lookupAll((<NodeType.ArrayElemNode> target).ident).node;
+        else if (this.isSameType(target.type, NodeType.PairElemNode)) {
+
+            var name = this.currentST.lookupAll((<NodeType.PairElemNode>target).ident).node;
             if (!name) {
                 throw 'Mate, you should declare the things you read to...'
             }
-        } 
-        if (this.isSameType(target, NodeType.PairElemNode)) {
-            var name = this.currentST.lookupAll(( <NodeType.PairElemNode> target).ident).node;
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        }       
-        var res =   this.currentST.lookupAll(node.readTarget);
+        }
+        else {
+            throw "Buddy, know your types... You can only read to "
+        }
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
