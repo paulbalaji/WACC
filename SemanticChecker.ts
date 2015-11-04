@@ -317,25 +317,30 @@ export class SemanticVisitor implements NodeType.Visitor {
         var target = node.readTarget;
         if (this.isSameType(target, NodeType.IdentNode)) {
 
-            var name = this.ST.lookupAll(target).node;
-            if (!name) {
+            var identObject = this.currentST.lookupAll(target);
+
+            if (!identObject) {
                 throw 'Mate, you should declare the things you read to...'
+            }
+            if (!isBaseType(identObject.type)) {
+                throw 'Mate, you can only read into the basic types.'
             }
         }
         if (this.isSameType(target, NodeType.ArrayElemNode)) {
             
-            var name = this.ST.lookupAll((<NodeType.ArrayElemNode> target).ident).node;
+            var name = this.currentST.lookupAll((<NodeType.ArrayElmNode> target).ident).node;
             if (!name) {
                 throw 'Mate, you should declare the things you read to...'
             }
         } 
         if (this.isSameType(target, NodeType.PairElemNode)) {
-            var name = this.ST.lookupAll(( <NodeType.PairElemNode> target).ident).node;
+            var name = this.currentST.lookpAll(( <NodeType.PairElmNode> target).ident).node;
             if (!name) {
                 throw 'Mate, you should declare the things you read to...'
             }
-        }       
-        var res =   this.ST.lookupAll(node.readTarget);
+        } 
+        throw "Buddy, know your types... You can only read to "      
+
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
