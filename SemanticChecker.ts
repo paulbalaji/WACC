@@ -10,16 +10,50 @@ export class SemanticVisitor implements NodeType.Visitor {
         return obj.constructor.name;
     }
 
-    checkSameType(obj1, obj2):boolean {
-        return this.getType(obj1) === this.getType(obj2) && _.isEqual(obj1, obj2);
+    isSameType(typeObj1, typeObj2):boolean {
+        // N.B for use on primitive types.
+        // Special case for matching empty arrays with any array type
+        if (typeObj1 instanceof NodeType.ArrayTypeNode || typeObj2 instanceof NodeType.ArrayTypeNode) {
+            
+            // The case that an array type is being compared with an empty array type -> always equal
+            if (typeObj1 instanceof NodeType.EmptyArrayTypeNode || typeObj2 instanceof NodeType.EmptyArrayTypeNode) {
+                return true;
+            } else if (typeObj1 instanceof NodeType.ArrayTypeNode && typeObj2 instanceof NodeType.ArrayTypeNode) { // The case we are comparing two arrays
+                return this.isSameType(typeObj1.type, typeObj2.type);
+            } else { // The case that an array type is being compared with any other type.  Do the normal check, plus deep equality (checking depth as well as type contained)
+                 return this.getType(typeObj1) === this.getType(typeObj2) && _.isEqual(typeObj1, typeObj2);
+            }
+        }
+
+        if (typeObj1 instanceof NodeType.PairTypeNode || typeObj2 instanceof NodeType.PairTypeNode) {
+            if (typeObj1 instanceof NodeType.NullTypeNode || typeObj2 instanceof NodeType.NullTypeNode) {
+                return true;
+            } 
+                 
+        }
+        if (typeObj1 instanceof NodeType.PairTypeNode && typeObj2 instanceof NodeType.PairTypeNode) {
+             return isSamePairType.bind(this)(typeObj1, typeObj2);
+        }
+
+        function isSamePairType(pairType1, pairType2) {
+            // PRE: Both types are pair types
+
+            // Test if the pair types are the same
+            return this.isSameType(pairType1.type1, pairType2.type1) && 
+                    this.isSameType(pairType1.type2, pairType2.type2);
+
+        }
+
+        return this.getType(typeObj1) === this.getType(typeObj2);
     }
 
     constructor() {
         this.errors = [];
         this.ST = {};
         this.ST.table = {};
+        this.ST.funcTable = {};
         this.ST.parent = null;
-        this.ST.lookupAll = function (ident : string) : NodeType.DeclareNode {
+        this.ST.lookupAll = function (ident : string) {
             var result = this.table[ident];
             if (result) {
                 return result;
@@ -30,9 +64,18 @@ export class SemanticVisitor implements NodeType.Visitor {
             return null;
         }
 
-        this.ST.insert = function (ident : string, node: NodeType.DeclareNode):void {
+        this.ST.insert = function (ident : string, infoObj):void {
             // PRE: the key is not already in the map
-            this.table[ident] = node;
+            // InfoObj is made up of node and type
+            this.table[ident] = infoObj;
+        }
+
+        this.ST.insertFunc = function (ident:string, infoObj):void {
+            this.funcTable[ident] = infoObj;
+        }
+
+        this.ST.lookupFunc = function (ident:string): void {
+            return this.funcTable[ident] ? this.funcTable[ident] : null;
         }
     }
 
@@ -43,8 +86,14 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
-
+        // Temporary function node visit
+        this.ST.insertFunc(node.ident, {type: node.type, node: node});
+         _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
+         node.ident.type = node.type;
+        //node.ident.visit(this); NO LONGER NEEDED
         //throw 'You fucked up function semantics';
+
+
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -64,29 +113,28 @@ export class SemanticVisitor implements NodeType.Visitor {
         opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.BOOL_TYPE);
         opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
         opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
+        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE, NodeType.NULL_TYPE], NodeType.BOOL_TYPE);
         opMap['<='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
 
-        opMap['=='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
-        opMap['!='] = new OperatorInfo([NodeType.ANY_TYPE], NodeType.BOOL_TYPE);
+        opMap['=='] = new OperatorInfo([null], NodeType.BOOL_TYPE);
+        opMap['!='] = new OperatorInfo([null], NodeType.BOOL_TYPE);
 
         opMap['&&'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
         opMap['||'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
 
         // First check that lhs of the binop is a required type for the operator
         var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
-        
         // If any type is allowed, we do not need to check
         if (allowedTypes[0]) {
             // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.leftOperand.type, t));
+            var matchedLeftType = _.filter(allowedTypes, (t) => this.isSameType(node.leftOperand.type, t));
             if (matchedLeftType.length === 0) {
                 throw ('Oh my, your type on lhs is not valid for the operator');
             }
         }
-        // MID: Left type is  correct, check that the rhs type is the same
+        // MID: Left type is correct, check that the rhs type is the same
         
-        if (!this.checkSameType(node.leftOperand.type, node.rightOperand.type)) {
+        if (!this.isSameType(node.leftOperand.type, node.rightOperand.type)) {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
 
@@ -94,31 +142,33 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitStrLiterNode(node: NodeType.StrLiterNode):void {
-        node.type = new NodeType.BaseTypeNode('string');
+        node.type = NodeType.STRING_TYPE;
     }
 
     visitReturnNode(node: NodeType.ReturnNode):void {}
     visitAssignNode(node: NodeType.AssignNode):void {
+
         node.lhs.visit(this);
         node.rhs.visit(this);
 
-        if (!this.checkSameType(node.lhs.type, node.rhs.type)) {
+        if (!this.isSameType(node.lhs.type, node.rhs.type)) {
             throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
         }
+
+
 
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {}
     visitWhileNode(node: NodeType.WhileNode):void {}
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
-    visitPairElemSndNode(node: NodeType.PairElemSndNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
         _.map(node.exprList, (expr: NodeType.Visitable) => expr.visit(this));
 
         if (_.isEmpty(node.exprList)) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
-            node.type = null;
+            node.type = NodeType.EMPTY_ARRAY_TYPE;
             
         } else { // The case that the list is not empty
             // Check that all expressions are of the same type
@@ -126,7 +176,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             // Check that all types are equal to type
 
             // mismatchedTypes is a list of types which do not match the first one in the list
-            var mismatchedTypes = _.filter(node.exprList, (expr) => !this.checkSameType(type, expr.type));
+            var mismatchedTypes = _.filter(node.exprList, (expr) => !this.isSameType(type, expr.type));
 
             if (!_.isEmpty(mismatchedTypes)) {
                 throw 'Deary deary me.  In an array literal all expressions must be of the same type';
@@ -149,17 +199,15 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitParamNode(node: NodeType.ParamNode):void {
-
         node.type.visit(this);
-        node.ident.visit(this);
-
+        //node.ident.visit(this); COMMENTED OUT FOR NOW AS NO CHILD SCOPE CREATED WITH FUNCTION NODE VISIT
     }
 
     visitFreeNode(node: NodeType.FreeNode):void {
         node.expr.visit(this);
 
         if (node.expr instanceof NodeType.IdentNode) {
-            var exprType = this.ST.lookupAll(node.expr);
+            var exprType = this.ST.lookupAll(node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
                 throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
@@ -172,13 +220,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
     visitPrintNode(node: NodeType.PrintNode):void {}
     visitDeclareNode(node: NodeType.DeclareNode):void {
+
         node.type.visit(this);
-        
         node.rhs.visit(this);
+
         var res = this.ST.lookupAll(node.ident);
         if (res) {
             throw 'you fucked it - redeclaration';
-            return;
         }
 
         /*
@@ -200,12 +248,14 @@ export class SemanticVisitor implements NodeType.Visitor {
             }
         }
 
-        if (!this.checkSameType(node.type, node.rhs.type)) {
+        if (!this.isSameType(node.type, node.rhs.type)) {
             throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
-        this.ST.insert(node.ident, node.type);
+        this.ST.insert(node.ident, {type: node.type, node: node});
+
         node.ident.visit(this);
+
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {
@@ -213,36 +263,42 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.ident.visit(this);
         // Check if every index is an integer
 
-        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.checkSameType(exprNode.type, NodeType.INT_TYPE))) {
+        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.isSameType(exprNode.type, NodeType.INT_TYPE))) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
         var res = this.ST.lookupAll(node.ident);
         if (!res) {
             throw 'Mate, fucking declare your arrays before you use them.';
         }
-        if (!(res instanceof NodeType.ArrayTypeNode)) {
+        if (!(res.type instanceof NodeType.ArrayTypeNode)) {
             throw "Mate, you are trying to index something which is not an array. have you been drinking?";
         }
 
-        if (!(res.depth != node.exprList.length)) {
+        // N.B sw6614 revision, the below condition for the if statement used to be !(res.depth != node.exprList.length).  Removed negation
+        if (res.type.depth !== node.exprList.length) {
             throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
 
         }
-        node.type = res.type;
-
-
+        node.type = res.type.type;
 
     }
 
     visitCallNode(node: NodeType.CallNode):void {
-        node.ident.visit(this);
-        node.argList = _.map(node.argList, (arg) => arg.visit(this));
+        // node.ident.visit(this); NO LONGER NEEDED AS node.ident is a function ident, not stored in main symbol table
+        
+         _.map(node.argList, (arg) => arg.visit(this));
 
-        var funcNode = { argList : node.argList, ident : node.ident};
+        var res = this.ST.lookupFunc(node.ident);
+
+        if (!res) {
+            throw 'Mate, you cannot just call a function which hasnt been defined - get a grip.';
+        }
+
+        var funcNode = res.node;
         //compare arguments
-        if (node.argList.length === funcNode.argList.length) {
+        if (node.argList.length === funcNode.paramList.length) {
             for (var i = 0; i < node.argList.length; i++) {
-                if(!this.checkSameType(node.argList[i], funcNode.argList[i])) {
+                if(!this.isSameType(node.argList[i].type, funcNode.paramList[i].type)) {
                     throw 'Come on man, pass the correct arguments ffs'
                 }
             }
@@ -251,20 +307,21 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         //compare return types
-        if(!this.checkSameType(node.ident, funcNode.ident)) {
+        // sw6614 revision: what does below if statement do?
+       /* if(!this.isSameType(node.ident.type, funcNode.type)) {
             throw 'Is it so hard to return the right fricking things?'
-        }
+        }*/
 
-        node.type = node.ident.type;
+
+        node.type = res.type; // type of call node is return type of the function being called
     }
 
     visitPairLiterNode(node: NodeType.PairLiterNode):void {
-
-
+        node.type = NodeType.NULL_TYPE;
     }
 
     visitIntLiterNode(node: NodeType.IntLiterNode):void {
-        node.type = new NodeType.BaseTypeNode('int');
+        node.type = NodeType.INT_TYPE;
     }
 
     visitIdentNode(node: NodeType.IdentNode):void {
@@ -274,7 +331,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
         }
 
-        node.type = res;
+        node.type = res.type;
     }
 
     visitReadNode(node: NodeType.ReadNode):void {}
@@ -282,13 +339,16 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
         node.expr.visit(this);
     }
-    visitBaseTypeNode(node: NodeType.BaseTypeNode):void {}
+
+    visitIntTypeNode(node:NodeType.IntTypeNode): void { }
+    visitBoolTypeNode(node:NodeType.BoolTypeNode): void { }
+    visitCharTypeNode(node:NodeType.CharTypeNode): void { }
+    visitStringTypeNode(node:NodeType.StringTypeNode): void { }
     
     visitPairElemTypeNode(node: NodeType.PairElemTypeNode):void {}
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
-
         if (node.expr.type instanceof NodeType.ArrayTypeNode) {
             var ARRAY_TYPE = node.expr.type;
         }
@@ -311,7 +371,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // If any type is allowed, we do not need to check
         if (allowedTypes[0]) {
             // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => this.checkSameType(node.expr.type, t));
+            var matchedLeftType = _.filter(allowedTypes, (t) => this.isSameType(node.expr.type, t));
             if (matchedLeftType.length === 0) {
                 throw ('Oh my, your type is not valid for this unary operator');
             }
@@ -328,7 +388,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitExitNode(node: NodeType.ExitNode): void {
         node.expr.visit(this);
 
-        if (!this.checkSameType(node.expr.type, NodeType.INT_TYPE)) {
+        if (!this.isSameType(node.expr.type, NodeType.INT_TYPE)) {
             throw "WHERE'S THE EXIT NUMBERS MAAAAAN"
         }
     }
@@ -336,16 +396,38 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitIfNode(node: NodeType.IfNode): void {}
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
     visitPairElemFstNode(node: NodeType.PairElemFstNode): void {
-        var res : NodeType.DeclareNode = this.ST.lookupAll(node.ident);
+        node.ident.visit(this);
+        var res = this.ST.lookupAll(node.ident);
         if (res) {
+
             if (!(res.type instanceof NodeType.PairTypeNode)) {
-                throw 'you fucker, ident named ' + res.ident + ' is no pair !!!';
+                throw 'you fucker, ident named ' + node.ident + ' is no pair !!!';
             }
 
         } else {
             throw 'bullshit';
         }
+
+        node.type = res.type.type1;
     }
+
+    visitPairElemSndNode(node: NodeType.PairElemSndNode):void {
+         node.ident.visit(this);
+        var res = this.ST.lookupAll(node.ident);
+        if (res) {
+
+            if (!(res.type instanceof NodeType.PairTypeNode)) {
+                throw 'you fucker, ident named ' + node.ident + ' is no pair !!!';
+            }
+
+        } else {
+            throw 'bullshit';
+        }
+
+        node.type = res.type.type2;
+
+    }
+
 
     visitNewPairNode(node: NodeType.NewPairNode): void {
         node.fstExpr.visit(this);
@@ -353,14 +435,25 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // The type of the node is the type of the pair
         node.type = new NodeType.PairTypeNode(node.fstExpr.type, node.sndExpr.type);
+
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
-        node.type = new NodeType.BaseTypeNode('bool');
+        node.type = NodeType.BOOL_TYPE;
         // There is nothing to check here
     }
 
     visitPairElemTypePAIRNode(node: NodeType.PairElemTypePAIRNode): void {
-        //TODO
+        
     }
+
+    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) :void {
+
+    }
+
+    visitNullTypeNode(node: NodeType.NullTypeNode):void {
+
+    }
+
+
 }

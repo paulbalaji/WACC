@@ -31,7 +31,7 @@ export interface Visitor {
     visitSkipNode(node:SkipNode):void;
     visitReadNode(node:ReadNode):void;
     visitPrintlnNode(node:PrintlnNode):void;
-    visitBaseTypeNode(node:BaseTypeNode):void;
+    // visitBaseTypeNode(node:BaseTypeNode):void;
     visitPairElemTypeNode(node:PairElemTypeNode):void;
     visitUnOpNode(node:UnOpNode): void;
     visitSkipNode(node:SkipNode): void;
@@ -42,6 +42,14 @@ export interface Visitor {
     visitNewPairNode(node:NewPairNode): void;
     visitBoolLiterNode(node:BoolLiterNode): void;
     visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
+
+    visitIntTypeNode(node:IntTypeNode): void;
+    visitBoolTypeNode(node:BoolTypeNode): void;
+    visitCharTypeNode(node:CharTypeNode): void;
+    visitStringTypeNode(node:StringTypeNode): void;
+
+    visitEmptyArrayTypeNode(node:EmptyArrayTypeNode);
+    visitNullTypeNode(node:NullTypeNode): void;
 }
 
 export interface Visitable {
@@ -150,7 +158,7 @@ export class PairElemTypePAIRNode implements TypeNode {
 
 }
 
-export class BaseTypeNode implements TypeNode {
+/*export class BaseTypeNode implements TypeNode {
     typeName: String;
 
     constructor(typeName:String) {
@@ -159,6 +167,33 @@ export class BaseTypeNode implements TypeNode {
 
      visit(v:Visitor):void {
         v.visitBaseTypeNode(this);
+    }
+}*/
+
+export interface BaseTypeNode extends TypeNode {
+}
+
+export class IntTypeNode implements BaseTypeNode {
+     visit(v:Visitor) : void {
+        v.visitIntTypeNode(this);
+    }
+}
+
+export class CharTypeNode implements BaseTypeNode {
+     visit(v:Visitor) : void {
+        v.visitCharTypeNode(this);
+    }
+}
+
+export class BoolTypeNode implements BaseTypeNode {
+     visit(v:Visitor) : void {
+        v.visitBoolTypeNode(this);
+    }
+}
+
+export class StringTypeNode implements BaseTypeNode {
+     visit(v:Visitor) : void {
+        v.visitStringTypeNode(this);
     }
 }
 
@@ -182,7 +217,7 @@ export class IdentNode implements ExprNode, AssignLHSNode {
     constructor(identStr : string) {
         this.identStr = identStr;
     }
-     visit(v:Visitor) : void {
+    visit(v:Visitor) : void {
         v.visitIdentNode(this);
     }
     toString() : string {
@@ -292,18 +327,6 @@ export class PairTypeNode implements TypeNode {
     }
 }
 
-export class PairElemSndNode implements PairElemNode {
-    expr: ExprNode
-
-    constructor(expr:ExprNode) {
-            this.expr = expr;
-    }
-
-    visit(v:Visitor):void {
-        v.visitPairElemSndNode(this);
-    }
-}
-
 export class ArrayLiterNode implements AssignRHSNode {
      type : TypeNode; // Filled by semantic visitor
 
@@ -375,14 +398,30 @@ export class ArrayTypeNode implements TypeNode {
 }
  
 export class PairElemFstNode implements PairElemNode {
+    type : TypeNode; // Filled by semantic visitor
+
     ident : IdentNode;
- 
+    
     constructor(ident: IdentNode) {
         this.ident = ident;
     }
  
     visit(v:Visitor) {
         return v.visitPairElemFstNode(this);
+    }
+}
+
+export class PairElemSndNode implements PairElemNode {
+    type : TypeNode; // Filled by semantic visitor
+
+    ident: IdentNode;
+
+    constructor(ident:IdentNode) {
+        this.ident = ident;
+    }
+
+    visit(v:Visitor):void {
+        v.visitPairElemSndNode(this);
     }
 }
  
@@ -433,7 +472,7 @@ export class UnOpNode implements ExprNode {
 }
 
 export class ParamNode {
-    type: TypeNode;
+    type: any; // temporarily set to 'any' from TypeNode
     ident: IdentNode;
 
     constructor(type:TypeNode, ident:IdentNode) {
@@ -559,8 +598,23 @@ export class IntLiterNode implements ExprNode {
 
 }
 
-export var INT_TYPE:BaseTypeNode  = new BaseTypeNode('int');
-export var CHAR_TYPE:BaseTypeNode = new BaseTypeNode('char');
-export var BOOL_TYPE:BaseTypeNode = new BaseTypeNode('bool');
-export var STRING_TYPE:BaseTypeNode = new BaseTypeNode('string');
-export var ANY_TYPE:BaseTypeNode  = null;
+export class NullTypeNode implements TypeNode{
+    visit(v: Visitor): void {
+        v.visitNullTypeNode(this);
+    }
+}
+
+export class EmptyArrayTypeNode implements TypeNode{
+    // This type is equal with any array type when compared
+    visit(v: Visitor): void {
+        v.visitEmptyArrayTypeNode(this);
+    }
+}
+
+export var INT_TYPE:IntTypeNode = new IntTypeNode();
+export var CHAR_TYPE:CharTypeNode = new CharTypeNode();
+export var BOOL_TYPE:BoolTypeNode = new BoolTypeNode();
+export var STRING_TYPE:StringTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
+export var EMPTY_ARRAY_TYPE:EmptyArrayTypeNode = new EmptyArrayTypeNode();
+export var PAIR_ELEM_TYPE_PAIR:PairElemTypePAIRNode = new PairElemTypePAIRNode();
+export var NULL_TYPE:NullTypeNode = new NullTypeNode();

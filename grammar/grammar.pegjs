@@ -93,10 +93,10 @@ Type
   / BaseType
 
 BaseType
-  = typeName:(INT
-  / BOOL
-  / CHAR
-  / STRING) { return new NodeType.BaseTypeNode(typeName);}
+  = INT { return NodeType.INT_TYPE; }
+  / BOOL { return NodeType.BOOL_TYPE; }
+  / CHAR { return NodeType.CHAR_TYPE; }
+  / STRING { return NodeType.STRING_TYPE }
 
 ArrayType
   = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
@@ -110,8 +110,8 @@ PairElemType
   / BaseType)
   / PAIR {
     // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
-    // Below line added in replacement of above line.  Note that below line is not nescessary as returning the generated object for type will automatically happen.
-    return new NodeType.BaseTypeNode('null');
+    //return new NodeType.PairElemTypePAIRNode();
+    return NodeType.NULL_TYPE;
   }
 
 /* AssignLHS */
@@ -124,7 +124,7 @@ AssignLHS
 /* AssignRHS */
 AssignRHS
   = CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
-    return new NodeType.CallNode(ident, exprList);
+    return new NodeType.CallNode(ident, exprList ? exprList : []);
   }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
@@ -133,10 +133,6 @@ AssignRHS
   / ArrayLiter
   / PairElem
   / Expr
-
-/* ArgList */
-ArgList
-  = Expr __ (COMMA __ Expr)*
 
 /* ArrayLiter */
 ArrayLiter
@@ -328,7 +324,7 @@ RIGHT_PAREN = ')'
 LEFT_SQUARE  = '['
 RIGHT_SQUARE = ']'
 
-NULL = 'NULL'
+NULL = 'null'
 
 TRUE  = 'true'
 FALSE = 'false'
