@@ -362,15 +362,15 @@ export class ExitNode implements StatNode {
 }
  
 export class IfNode implements StatNode {
-    predicateExp: ExprNode;
+    predicateExpr: ExprNode;
     trueStatList: [StatNode];
     falseStatList: [StatNode];
  
-    constructor(predicateExp: ExprNode,
+    constructor(predicateExpr: ExprNode,
                 trueStatList: [StatNode],
                 falseStatList: [StatNode]) {
  
-        this.predicateExp = predicateExp;
+        this.predicateExpr = predicateExpr;
         this.trueStatList = trueStatList;
         this.falseStatList = falseStatList;
     }

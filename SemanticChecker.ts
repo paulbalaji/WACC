@@ -14,6 +14,14 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.currentST = new SemanticUtil.SymbolTable(this.currentST);
     }
 
+    setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
+        this.currentST = newCurrentST;
+    }
+
+    switchToParentScope() {
+        this.currentST = this.currentST.parent;
+    }
+
     getType(obj):string {
         return obj.constructor.name;
     }
@@ -81,8 +89,8 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitFuncNode(node:NodeType.FuncNode) {
+        this.enterNewScope();
         // Temporary function node visit
-
         if (this.functionST.lookupAll(node.ident)) {
             throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
         }
@@ -92,7 +100,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         //node.ident.visit(this); NO LONGER NEEDED
         //throw 'You fucked up function semantics';
 
-
+        this.switchToParentScope();
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -212,7 +220,8 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitParamNode(node: NodeType.ParamNode):void {
         node.type.visit(this);
-        //node.ident.visit(this); COMMENTED OUT FOR NOW AS NO CHILD SCOPE CREATED WITH FUNCTION NODE VISIT
+        this.currentST.insert(node.ident, { type: node.type, node: node });
+        node.ident.visit(this);
     }
 
     visitFreeNode(node: NodeType.FreeNode):void {
@@ -250,7 +259,7 @@ export class SemanticVisitor implements NodeType.Visitor {
           If you have enjoyed my essay then please leave me a mark out of 10 in the fields below:
           Jan:
           Andrea:
-          Paul:
+          Paul: MAX_INT + 1 ;)
         */
         
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
@@ -444,7 +453,23 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
     }
 
-    visitIfNode(node: NodeType.IfNode): void {}
+    visitIfNode(node: NodeType.IfNode): void {
+        node.predicateExpr.visit(this);
+
+        if (!this.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
+            throw "IF you're not a fucking dumbass, THEN get the type right"
+        }
+
+        var originalST = this.currentST;
+        this.enterNewScope(); //scope for the true branch
+        _.map(node.trueStatList, (stat) => stat.visit(this));
+
+        this.setCurrentScope(originalST);
+        // this.switchToParentScope();
+        this.enterNewScope(); //different scope for the false branch
+        _.map(node.falseStatList, (stat) => stat.visit(this));
+    }
+
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
 
 
