@@ -1,6 +1,7 @@
 import Const = require('./Constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
+import ReturnChecker = require('./ReturnChecker')
 var _ = require('underscore');
 
 
@@ -87,6 +88,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         var x = _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
         _.map(x, (f) => f());
         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+        var returnVisitor : NodeType.Visitor = new ReturnChecker.ReturnVisitor();
+        node.visit(returnVisitor);
     }
 
     visitFuncNode(node:NodeType.FuncNode):any {
