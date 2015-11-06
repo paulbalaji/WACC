@@ -122,7 +122,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         opMap['-']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
         opMap['*']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
         opMap['/']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.BOOL_TYPE);
+        opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
         opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
         opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
         opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
@@ -158,7 +158,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.STRING_TYPE;
     }
 
-    visitReturnNode(node: NodeType.ReturnNode):void {}
+    visitReturnNode(node: NodeType.ReturnNode):void {
+        node.returnExpr.visit(this);
+    }
     visitAssignNode(node: NodeType.AssignNode):void {
 
         node.lhs.visit(this);
