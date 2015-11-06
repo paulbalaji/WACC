@@ -97,12 +97,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         this.functionST.insert(node.ident, {type: node.type, node: node});
         node.ident.type = node.type;
-        return function() {
+        return () => {
             this.enterNewScope();
             _.map(node.paramList, (paramNode: NodeType.Visitable) => paramNode.visit(this));
             _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
             this.switchToParentScope();
-        }.bind(this);
+        };
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
