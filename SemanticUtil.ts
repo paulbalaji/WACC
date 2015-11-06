@@ -8,6 +8,7 @@ interface typeAndNodeTuple {
 export class SymbolTable {
 	table:any;
 	parent:SymbolTable;
+    name: string;
 
 	constructor(parent:SymbolTable) {
 		this.table = {}; // init table

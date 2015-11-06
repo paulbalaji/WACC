@@ -454,8 +454,8 @@ export class UnOpNode implements ExprNode {
     }
 }
 
-export class ParamNode {
-    type: any; // temporarily set to 'any' from TypeNode
+export class ParamNode implements TreeNode {
+    type: TypeNode; // temporarily set to 'any' from TypeNode
     ident: IdentNode;
 
     constructor(type:TypeNode, ident:IdentNode) {

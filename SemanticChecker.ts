@@ -11,7 +11,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     functionST: SemanticUtil.SymbolTable;
 
     enterNewScope():void {
-        this.currentST = new SemanticUtil.SymbolTable(this.currentST);
+        this.setCurrentScope(new SemanticUtil.SymbolTable(this.currentST));
     }
 
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
@@ -90,15 +90,16 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitFuncNode(node:NodeType.FuncNode) {
         this.enterNewScope();
+        
         // Temporary function node visit
         if (this.functionST.lookupAll(node.ident)) {
             throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
         }
+
         this.functionST.insert(node.ident, {type: node.type, node: node});
         _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
          node.ident.type = node.type;
-        //node.ident.visit(this); NO LONGER NEEDED
-        //throw 'You fucked up function semantics';
+        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
 
         this.switchToParentScope();
     }
@@ -460,14 +461,13 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw "IF you're not a fucking dumbass, THEN get the type right"
         }
 
-        var originalST = this.currentST;
         this.enterNewScope(); //scope for the true branch
         _.map(node.trueStatList, (stat) => stat.visit(this));
 
-        this.setCurrentScope(originalST);
-        // this.switchToParentScope();
-        this.enterNewScope(); //different scope for the false branch
+        this.switchToParentScope(); //same parent but
+        this.enterNewScope();       //different scope for the false branch
         _.map(node.falseStatList, (stat) => stat.visit(this));
+        this.switchToParentScope();
     }
 
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
