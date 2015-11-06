@@ -250,9 +250,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         var res = this.currentST.lookup(node.ident);
-        if (res) {
-            console.log(node.ident);
-            console.log(node.rhs);
+        if (res && !(res.node instanceof NodeType.ParamNode)) {
             throw 'you fucked it - redeclaration';
         }
 
@@ -295,6 +293,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
         var res = this.currentST.lookupAll(node.ident);
+
         if (!res) {
             throw 'Mate, fucking declare your arrays before you use them.';
         }
@@ -303,11 +302,19 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         // N.B sw6614 revision, the below condition for the if statement used to be !(res.depth != node.exprList.length).  Removed negation
-        if (res.type.depth !== node.exprList.length) {
+   /*     if (res.type.depth !== node.exprList.length) {
+            console.log(res.type);
+            console.log(node.exprList);
             throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
 
+        }*/
+
+        if (res.type.depth > node.exprList.length) {
+            node.type = new NodeType.ArrayTypeNode(res.type.type, res.type.depth - node.exprList.length);
+        } else {
+            node.type = res.type.type;
         }
-        node.type = res.type.type;
+
 
     }
 
@@ -475,9 +482,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.switchToParentScope();
     }
 
-    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
+    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {
 
-
+    }
 
     visitPairElemNode(node: NodeType.PairElemNode):void {
          node.ident.visit(this);

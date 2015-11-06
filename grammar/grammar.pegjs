@@ -122,7 +122,11 @@ BaseType
 
 ArrayType
   = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
+    if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
+        return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+    }
     return new NodeType.ArrayTypeNode(type, array.length);
+
   }
 PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new NodeType.PairTypeNode(type1, type2); }
@@ -240,7 +244,7 @@ FactorOp
 
 /* UnaryOp */
 UnaryOp
-  = '!' / '-' / 'len' / 'ord' / 'chr'
+  = '!' / '-' / ((op:('len' / 'ord'/ 'chr') _) { return op; })
 
 /* ArrayElem */
 ArrayElem
