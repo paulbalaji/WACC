@@ -1,5 +1,9 @@
 {
+  //import ErrorClasses = require('./ErrorClasses');
+
+  //var util = require('util');
   var _ = require('underscore');
+
   function generateListFromRecursiveRule(head, tail) {
     if (head !== null) {
       tail.unshift(head);
@@ -56,6 +60,7 @@ ParamList
 
 Param
   = type:Type _ ident:Ident {
+    // TODO: check if it's necesarry to throw error here
     return new NodeType.ParamNode(type, ident);
   }
 
@@ -69,7 +74,9 @@ StatList
 
 Stat
   = SKIP {
-    return new NodeType.SkipNode();
+    var node = new NodeType.SkipNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   }
   / BEGIN _ statList:StatList __ END {
     return new NodeType.BeginEndBlockNode(statList);
@@ -81,6 +88,8 @@ Stat
     return new NodeType.FreeNode(expr);
   }
   / EXIT _ expr:Expr {
+    //var node = new NodeType.ExitNode();
+    //node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return new NodeType.ExitNode(expr);
   }
   / RETURN _ returnExpr:Expr { return new NodeType.ReturnNode(returnExpr); }
@@ -115,10 +124,29 @@ Type
   / BaseType
 
 BaseType
-  = INT { return NodeType.INT_TYPE; }
-  / BOOL { return NodeType.BOOL_TYPE; }
-  / CHAR { return NodeType.CHAR_TYPE; }
-  / STRING { return NodeType.STRING_TYPE }
+  = INT { 
+    //var errorLocation = new WACCError.ErrorLocation(location());
+    var node = new NodeType.IntTypeNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
+  / BOOL { 
+    //var errorLocation = new WACCError.ErrorLocation(location());
+    var node = new NodeType.BoolTypeNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+    }
+  / CHAR { 
+    //var errorLocation = new WACCError.ErrorLocation(location());
+    var node = new NodeType.CharTypeNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+    }
+  / STRING { 
+    var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
 
 ArrayType
   = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
@@ -290,17 +318,31 @@ IntSign
 
 /* BoolLiter */
 BoolLiter
-  = TRUE { return new NodeType.BoolLiterNode(true); }
-  / FALSE { return new NodeType.BoolLiterNode(false); }
+  = TRUE { 
+  var node = new NodeType.BoolLiterNode(true);
+  node.setErrorLocation(new WACCError.ErrorLocation(location()));
+  return node;
+    }
+  / FALSE { 
+    var node = new NodeType.BoolLiterNode(false);
+  node.setErrorLocation(new WACCError.ErrorLocation(location()));
+  return node;}
 
 /* CharLiter */
 CharLiter
- = "'" ch:Character "'" { return new NodeType.CharLiterNode(ch); }
+ = "'" ch:Character "'" {
+  var node = new NodeType.CharLiterNode(ch);
+  node.setErrorLocation(new WACCError.ErrorLocation(location()));
+  return node;
+ }
 
 /* StrLiter */
 StrLiter
  = '"' str:Character* '"' {
-  return new NodeType.StrLiterNode(str)
+  //var errorLocation = new WACCError.ErrorLocation(location());
+  var node = new NodeType.StrLiterNode(str);
+  node.setErrorLocation(new WACCError.ErrorLocation(location()));
+  return node;
  }
 
 Character
