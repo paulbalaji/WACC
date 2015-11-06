@@ -230,7 +230,6 @@ begin
     # Generate next states recursively. Returns the state.
     pair(pair, int) generateNextStates(pair(pair, int) state, char currentPlayer) is
         pair(pair, pair) front = fst state ;
-        
         pair(pair, pair) board = fst front ;
         pair(pair, pair) pointers = snd front ;
         

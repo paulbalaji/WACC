@@ -20,13 +20,15 @@ export class SymbolTable {
 	}
 
 	lookupAll(ident:NodeType.IdentNode):typeAndNodeTuple {
+		var result = this.lookup(ident);
+		return result === null && this.parent ? this.parent.lookupAll(ident) : result;
+	}
+
+	lookup(ident:NodeType.IdentNode):typeAndNodeTuple {
 		var result = this.table[ident.toString()];
 
 		if (result) {
 			return result;
-		}
-		if (this.parent) {
-			return this.parent.lookupAll(ident);
 		}
 
 		return null;

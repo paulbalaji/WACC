@@ -3,7 +3,7 @@
 import Const = require('./Constants');
 
 export interface TreeNode extends Visitable{
-    visit(v:Visitor):void;
+    visit(v:Visitor):any;
 }
  
 export interface Visitor {
@@ -25,7 +25,7 @@ export interface Visitor {
     visitCallNode(node:CallNode):void;
     visitPairLiterNode(node:PairLiterNode):void;
     visitIntLiterNode(node:IntLiterNode):void;
-    visitFuncNode(node:FuncNode):void;
+    visitFuncNode(node:FuncNode):any;
     visitIdentNode(node:IdentNode):void;
     visitSkipNode(node:SkipNode):void;
     visitReadNode(node:ReadNode):void;
@@ -52,7 +52,7 @@ export interface Visitor {
 }
 
 export interface Visitable {
-        visit(v:Visitor):void;
+        visit(v:Visitor):any;
 }
 
 export interface StatNode extends TreeNode {
@@ -101,8 +101,8 @@ export class FuncNode implements TreeNode {
         this.paramList = paramList;
         this.statList = statList;
     }
-    visit(v:Visitor):void {
-        v.visitFuncNode(this);
+    visit(v:Visitor):any {
+        return v.visitFuncNode(this);
     }
 
 

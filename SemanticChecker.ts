@@ -84,24 +84,25 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitProgramNode(node:NodeType.ProgramNode):void {
         //console.log('visiting a program node!');
-        _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
+        var x = _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
+        _.map(x, (f) => f());
         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
     }
 
-    visitFuncNode(node:NodeType.FuncNode) {
-        this.enterNewScope();
-        
+    visitFuncNode(node:NodeType.FuncNode):any {
         // Temporary function node visit
         if (this.functionST.lookupAll(node.ident)) {
             throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
         }
 
         this.functionST.insert(node.ident, {type: node.type, node: node});
-        _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
-         node.ident.type = node.type;
-        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
-
-        this.switchToParentScope();
+        node.ident.type = node.type;
+        return function() {
+            this.enterNewScope();
+            _.map(node.paramList, (paramNode: NodeType.Visitable) => paramNode.visit(this));
+            _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+            this.switchToParentScope();
+        }.bind(this);
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
@@ -168,18 +169,20 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {
         this.enterNewScope();
-
+        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+        this.switchToParentScope();
     }
 
     visitWhileNode(node: NodeType.WhileNode):void {
-
-        var childST : SemanticUtil.SymbolTable = new SemanticUtil.SymbolTable(this.currentST);
         node.predicateExpr.visit(this);
-        _.map(node.loopBody, (stat: NodeType.Visitable) => stat.visit(this));
+        
         if (!this.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             throw "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
         }
-        this.currentST = childST.parent;
+
+        this.enterNewScope();
+        _.map(node.loopBody, (stat: NodeType.Visitable) => stat.visit(this));
+        this.switchToParentScope();
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
@@ -246,8 +249,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
         node.rhs.visit(this);
 
-        var res = this.currentST.lookupAll(node.ident);
+        var res = this.currentST.lookup(node.ident);
         if (res) {
+            console.log(node.ident);
+            console.log(node.rhs);
             throw 'you fucked it - redeclaration';
         }
 
