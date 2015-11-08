@@ -25,15 +25,15 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     isReadableType(typeObj) {
         // Base types are INT, BOOL, CHAR
-        return SemanticUtil.isSameType(typeObj, NodeType.INT_TYPE) ||
-            SemanticUtil.isSameType(typeObj, NodeType.CHAR_TYPE);
+        return SemanticUtil.isType(typeObj, NodeType.INT_TYPE) ||
+            SemanticUtil.isType(typeObj, NodeType.CHAR_TYPE);
     }
 
     // isType(type, ...compareTypes) {
     //     if (compareTypes[0] instanceof Array) {
     //         compareTypes = compareTypes[0];
     //     }
-    //     return _.some(_.map(compareTypes, _.partial(SemanticUtil.isSameType.bind(this), type)));
+    //     return _.some(_.map(compareTypes, _.partial(SemanticUtil.isType.bind(this), type)));
     // }
 
     constructor() {
@@ -98,14 +98,14 @@ export class SemanticVisitor implements NodeType.Visitor {
         // If any type is allowed, we do not need to check
         if (allowedTypes[0]) {
             // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isSameType(node.leftOperand.type, t));
+            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isType(node.leftOperand.type, t));
             if (matchedLeftType.length === 0) {
                 throw ('Oh my, your type on lhs is not valid for the operator');
             }
         }
         // MID: Left type is correct, check that the rhs type is the same
         
-        if (!SemanticUtil.isSameType(node.leftOperand.type, node.rightOperand.type)) {
+        if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
 
@@ -125,7 +125,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.lhs.visit(this);
         node.rhs.visit(this);
 
-        if (!SemanticUtil.isSameType(node.lhs.type, node.rhs.type)) {
+        if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
             throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + SemanticUtil.getType(node.lhs) + ' . rhs type is ' + SemanticUtil.getType(node.rhs);
         }
 
@@ -140,7 +140,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitWhileNode(node: NodeType.WhileNode):void {
         node.predicateExpr.visit(this);
         
-        if (!SemanticUtil.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
+        if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             throw "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
         }
 
@@ -164,7 +164,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             // Check that all types are equal to type
 
             // mismatchedTypes is a list of types which do not match the first one in the list
-            var mismatchedTypes = _.filter(node.exprList, (expr) => !SemanticUtil.isSameType(type, expr.type));
+            var mismatchedTypes = _.filter(node.exprList, (expr) => !SemanticUtil.isType(type, expr.type));
 
             if (!_.isEmpty(mismatchedTypes)) {
                 throw 'Deary deary me.  In an array literal all expressions must be of the same type';
@@ -237,7 +237,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             }
         }
 
-        if (!SemanticUtil.isSameType(node.type, node.rhs.type)) {
+        if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
         }
 
@@ -253,7 +253,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.ident.visit(this);
         // Check if every index is an integer
 
-        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isSameType(exprNode.type, NodeType.INT_TYPE))) {
+        if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
         var res = this.currentST.lookupAll(node.ident);
@@ -297,7 +297,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         //compare arguments
         if (node.argList.length === funcNode.paramList.length) {
             for (var i = 0; i < node.argList.length; i++) {
-                if(!SemanticUtil.isSameType(node.argList[i].type, funcNode.paramList[i].type)) {
+                if(!SemanticUtil.isType(node.argList[i].type, funcNode.paramList[i].type)) {
                     throw 'Come on man, pass the correct arguments ffs'
                 }
             }
@@ -307,7 +307,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         //compare return types
         // sw6614 revision: what does below if statement do?
-       /* if(!SemanticUtil.isSameType(node.ident.type, funcNode.type)) {
+       /* if(!SemanticUtil.isType(node.ident.type, funcNode.type)) {
             throw 'Is it so hard to return the right fricking things?'
         }*/
 
@@ -352,7 +352,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             return;
         }
 
-        if (SemanticUtil.isSameType(target.type, NodeType.ArrayElemNode)) {
+        if (SemanticUtil.isType(target.type, NodeType.ArrayElemNode)) {
 
 
             var name = this.currentST.lookupAll((<NodeType.ArrayElemNode>target).ident).node;
@@ -361,7 +361,7 @@ export class SemanticVisitor implements NodeType.Visitor {
                 throw 'Mate, you should declare the things you read to...'
             }
         }
-        else if (SemanticUtil.isSameType(target.type, NodeType.PairElemNode)) {
+        else if (SemanticUtil.isType(target.type, NodeType.PairElemNode)) {
 
             var name = this.currentST.lookupAll((<NodeType.PairElemNode>target).ident).node;
             if (!name) {
@@ -408,7 +408,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // If any type is allowed, we do not need to check
         if (allowedTypes[0]) {
             // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isSameType(node.expr.type, t));
+            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isType(node.expr.type, t));
             if (matchedLeftType.length === 0) {
                 throw ('Oh my, your type is not valid for this unary operator');
             }
@@ -425,7 +425,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitExitNode(node: NodeType.ExitNode): void {
         node.expr.visit(this);
 
-        if (!SemanticUtil.isSameType(node.expr.type, NodeType.INT_TYPE)) {
+        if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
             throw "WHERE'S THE EXIT NUMBERS MAAAAAN"
         }
     }
@@ -433,7 +433,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitIfNode(node: NodeType.IfNode): void {
         node.predicateExpr.visit(this);
 
-        if (!SemanticUtil.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
+        if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             throw "IF you're not a fucking dumbass, THEN get the type right"
         }
 
