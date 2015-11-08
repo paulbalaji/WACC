@@ -25,8 +25,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     isReadableType(typeObj) {
         // Base types are INT, BOOL, CHAR
-        return SemanticUtil.isType(typeObj, NodeType.INT_TYPE) ||
-            SemanticUtil.isType(typeObj, NodeType.CHAR_TYPE);
+        return SemanticUtil.isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
     }
 
     // isType(type, ...compareTypes) {

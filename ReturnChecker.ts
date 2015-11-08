@@ -21,7 +21,7 @@ export class ReturnVisitor implements NodeType.Visitor {
               throw 'you fucked hard, you fucktard, global return';
         }
 
-        if (!SemanticUtil.isSameType(node.returnExpr.type, this.expectedReturnType)) {
+        if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
             throw 'Incorrect return type.  Return the right fucking thing.';
         }
 
