@@ -11,29 +11,22 @@ export class SemanticVisitor implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
+    setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
+        this.currentST = newCurrentST;
+    }
+    
     enterNewScope():void {
         this.setCurrentScope(new SemanticUtil.SymbolTable(this.currentST));
     }
 
-    setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
-        this.currentST = newCurrentST;
-    }
-
     switchToParentScope() {
-        this.currentST = this.currentST.parent;
+        this.setCurrentScope(this.currentST.parent);
     }
 
     isReadableType(typeObj) {
         // Base types are INT, BOOL, CHAR
         return SemanticUtil.isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
     }
-
-    // isType(type, ...compareTypes) {
-    //     if (compareTypes[0] instanceof Array) {
-    //         compareTypes = compareTypes[0];
-    //     }
-    //     return _.some(_.map(compareTypes, _.partial(SemanticUtil.isType.bind(this), type)));
-    // }
 
     constructor() {
         this.errors = [];
@@ -42,7 +35,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node:NodeType.ProgramNode):void {
-        //console.log('visiting a program node!');
         var x = _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
         _.map(x, (f) => f());
         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
