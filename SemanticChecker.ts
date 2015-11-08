@@ -29,12 +29,12 @@ export class SemanticVisitor implements NodeType.Visitor {
             SemanticUtil.isSameType(typeObj, NodeType.CHAR_TYPE);
     }
 
-    isType(type, ...compareTypes) {
-        if (compareTypes[0] instanceof Array) {
-            compareTypes = compareTypes[0];
-        }
-        return _.some(_.map(compareTypes, _.partial(SemanticUtil.isSameType.bind(this), type)));
-    }
+    // isType(type, ...compareTypes) {
+    //     if (compareTypes[0] instanceof Array) {
+    //         compareTypes = compareTypes[0];
+    //     }
+    //     return _.some(_.map(compareTypes, _.partial(SemanticUtil.isSameType.bind(this), type)));
+    // }
 
     constructor() {
         this.errors = [];
