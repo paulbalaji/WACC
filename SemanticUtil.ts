@@ -80,6 +80,13 @@ function isSameType(typeObj1, typeObj2): boolean {
     return getType(typeObj1) === getType(typeObj2);
 }
 
-export function visitNodeList(nodeList: NodeType.TreeNode[], visitor : NodeType.Visitor) {
+
+export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.Visitor) {
     return _.map(nodeList, (statNode: NodeType.Visitable) => statNode.visit(visitor));
+}
+
+export function isReadableType(typeObj) {
+        // Base types are INT, BOOL, CHAR
+        return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
+
 }

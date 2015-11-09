@@ -23,11 +23,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.setCurrentScope(this.currentST.parent);
     }
 
-    isReadableType(typeObj) {
-        // Base types are INT, BOOL, CHAR
-        return SemanticUtil.isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
-    }
-
     constructor() {
         this.errors = [];
         this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
@@ -248,6 +243,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
             throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
         }
+
         var res = this.currentST.lookupAll(node.ident);
 
         if (!res) {
@@ -296,13 +292,6 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'Learn how to count, get the number of arguments right'
         }
 
-        //compare return types
-        // sw6614 revision: what does below if statement do?
-       /* if(!SemanticUtil.isType(node.ident.type, funcNode.type)) {
-            throw 'Is it so hard to return the right fricking things?'
-        }*/
-
-
         node.type = res.type; // type of call node is return type of the function being called
     }
 
@@ -335,7 +324,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitReadNode(node: NodeType.ReadNode):void {
         var target = node.readTarget;
         target.visit(this);
-        if (!this.isReadableType(target.type)) {
+        if (!SemanticUtil.isReadableType(target.type)) {
            
                 throw 'Mate, you can only read into the basic types.'
      
