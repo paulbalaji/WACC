@@ -79,3 +79,9 @@ function isSameType(typeObj1, typeObj2): boolean {
 
     return getType(typeObj1) === getType(typeObj2);
 }
+
+
+export function isReadableType(typeObj) {
+        // Base types are INT, BOOL, CHAR
+        return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
+}
