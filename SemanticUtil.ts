@@ -36,9 +36,6 @@ export class SymbolTable {
 	}
 }
 
-export function getType(obj): string {
-    return obj.constructor.name;
-}
 
 export function isType(type, ...compareTypes) {
     if (compareTypes[0] instanceof Array) {
@@ -47,7 +44,11 @@ export function isType(type, ...compareTypes) {
     return _.some(_.map(compareTypes, _.partial(this.isSameType.bind(this), type)));
 }
 
-export function isSameType(typeObj1, typeObj2): boolean {
+export function getType(obj): string {
+    return obj.constructor.name;
+}
+
+function isSameType(typeObj1, typeObj2): boolean {
     // N.B for use on primitive types.
     // Special case for matching empty arrays with any array type
     if (typeObj1 instanceof NodeType.ArrayTypeNode || typeObj2 instanceof NodeType.ArrayTypeNode) {
