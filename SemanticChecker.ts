@@ -11,6 +11,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
+    constructor() {
+        this.errors = [];
+        this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
+        this.functionST = new SemanticUtil.SymbolTable(null);
+    }
+
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
         this.currentST = newCurrentST;
     }
@@ -23,28 +29,32 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.setCurrentScope(this.currentST.parent);
     }
 
-    constructor() {
-        this.errors = [];
-        this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
-        this.functionST = new SemanticUtil.SymbolTable(null);
-    }
-
     visitProgramNode(node:NodeType.ProgramNode):void {
-        var x = SemanticUtil.visitNodeList(node.functionList, this);
-        _.map(x, (f) => f());
+        // Partially visit all the functionNodes inserting their idents into the symbol table,
+        // and returning the rest of the visit as callback functions.
+        var visitFuncNodeCallbacks = SemanticUtil.visitNodeList(node.functionList, this);
+        // Finish the visiting of all the function nodes.
+        _.map(visitFuncNodeCallbacks, (f) => f());
+
+        // Visit all the statments in the global program scope.
         SemanticUtil.visitNodeList(node.statList, this);
+        
+        // Execute return visitor to check for valid (and invalid) returns.
         var returnVisitor : NodeType.Visitor = new ReturnChecker.ReturnVisitor();
         node.visit(returnVisitor);
     }
 
     visitFuncNode(node:NodeType.FuncNode):any {
-        // Temporary function node visit
+        // Check for redefinition of the function.
         if (this.functionST.lookupAll(node.ident)) {
             throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
         }
-
+        // Insert function ident into the function lookup table.
         this.functionST.insert(node.ident, {type: node.type, node: node});
         node.ident.type = node.type;
+
+        // Return the rest of visiting method as a function to be called once the rest of the functions
+        // have been inserted into the lookup table.
         return () => {
             this.enterNewScope();
             SemanticUtil.visitNodeList(node.paramList, this);
@@ -106,13 +116,14 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitReturnNode(node: NodeType.ReturnNode):void {
         node.returnExpr.visit(this);
     }
-    visitAssignNode(node: NodeType.AssignNode):void {
 
+    visitAssignNode(node: NodeType.AssignNode):void {
         node.lhs.visit(this);
         node.rhs.visit(this);
-
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
-            throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + SemanticUtil.getType(node.lhs) + ' . rhs type is ' + SemanticUtil.getType(node.rhs);
+            throw 'AssignNode error lhs and rhs are not the same fucking'
+                + ' type.  lhs type is ' + SemanticUtil.getType(node.lhs)
+                + ' . rhs type is ' + SemanticUtil.getType(node.rhs);
         }
 
     }
@@ -127,7 +138,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
         
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-            throw "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
+            throw 'WoW, I assuming you got 3/6 for while loop spec, because you ' +
+                  'can not even put in a boolean predicate.';
         }
 
         this.enterNewScope();
@@ -135,7 +147,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.switchToParentScope();
     }
 
-    visitPairTypeNode(node: NodeType.PairTypeNode):void {}
+
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
         SemanticUtil.visitNodeList(node.exprList, this);
@@ -143,8 +155,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (_.isEmpty(node.exprList)) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
-            node.type = NodeType.EMPTY_ARRAY_TYPE;
-            
+            node.type = NodeType.EMPTY_ARRAY_TYPE;        
         } else { // The case that the list is not empty
             // Check that all expressions are of the same type
             var type = node.exprList[0].type;
@@ -356,13 +367,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
         node.expr.visit(this);
     }
-
-    visitIntTypeNode(node:NodeType.IntTypeNode): void { }
-    visitBoolTypeNode(node:NodeType.BoolTypeNode): void { }
-    visitCharTypeNode(node:NodeType.CharTypeNode): void { }
-    visitStringTypeNode(node:NodeType.StringTypeNode): void { }
-    
-    visitPairElemTypeNode(node: NodeType.PairElemTypeNode):void {}
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
@@ -397,10 +401,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = opMap[node.operator].returnType;
 
     }
-    
-    visitSkipNode(node: NodeType.SkipNode): void {
-        //don't need to do anything for this
-    }
 
     visitExitNode(node: NodeType.ExitNode): void {
         node.expr.visit(this);
@@ -425,9 +425,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.switchToParentScope();
     }
 
-    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {
 
-    }
 
     visitPairElemNode(node: NodeType.PairElemNode):void {
         node.ident.visit(this);
@@ -450,14 +448,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     }
 
-
     visitNewPairNode(node: NodeType.NewPairNode): void {
         node.fstExpr.visit(this);
         node.sndExpr.visit(this);
 
         // The type of the node is the type of the pair
         node.type = new NodeType.PairTypeNode(node.fstExpr.type, node.sndExpr.type);
-
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
@@ -465,17 +461,16 @@ export class SemanticVisitor implements NodeType.Visitor {
         // There is nothing to check here
     }
 
-    visitPairElemTypePAIRNode(node: NodeType.PairElemTypePAIRNode): void {
-        
-    }
 
-    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) :void {
-
-    }
-
-    visitNullTypeNode(node: NodeType.NullTypeNode):void {
-
-    }
-
-
+    visitSkipNode(node: NodeType.SkipNode): void { }
+    visitPairElemTypePAIRNode(node: NodeType.PairElemTypePAIRNode): void { }
+    visitIntTypeNode(node:NodeType.IntTypeNode): void { }
+    visitBoolTypeNode(node:NodeType.BoolTypeNode): void { }
+    visitCharTypeNode(node:NodeType.CharTypeNode): void { }
+    visitStringTypeNode(node:NodeType.StringTypeNode): void { }
+    visitPairElemTypeNode(node: NodeType.PairElemTypeNode):void { }
+    visitPairTypeNode(node: NodeType.PairTypeNode):void { }
+    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void { }
+    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) :void { }
+    visitNullTypeNode(node: NodeType.NullTypeNode):void { }
 }
