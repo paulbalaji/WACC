@@ -2,7 +2,6 @@
 
 import Const = require('./Constants');
 import Error = require('./WACCError');
-
 export interface Visitable {
         visit(v:Visitor):void;
 }
@@ -71,6 +70,7 @@ export interface ExprNode extends TreeNode {
 
 export interface AssignLHSNode extends TreeNode {
     type:TypeNode;
+
 }
 
 export interface AssignRHSNode extends TreeNode {

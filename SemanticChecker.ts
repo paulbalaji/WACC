@@ -1,6 +1,8 @@
 import Const = require('./Constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
+import Error = require("./WACCError");
+
 var _ = require('underscore');
 
 
@@ -84,7 +86,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Temporary function node visit
 
         if (this.functionST.lookupAll(node.ident)) {
-            throw 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
+            var message = 'Error.  You tried to redeclare a function.  its just not good enough.  I expect better.';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
+            
         }
         this.functionST.insert(node.ident, {type: node.type, node: node});
         _.map(node.paramList, (paramNode:NodeType.Visitable) => paramNode.visit(this));
@@ -128,13 +132,17 @@ export class SemanticVisitor implements NodeType.Visitor {
             // Attempt to match the left operands type with an allowed type
             var matchedLeftType = _.filter(allowedTypes, (t) => this.isSameType(node.leftOperand.type, t));
             if (matchedLeftType.length === 0) {
-                throw ('Oh my, your type on lhs is not valid for the operator');
+                var message = 'Oh my, your type on lhs is not valid for the operator';
+                new Error.SemanticError(message, node.leftOperand.type.errorLocation).throw();
+
             }
         }
         // MID: Left type is correct, check that the rhs type is the same
         
         if (!this.isSameType(node.leftOperand.type, node.rightOperand.type)) {
-            throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
+            var message = 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
+            new Error.SemanticError(message, node.leftOperand.type.errorLocation).throw();
+            
         }
 
         node.type = opMap[node.operator].returnType;
@@ -152,7 +160,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!this.isSameType(node.lhs.type, node.rhs.type)) {
-            throw 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
+            var message = 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
+            new new Error.SemanticError(message, node.rhs.type.errorLocation).throw();
+            
         }
 
     }
@@ -168,7 +178,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
         _.map(node.loopBody, (stat: NodeType.Visitable) => stat.visit(this));
         if (!this.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-            throw "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
+            var message = "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
+            new new Error.SemanticError(message, node.predicateExpr.errorLocation).throw(); 
         }
         this.currentST = childST.parent;
     }
@@ -191,7 +202,14 @@ export class SemanticVisitor implements NodeType.Visitor {
             var mismatchedTypes = _.filter(node.exprList, (expr) => !this.isSameType(type, expr.type));
 
             if (!_.isEmpty(mismatchedTypes)) {
-                throw 'Deary deary me.  In an array literal all expressions must be of the same type';
+                // TODO:
+                //var message = 'Deary deary me.  In an array literal all expressions must be of the same type';
+                //var location = ?????????? call first exprnode from mispatched types
+                //var error = new Error.SemanticError(message, location);
+                //throw error.toString();
+                var message = 'Different types in expressions list';
+                new Error.SemanticError(message, node.type.errorLocation).throw();
+
             }
 
             if (node.exprList[0].type instanceof NodeType.ArrayTypeNode) {
@@ -222,11 +240,14 @@ export class SemanticVisitor implements NodeType.Visitor {
             var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
-                throw 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
+                var message = 'Fuck sake. You have done it again!  A free statements expression must be an ident referencing an array type or pair type.';
+                new Error.SemanticError(message, node.expr.errorLocation).throw();
             }
 
         } else {
-            throw 'You absolute dumb shit you need to free on an ident'
+            var message = 'You absolute dumb shit you need to free on an ident';
+            new Error.SemanticError(message, node.expr.errorLocation).throw();
+
         }
 
     }
@@ -238,7 +259,9 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         var res = this.currentST.lookupAll(node.ident);
         if (res) {
-            throw 'you fucked it - redeclaration';
+            var message = 'you fucked it - redeclaration';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
+
         }
 
         /*
@@ -261,7 +284,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         if (!this.isSameType(node.type, node.rhs.type)) {
-            throw 'Absolute nightmare.  Declare node: type of rhs does not match given type';
+            var message = 'Absolute nightmare.  Declare node: type of rhs does not match given type';
+            new Error.SemanticError(message, node.rhs.errorLocation).throw();
         }
 
 
@@ -277,19 +301,28 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check if every index is an integer
 
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => this.isSameType(exprNode.type, NodeType.INT_TYPE))) {
-            throw "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
+            var message = "List indices must be integers mate. I know you are trying hard, but you should be more careful in the future.";
+            // TODO
+            new Error.SemanticError(message, node.exprList[0].errorLocation).throw();
+            
         }
         var res = this.currentST.lookupAll(node.ident);
         if (!res) {
-            throw 'Mate, fucking declare your arrays before you use them.';
+            var message = 'Mate, fucking declare your arrays before you use them.';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
+
         }
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
-            throw "Mate, you are trying to index something which is not an array. have you been drinking?";
+            var message = "Mate, you are trying to index something which is not an array. have you been drinking?";
+            new Error.SemanticError(message, node.type.errorLocation).throw();
+            
         }
 
         // N.B sw6614 revision, the below condition for the if statement used to be !(res.depth != node.exprList.length).  Removed negation
+        // TODO
         if (res.type.depth !== node.exprList.length) {
-            throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
+            var message = "Mate, its hard imagining objects in many dimensions, you have probably failed."
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
 
         }
         node.type = res.type.type;
@@ -304,7 +337,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.functionST.lookupAll(node.ident);
 
         if (!res) {
-            throw 'Mate, you cannot just call a function which hasnt been defined - get a grip.';
+            var message = 'Mate, you cannot just call a function which hasnt been defined - get a grip.';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();   
         }
 
         var funcNode = res.node;
@@ -312,11 +346,15 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (node.argList.length === funcNode.paramList.length) {
             for (var i = 0; i < node.argList.length; i++) {
                 if(!this.isSameType(node.argList[i].type, funcNode.paramList[i].type)) {
-                    throw 'Come on man, pass the correct arguments ffs'
+                    var message = 'Come on man, pass the correct arguments ffs';
+                    new Error.SemanticError(message, node.argList[i].errorLocation).throw();
+
                 }
             }
         } else {
-            throw 'Learn how to count, get the number of arguments right'
+            var message = 'Learn how to count, get the number of arguments right'
+            new Error.SemanticError(message, node.argList[0].errorLocation).throw();
+            
         }
 
         //compare return types
@@ -337,11 +375,14 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.INT_TYPE;
 
         if (node.num > Const.WACC_MAX_INT) {
-            throw 'IntLiter number is too big';
+            var message = 'IntLiter number is too big';
+            new Error.SemanticError(message, node.errorLocation).throw();
+
         }
 
         if (node.num < Const.WACC_MIN_INT) {
-            throw 'IntLiter number is smaller than the lowest possible WACC number'
+            var message = 'IntLiter number is smaller than the lowest possible WACC number';
+            new Error.SemanticError(message, node.errorLocation).throw();
         }
     }
 
@@ -349,7 +390,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.currentST.lookupAll(node);
         
         if (!res) {
-            throw 'Ident Node semantic error - the ident of ' + node + ' could not be found';
+            var message = 'Ident Node semantic error - the ident of ' + node + ' could not be found';
+            new Error.SemanticError(message, node.errorLocation).throw();
+
         }
 
         node.type = res.type;
@@ -359,32 +402,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         var target = node.readTarget;
         target.visit(this);
         if (!this.isReadableType(target.type)) {
-           
-                throw 'Mate, you can only read into the basic types.'
-     
-        } else {
-            return;
-        }
-
-        if (this.isSameType(target.type, NodeType.ArrayElemNode)) {
-
-
-            var name = this.currentST.lookupAll((<NodeType.ArrayElemNode>target).ident).node;
-
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        }
-        else if (this.isSameType(target.type, NodeType.PairElemNode)) {
-
-            var name = this.currentST.lookupAll((<NodeType.PairElemNode>target).ident).node;
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        }
-        else {
-            throw "Buddy, know your types... You can only read to "
-        }
+            var message = 'Mate, you can only read into the basic types.';
+            new Error.SemanticError(message, node.readTarget.errorLocation).throw();
+        } 
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode):void {
@@ -424,7 +444,8 @@ export class SemanticVisitor implements NodeType.Visitor {
             // Attempt to match the left operands type with an allowed type
             var matchedLeftType = _.filter(allowedTypes, (t) => this.isSameType(node.expr.type, t));
             if (matchedLeftType.length === 0) {
-                throw ('Oh my, your type is not valid for this unary operator');
+                var message = 'Oh my, your type is not valid for this unary operator';
+                new Error.SemanticError(message, node.expr.errorLocation).throw();
             }
         }
 
@@ -440,8 +461,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
 
         if (!this.isSameType(node.expr.type, NodeType.INT_TYPE)) {
-            throw "WHERE'S THE EXIT NUMBERS MAAAAAN"
+            var message = "WHERE'S THE EXIT NUMBERS MAAAAAN";
+            new new Error.SemanticError(message, node.expr.errorLocation).throw();
         }
+        
     }
 
     visitIfNode(node: NodeType.IfNode): void {}
@@ -455,11 +478,13 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (res) {
 
             if (!(res.type instanceof NodeType.PairTypeNode)) {
-                throw 'you fucker, ident named ' + node.ident + ' is no pair !!!';
+                var message = 'you fucker, ident named ' + node.ident + ' is no pair !!!';
+                new Error.SemanticError(message, node.type.errorLocation).throw();
             }
 
         } else {
-            throw 'bullshit';
+            var message = 'bullshit';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
         }
         if (node.index === 0) {
             node.type = res.type.type1;

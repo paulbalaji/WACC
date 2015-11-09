@@ -22,8 +22,6 @@ export class ErrorLocation {
 	}
 }
 
-// console.log(util.inspect(location(), false, null));
-
 export class SemanticError {
 	public message: string;
 	public location: ErrorLocation;
@@ -31,12 +29,18 @@ export class SemanticError {
 	constructor(message: string, location: ErrorLocation) {
 		this.message = message;
 		this.location = location;
+		
 	}
 
 	toString() {
-		return "line: " + this.location.getLine() + 
-				" position: " + this.location.getColumn() + 
-				"; message: " + this.message;
+		return "(line: " + this.location.getLine() +
+			", column: " + this.location.getColumn() +
+			") " + this.message;
 	}; 
+
+	throw() {
+		console.log(this.message);
+		throw this.toString();
+	}
 	
 }

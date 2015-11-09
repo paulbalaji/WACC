@@ -22,8 +22,6 @@ declare class ErrorLocation {
 	}
 }
 
-// console.log(util.inspect(location(), false, null));
-
 declare class SemanticError implements Error {
 	public message: string;
 	public location: ErrorLocation;

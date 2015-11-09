@@ -1,3 +1,6 @@
 begin
-    skip
+  int x = 5;
+  println x;
+  free 9 ; 
+  println x
 end

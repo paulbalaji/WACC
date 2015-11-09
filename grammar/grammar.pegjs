@@ -3,7 +3,8 @@
 
   //var util = require('util');
   var _ = require('underscore');
-
+var util= require('util');
+  
   function generateListFromRecursiveRule(head, tail) {
     if (head !== null) {
       tail.unshift(head);
@@ -19,6 +20,7 @@
 
   function buildBinaryExpTree(head, tail) {
       if (tail.length == 0) {
+        head.setErrorLocation(new WACCError.ErrorLocation(location()));
         return head
       }
       tail = _.map(tail, (row) => _.filter(row, (elem) => elem))
@@ -34,7 +36,9 @@
 
       }
       // Stick the head and first operand as root
-      return new NodeType.BinOpExprNode(head, result, tail[0][0])
+      var node = new NodeType.BinOpExprNode(head, result, tail[0][0]);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
   }
 
 
@@ -82,7 +86,9 @@ Stat
     return new NodeType.BeginEndBlockNode(statList);
   }
   / READ _ dest:AssignLHS {
-    return new NodeType.ReadNode(dest);
+    var node = new NodeType.ReadNode(dest);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   }
   / FREE _ expr:Expr {
     return new NodeType.FreeNode(expr);
@@ -166,10 +172,16 @@ PairElemType
 
 /* AssignLHS */
 AssignLHS
-  = ArrayElem
+  = ahoj:(ArrayElem
   / PairElem
   / &BaseType /* This line is here so that an BaseTypes are NOT recognised as Idents */
-  / Ident
+  / Ident) {
+    if (ahoj) {
+      ahoj.setErrorLocation(new WACCError.ErrorLocation(location()));
+    }
+    return ahoj;
+
+  }
 
 /* AssignRHS */
 AssignRHS
@@ -186,7 +198,11 @@ AssignRHS
 
 /* ArrayLiter */
 ArrayLiter
-  = LEFT_SQUARE __ exprList:ExprList? __ RIGHT_SQUARE { return new NodeType.ArrayLiterNode(exprList);}
+  = LEFT_SQUARE __ exprList:ExprList? __ RIGHT_SQUARE { 
+    var node = new NodeType.ArrayLiterNode(exprList);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
 
 ExprList
   = expr:Expr __ COMMA __ exprs:ExprList {
@@ -212,7 +228,10 @@ Expr
 
 AndExpr
   = head:EqualsExpr tail:(__ DOUBLE_AMP __ EqualsExpr)* { 
-    return buildBinaryExpTree(head, tail)
+    var node = buildBinaryExpTree(head,tail);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+    //return buildBinaryExpTree(head, tail)
   }
 
 EqualsExpr
@@ -307,7 +326,9 @@ PairLiter
 IntLiter
   = sign:IntSign? __ digits:Digit+ { 
     var num = parseInt((sign ? sign : '') + digits.join(''), 10);
-    return new NodeType.IntLiterNode(num);
+    var node = new NodeType.IntLiterNode(num);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   }
 
 Digit
