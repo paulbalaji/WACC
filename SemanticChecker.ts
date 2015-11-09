@@ -463,12 +463,13 @@ export class SemanticVisitor implements NodeType.Visitor {
 
 
     visitSkipNode(node: NodeType.SkipNode): void { }
+    visitPairTypeNode(node: NodeType.PairTypeNode):void { }
+    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void { }
+    
     visitIntTypeNode(node:NodeType.IntTypeNode): void { }
     visitBoolTypeNode(node:NodeType.BoolTypeNode): void { }
     visitCharTypeNode(node:NodeType.CharTypeNode): void { }
     visitStringTypeNode(node:NodeType.StringTypeNode): void { }
-    visitPairTypeNode(node: NodeType.PairTypeNode):void { }
-    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void { }
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) :void { }
     visitNullTypeNode(node: NodeType.NullTypeNode):void { }
 }

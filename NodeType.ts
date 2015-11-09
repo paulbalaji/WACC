@@ -35,15 +35,14 @@ export interface Visitor {
     visitExitNode(node:ExitNode): any;
     visitIfNode(node:IfNode): any;
     visitArrayTypeNode(node:ArrayTypeNode): any;
-
     visitNewPairNode(node:NewPairNode): any;
     visitBoolLiterNode(node:BoolLiterNode): any;
     visitPairElemNode(node:PairElemNode): any;
+
     visitIntTypeNode(node:IntTypeNode): any;
     visitBoolTypeNode(node:BoolTypeNode): any;
     visitCharTypeNode(node:CharTypeNode): any;
     visitStringTypeNode(node:StringTypeNode): any;
-
     visitEmptyArrayTypeNode(node:EmptyArrayTypeNode);
     visitNullTypeNode(node:NullTypeNode): any;
 }

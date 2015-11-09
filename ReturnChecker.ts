@@ -78,13 +78,16 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitNewPairNode(node:NodeType.NewPairNode):boolean {  return false; }
     visitBoolLiterNode(node:NodeType.BoolLiterNode):boolean {  return false; }
     visitPairElemNode(node:NodeType.PairElemNode):boolean {  return false; }
+
+    // There is no general guarantee that while loop is entered at runtime,
+    // so even if it contains a return statement, we do not consider it.
+    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
+    
     visitIntTypeNode(node:NodeType.IntTypeNode):boolean {  return false; }
     visitBoolTypeNode(node:NodeType.BoolTypeNode):boolean {  return false; }
     visitCharTypeNode(node:NodeType.CharTypeNode):boolean {  return false; }
     visitStringTypeNode(node:NodeType.StringTypeNode):boolean {  return false; }
     visitEmptyArrayTypeNode(node:NodeType.EmptyArrayTypeNode) {  return false; }
     visitNullTypeNode(node:NodeType.NullTypeNode):boolean {  return false; }
-    // There is no general guarantee that while loop is entered at runtime,
-    // so even if it contains a return statement, we do not consider it.
-    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
+    
 }
