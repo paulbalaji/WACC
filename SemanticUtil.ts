@@ -84,6 +84,6 @@ export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.V
 }
 
 export function isReadableType(typeObj) {
-        // Base types are INT, BOOL, CHAR
+        // Types you can read into are INT, BOOL, CHAR
         return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
 }

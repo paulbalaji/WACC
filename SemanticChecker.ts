@@ -1,7 +1,9 @@
 import Const = require('./Constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
-import ReturnChecker = require('./ReturnChecker')
+import ReturnChecker = require('./ReturnChecker');
+import OperatorInfo = require('./OperatorInfo');
+
 var _ = require('underscore');
 
 
@@ -66,38 +68,11 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitBinOpExprNode(node: NodeType.BinOpExprNode):void {
         node.leftOperand.visit(this);
         node.rightOperand.visit(this);
-        
-        var opMap = {};
-        function OperatorInfo(possibleTypes, returnType) {
-            this.possibleTypes = possibleTypes;
-            this.returnType = returnType;
-        }
 
-        opMap['+']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['-']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['*']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['/']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['%']  = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['>']  = new OperatorInfo([NodeType.INT_TYPE,  NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-        opMap['>='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-        opMap['<']  = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-        opMap['<='] = new OperatorInfo([NodeType.INT_TYPE, NodeType.CHAR_TYPE], NodeType.BOOL_TYPE);
-
-        opMap['=='] = new OperatorInfo([null], NodeType.BOOL_TYPE);
-        opMap['!='] = new OperatorInfo([null], NodeType.BOOL_TYPE);
-
-        opMap['&&'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
-        opMap['||'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
-        
-        // First check that lhs of the binop is a required type for the operator
-        var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
-        // If any type is allowed, we do not need to check
-        if (allowedTypes[0]) {
-            // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isType(node.leftOperand.type, t));
-            if (matchedLeftType.length === 0) {
+        var opInfo = OperatorInfo.binOpMap[node.operator];
+       
+        if (!opInfo.isPermittedType(node.leftOperand.type)) {
                 throw ('Oh my, your type on lhs is not valid for the operator');
-            }
         }
         // MID: Left type is correct, check that the rhs type is the same
         
@@ -105,7 +80,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw 'Fuck sake, its a binary operator and you should know by now that the types on lhs and rhs should be the same...';
         }
 
-        node.type = opMap[node.operator].returnType;
+        node.type = opInfo.returnType;
         
     }
 
@@ -336,35 +311,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
-        if (node.expr.type instanceof NodeType.ArrayTypeNode) {
-            var ARRAY_TYPE = node.expr.type;
+
+        // Attempt to match the left operands type with an allowed type
+        if (!OperatorInfo.unOpMap[node.operator].isPermittedType(node.expr.type)) {
+            throw ('Oh my, your type is not valid for this unary operator');
         }
 
-        var opMap = {};
-        function OperatorInfo(possibleTypes, returnType) {
-            this.possibleTypes = possibleTypes;
-            this.returnType = returnType;
-        }
-
-        opMap['!'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
-        opMap['-'] = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['len'] = new OperatorInfo([NodeType.STRING_TYPE, ARRAY_TYPE], NodeType.INT_TYPE);
-        opMap['ord'] = new OperatorInfo([NodeType.CHAR_TYPE], NodeType.INT_TYPE);
-        opMap['chr'] = new OperatorInfo([NodeType.INT_TYPE], NodeType.CHAR_TYPE);
-
-        // First check that lhs of the binop is a required type for the operator
-        var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
-        
-        // If any type is allowed, we do not need to check
-        if (allowedTypes[0]) {
-            // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isType(node.expr.type, t));
-            if (matchedLeftType.length === 0) {
-                throw ('Oh my, your type is not valid for this unary operator');
-            }
-        }
-
-        node.type = opMap[node.operator].returnType;
+        node.type = OperatorInfo.unOpMap[node.operator].returnType;
 
     }
 
