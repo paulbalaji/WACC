@@ -1,7 +1,8 @@
 import Const = require('./Constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
-import ReturnChecker = require('./ReturnChecker')
+import ReturnChecker = require('./ReturnChecker');
+import OperatorInfo = require('./OperatorInfo');
 var _ = require('underscore');
 
 
@@ -370,31 +371,13 @@ export class SemanticVisitor implements NodeType.Visitor {
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
-        if (node.expr.type instanceof NodeType.ArrayTypeNode) {
-            var ARRAY_TYPE = node.expr.type;
-        }
 
-        var opMap = {};
-        function OperatorInfo(isPermittedType, returnType) {
-            this.isPermittedType = isPermittedType;
-            this.returnType = returnType;
-        }
-
-        var isType = SemanticUtil.isType;
-
-        opMap['-'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.INT_TYPE);
-        opMap['!'] = new OperatorInfo((t)=> isType(t, NodeType.BOOL_TYPE), NodeType.BOOL_TYPE);
-        opMap['ord'] = new OperatorInfo((t) => isType(t, NodeType.CHAR_TYPE), NodeType.INT_TYPE);
-        opMap['chr'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.CHAR_TYPE);
-        opMap['len'] = new OperatorInfo((t) => isType(t, [NodeType.STRING_TYPE, ARRAY_TYPE]), NodeType.INT_TYPE);
-
-        
         // Attempt to match the left operands type with an allowed type
-        if (!opMap[node.operator].isPermittedType(node.expr.type)) {
+        if (!OperatorInfo.unOpMap[node.operator].isPermittedType(node.expr.type)) {
             throw ('Oh my, your type is not valid for this unary operator');
         }
 
-        node.type = opMap[node.operator].returnType;
+        node.type = OperatorInfo.unOpMap[node.operator].returnType;
 
     }
 
