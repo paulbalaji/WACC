@@ -35,9 +35,9 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node:NodeType.ProgramNode):void {
-        var x = _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
+        var x = SemanticUtil.visitNodeList(node.functionList, this);
         _.map(x, (f) => f());
-        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+        SemanticUtil.visitNodeList(node.statList, this);
         var returnVisitor : NodeType.Visitor = new ReturnChecker.ReturnVisitor();
         node.visit(returnVisitor);
     }
@@ -52,8 +52,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.ident.type = node.type;
         return () => {
             this.enterNewScope();
-            _.map(node.paramList, (paramNode: NodeType.Visitable) => paramNode.visit(this));
-            _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+            SemanticUtil.visitNodeList(node.paramList, this);
+            SemanticUtil.visitNodeList(node.statList, this);
             this.switchToParentScope();
         };
     }
@@ -124,7 +124,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode):void {
         this.enterNewScope();
-        _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
+        SemanticUtil.visitNodeList(node.statList, this);
         this.switchToParentScope();
     }
 
@@ -136,14 +136,15 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         this.enterNewScope();
-        _.map(node.loopBody, (stat: NodeType.Visitable) => stat.visit(this));
+        SemanticUtil.visitNodeList(node.loopBody, this);
         this.switchToParentScope();
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode):void {}
     visitArrayLiterNode(node: NodeType.ArrayLiterNode):void {
         // Visit all expressions
-        _.map(node.exprList, (expr: NodeType.Visitable) => expr.visit(this));
+        SemanticUtil.visitNodeList(node.exprList, this);
+
 
         if (_.isEmpty(node.exprList)) { // The case that the list is empty
             // Nothing more to check, just fill in the node type as null
@@ -240,7 +241,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode):void {
-        _.map(node.exprList, (exprNode: NodeType.Visitable) => exprNode.visit(this));
+        SemanticUtil.visitNodeList(node.exprList, this);
         node.ident.visit(this);
         // Check if every index is an integer
 
@@ -275,8 +276,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitCallNode(node: NodeType.CallNode):void {
         // node.ident.visit(this); NO LONGER NEEDED AS node.ident is a function ident, not stored in main symbol table
-        
-         _.map(node.argList, (arg) => arg.visit(this));
+        SemanticUtil.visitNodeList(node.argList, this);
 
         var res = this.functionST.lookupAll(node.ident);
 
@@ -429,11 +429,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         this.enterNewScope(); //scope for the true branch
-        _.map(node.trueStatList, (stat) => stat.visit(this));
-
+        SemanticUtil.visitNodeList(node.trueStatList, this);
         this.switchToParentScope(); //same parent but
         this.enterNewScope();       //different scope for the false branch
-        _.map(node.falseStatList, (stat) => stat.visit(this));
+        SemanticUtil.visitNodeList(node.falseStatList, this);
         this.switchToParentScope();
     }
 
@@ -442,7 +441,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode):void {
-         node.ident.visit(this);
+        node.ident.visit(this);
         var res = this.currentST.lookupAll(node.ident);
         if (res) {
 

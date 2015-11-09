@@ -32,6 +32,8 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 if (errorFlag === 'success') {  
                   console.log(filename); 
                 }
+
+
                 
         } catch (e) {
                 // If the file was not supposed to throw an error, write the filename.
@@ -45,4 +47,6 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                   console.log(e);
                 }
         }
+
+
 });

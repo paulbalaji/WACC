@@ -3,35 +3,61 @@ import SemanticUtil = require('./SemanticUtil');
 var _ = require('underscore');
 
 export class ReturnVisitor implements NodeType.Visitor {
-	errors = [];
+    // When checking each function, this field is set to valid return type of that function.
     expectedReturnType:any = null;
 
+    // Checks valid returns in all functions and then check for invalid return in global scope.
     visitProgramNode(node:NodeType.ProgramNode):boolean {
-         _.map(node.functionList, (functionNode:NodeType.Visitable) => functionNode.visit(this));
+         SemanticUtil.visitNodeList(node.functionList, this)
          this.expectedReturnType = null;
-         _.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this));
-           
-         
+         SemanticUtil.visitNodeList(node.statList, this)
          return true;
     }
-    visitBinOpExprNode(node:NodeType.BinOpExprNode):boolean { return false; }
-    visitStrLiterNode(node:NodeType.StrLiterNode):boolean { return false; }
+
+    // Return node must be of the right type. If expectedReturnType is not set, we are
+    // are in global scope and visitor throws an error. Otherwise it checks if the 
+    // expected and actual types match.
     visitReturnNode(node:NodeType.ReturnNode):boolean { 
         if (this.expectedReturnType === null) {
               throw 'you fucked hard, you fucktard, global return';
         }
-
         if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
             throw 'Incorrect return type.  Return the right fucking thing.';
         }
-
         return true;
     }
-    visitAssignNode(node:NodeType.AssignNode):boolean {  return false; }
+
+    // BeginEnd block can be an ancestor of valid return statement, so we need to check
+    // all its children.
     visitBeginEndBlockNode(node:NodeType.BeginEndBlockNode):boolean {
-        return _.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)));
+        return _.some(SemanticUtil.visitNodeList(node.statList, this));
     }
-    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
+
+    // Every function needs to have a return statement with matching type.
+    visitFuncNode(node:NodeType.FuncNode):boolean {
+        this.expectedReturnType = node.type;
+        if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
+            throw 'You lazy bullshit, you need to return from functions.';
+        }
+        return true;
+    }
+
+    // Visit node requires that both branches to contain a return statement. 
+    visitIfNode(node:NodeType.IfNode):boolean {
+        var branch1 : boolean = _.some(SemanticUtil.visitNodeList(node.trueStatList, this))
+        var branch2 : boolean = _.some(SemanticUtil.visitNodeList(node.falseStatList, this))
+        
+        return branch1 && branch2;
+    }
+
+    // Exit node acts as return.
+    visitExitNode(node:NodeType.ExitNode):boolean {  return true; }    
+
+    // Implementation of other Node visit functions that by nature of the node
+    // do not return nor they can be an valid ancestor of a return node.
+    visitBinOpExprNode(node:NodeType.BinOpExprNode):boolean { return false; }
+    visitStrLiterNode(node:NodeType.StrLiterNode):boolean { return false; }
+    visitAssignNode(node:NodeType.AssignNode):boolean {  return false; }
     visitPairTypeNode(node:NodeType.PairTypeNode):boolean {  return false; }
     visitArrayLiterNode(node:NodeType.ArrayLiterNode):boolean {  return false; }
     visitCharLiterNode(node:NodeType.CharLiterNode):boolean {  return false; }
@@ -43,31 +69,13 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitCallNode(node:NodeType.CallNode):boolean {  return false; }
     visitPairLiterNode(node:NodeType.PairLiterNode):boolean {  return false; }
     visitIntLiterNode(node:NodeType.IntLiterNode):boolean {  return false; }
-    visitFuncNode(node:NodeType.FuncNode):boolean {
-        this.expectedReturnType = node.type;
-
-        if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
-            throw 'You lazy bullshit, you need to return from functions.';
-        }
-        
-        return true;
-    }
     visitIdentNode(node:NodeType.IdentNode):boolean {  return false; }
     visitReadNode(node:NodeType.ReadNode):boolean {  return false; }
     visitPrintlnNode(node:NodeType.PrintlnNode):boolean {  return false; }
-    // visitBaseTypeNode(node:NodeType.BaseTypeNode):boolean {}
     visitPairElemTypeNode(node:NodeType.PairElemTypeNode):boolean {  return false; }
     visitUnOpNode(node:NodeType.UnOpNode):boolean {  return false; }
     visitSkipNode(node:NodeType.SkipNode):boolean {  return false; }
-    visitExitNode(node:NodeType.ExitNode):boolean {  return true; }
-    visitIfNode(node:NodeType.IfNode):boolean {
-        var branch1 : boolean = _.some(_.map(node.trueStatList, (statNode: NodeType.Visitable) => statNode.visit(this)))
-        var branch2 : boolean = _.some(_.map(node.falseStatList, (statNode: NodeType.Visitable) => statNode.visit(this)))
-        
-        return branch1 && branch2;
-    }
     visitArrayTypeNode(node:NodeType.ArrayTypeNode):boolean {  return false; }
-
     visitNewPairNode(node:NodeType.NewPairNode):boolean {  return false; }
     visitBoolLiterNode(node:NodeType.BoolLiterNode):boolean {  return false; }
     visitPairElemTypePAIRNode(node:NodeType.PairElemTypePAIRNode):boolean {  return false; }
@@ -76,7 +84,9 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitBoolTypeNode(node:NodeType.BoolTypeNode):boolean {  return false; }
     visitCharTypeNode(node:NodeType.CharTypeNode):boolean {  return false; }
     visitStringTypeNode(node:NodeType.StringTypeNode):boolean {  return false; }
-
     visitEmptyArrayTypeNode(node:NodeType.EmptyArrayTypeNode) {  return false; }
     visitNullTypeNode(node:NodeType.NullTypeNode):boolean {  return false; }
+    // There is no general guarantee that while loop is entered at runtime,
+    // so even if it contains a return statement, we do not consider it.
+    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
 }
