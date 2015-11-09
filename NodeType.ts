@@ -30,8 +30,6 @@ export interface Visitor {
     visitSkipNode(node:SkipNode):any;
     visitReadNode(node:ReadNode):any;
     visitPrintlnNode(node:PrintlnNode):any;
-    // visitBaseTypeNode(node:BaseTypeNode):any;
-    visitPairElemTypeNode(node:PairElemTypeNode):any;
     visitUnOpNode(node:UnOpNode): any;
     visitSkipNode(node:SkipNode): any;
     visitExitNode(node:ExitNode): any;
@@ -40,7 +38,6 @@ export interface Visitor {
 
     visitNewPairNode(node:NewPairNode): any;
     visitBoolLiterNode(node:BoolLiterNode): any;
-    visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): any;
     visitPairElemNode(node:PairElemNode): any;
     visitIntTypeNode(node:IntTypeNode): any;
     visitBoolTypeNode(node:BoolTypeNode): any;
@@ -145,27 +142,6 @@ export class PrintlnNode implements StatNode {
 
 }
 
-export class PairElemTypePAIRNode implements TypeNode {
-    // This is supposed to be empty, dont you worry child
-
-    visit(v:Visitor):void {
-        return v.visitPairElemTypePAIRNode(this);
-    }
-
-}
-
-/*export class BaseTypeNode implements TypeNode {
-    typeName: String;
-
-    constructor(typeName:String) {
-        this.typeName = typeName;
-    }
-
-     visit(v:Visitor):void {
-        return v.visitBaseTypeNode(this);
-    }
-}*/
-
 export interface BaseTypeNode extends TypeNode {
 }
 
@@ -191,19 +167,6 @@ export class StringTypeNode implements BaseTypeNode {
      visit(v:Visitor) : void {
         return v.visitStringTypeNode(this);
     }
-}
-
-export class PairElemTypeNode implements StatNode {
-    type : TypeNode;
-
-    constructor(type:TypeNode) {
-        this.type = type;
-    }
-
-     visit(v:Visitor):void {
-        return v.visitPairElemTypeNode(this);
-    }
-
 }
 
 export class IdentNode implements ExprNode, AssignLHSNode {
@@ -599,5 +562,4 @@ export var CHAR_TYPE:CharTypeNode = new CharTypeNode();
 export var BOOL_TYPE:BoolTypeNode = new BoolTypeNode();
 export var STRING_TYPE:StringTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
 export var EMPTY_ARRAY_TYPE:EmptyArrayTypeNode = new EmptyArrayTypeNode();
-export var PAIR_ELEM_TYPE_PAIR:PairElemTypePAIRNode = new PairElemTypePAIRNode();
 export var NULL_TYPE:NullTypeNode = new NullTypeNode();

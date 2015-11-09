@@ -72,13 +72,11 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitIdentNode(node:NodeType.IdentNode):boolean {  return false; }
     visitReadNode(node:NodeType.ReadNode):boolean {  return false; }
     visitPrintlnNode(node:NodeType.PrintlnNode):boolean {  return false; }
-    visitPairElemTypeNode(node:NodeType.PairElemTypeNode):boolean {  return false; }
     visitUnOpNode(node:NodeType.UnOpNode):boolean {  return false; }
     visitSkipNode(node:NodeType.SkipNode):boolean {  return false; }
     visitArrayTypeNode(node:NodeType.ArrayTypeNode):boolean {  return false; }
     visitNewPairNode(node:NodeType.NewPairNode):boolean {  return false; }
     visitBoolLiterNode(node:NodeType.BoolLiterNode):boolean {  return false; }
-    visitPairElemTypePAIRNode(node:NodeType.PairElemTypePAIRNode):boolean {  return false; }
     visitPairElemNode(node:NodeType.PairElemNode):boolean {  return false; }
     visitIntTypeNode(node:NodeType.IntTypeNode):boolean {  return false; }
     visitBoolTypeNode(node:NodeType.BoolTypeNode):boolean {  return false; }

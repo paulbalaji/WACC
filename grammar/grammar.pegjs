@@ -135,8 +135,6 @@ PairElemType
   = (ArrayType 
   / BaseType)
   / PAIR {
-    // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
-    //return new NodeType.PairElemTypePAIRNode();
     return NodeType.NULL_TYPE;
   }
 
