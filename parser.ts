@@ -29,6 +29,11 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 if (errorFlag === 'success') {  
                   console.log(filename); 
                 }
+
+                  // Execute semantic check on the input (throws error in 
+                // case of failure).
+                var semanticVisitor = new SemanticChecker.SemanticVisitor();
+                ast.visit(semanticVisitor);
                 
         } catch (e) {
                 // If the file was not supposed to throw an error, write the filename.
@@ -43,8 +48,5 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 }
         }
 
-         // Execute semantic check on the input (throws error in 
-        // case of failure).
-        var semanticVisitor = new SemanticChecker.SemanticVisitor();
-        ast.visit(semanticVisitor);
+
 });
