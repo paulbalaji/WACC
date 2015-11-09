@@ -242,7 +242,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         this.currentST.insert(node.ident, {type: node.type, node: node});
 
-        node.ident.visit(this);
+        
 
     }
 
@@ -257,20 +257,9 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         var res = this.currentST.lookupAll(node.ident);
 
-        if (!res) {
-            throw 'Mate, fucking declare your arrays before you use them.';
-        }
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
             throw "Mate, you are trying to index something which is not an array. have you been drinking?";
         }
-
-        // N.B sw6614 revision, the below condition for the if statement used to be !(res.depth != node.exprList.length).  Removed negation
-   /*     if (res.type.depth !== node.exprList.length) {
-            console.log(res.type);
-            console.log(node.exprList);
-            throw "Mate, its hard imagining objects in many dimensions, you have probably failed."
-
-        }*/
 
         if (res.type.depth > node.exprList.length) {
             node.type = new NodeType.ArrayTypeNode(res.type.type, res.type.depth - node.exprList.length);
@@ -335,32 +324,9 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitReadNode(node: NodeType.ReadNode):void {
         var target = node.readTarget;
         target.visit(this);
+        // Check it is possible to record into target
         if (!SemanticUtil.isReadableType(target.type)) {
-           
                 throw 'Mate, you can only read into the basic types.'
-     
-        } else {
-            return;
-        }
-
-        if (SemanticUtil.isType(target.type, NodeType.ArrayElemNode)) {
-
-
-            var name = this.currentST.lookupAll((<NodeType.ArrayElemNode>target).ident).node;
-
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        }
-        else if (SemanticUtil.isType(target.type, NodeType.PairElemNode)) {
-
-            var name = this.currentST.lookupAll((<NodeType.PairElemNode>target).ident).node;
-            if (!name) {
-                throw 'Mate, you should declare the things you read to...'
-            }
-        }
-        else {
-            throw "Buddy, know your types... You can only read to "
         }
     }
 
