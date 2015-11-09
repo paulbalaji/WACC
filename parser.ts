@@ -22,10 +22,7 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 // Parse the input and create ast.
                 var ast : NodeType.Visitable = parser.parse(data);
 
-                // Execute semantic check on the input (throws error in 
-                // case of failure).
-                var semanticVisitor = new SemanticChecker.SemanticVisitor();
-                ast.visit(semanticVisitor);
+               
 
                 // If the file was not supposed to succeed, write the filename.
                 // For testing purposes only.
@@ -45,4 +42,9 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                   console.log(e);
                 }
         }
+
+         // Execute semantic check on the input (throws error in 
+        // case of failure).
+        var semanticVisitor = new SemanticChecker.SemanticVisitor();
+        ast.visit(semanticVisitor);
 });
