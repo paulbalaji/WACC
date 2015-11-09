@@ -72,21 +72,22 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitIdentNode(node:NodeType.IdentNode):boolean {  return false; }
     visitReadNode(node:NodeType.ReadNode):boolean {  return false; }
     visitPrintlnNode(node:NodeType.PrintlnNode):boolean {  return false; }
-    visitPairElemTypeNode(node:NodeType.PairElemTypeNode):boolean {  return false; }
     visitUnOpNode(node:NodeType.UnOpNode):boolean {  return false; }
     visitSkipNode(node:NodeType.SkipNode):boolean {  return false; }
     visitArrayTypeNode(node:NodeType.ArrayTypeNode):boolean {  return false; }
     visitNewPairNode(node:NodeType.NewPairNode):boolean {  return false; }
     visitBoolLiterNode(node:NodeType.BoolLiterNode):boolean {  return false; }
-    visitPairElemTypePAIRNode(node:NodeType.PairElemTypePAIRNode):boolean {  return false; }
     visitPairElemNode(node:NodeType.PairElemNode):boolean {  return false; }
+
+    // There is no general guarantee that while loop is entered at runtime,
+    // so even if it contains a return statement, we do not consider it.
+    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
+    
     visitIntTypeNode(node:NodeType.IntTypeNode):boolean {  return false; }
     visitBoolTypeNode(node:NodeType.BoolTypeNode):boolean {  return false; }
     visitCharTypeNode(node:NodeType.CharTypeNode):boolean {  return false; }
     visitStringTypeNode(node:NodeType.StringTypeNode):boolean {  return false; }
     visitEmptyArrayTypeNode(node:NodeType.EmptyArrayTypeNode) {  return false; }
     visitNullTypeNode(node:NodeType.NullTypeNode):boolean {  return false; }
-    // There is no general guarantee that while loop is entered at runtime,
-    // so even if it contains a return statement, we do not consider it.
-    visitWhileNode(node:NodeType.WhileNode):boolean { return false; }
+    
 }
