@@ -10,23 +10,26 @@ var isType = SemanticUtil.isType;
 	Function used to generator the info object that each operator maps to.
 	Contains the possibleTypes that the operator works on and the return type of the operator
 */
-function OperatorInfo(isPermittedType, returnType) {
-    this.isPermittedType = isPermittedType;
+function OperatorInfo(types, returnType) {
+    this.isPermittedType = _.partial(isType, _, types);
     this.returnType = returnType;
 }
 
-var _unOpMap = {};
-
-_unOpMap['-'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.INT_TYPE);
-_unOpMap['!'] = new OperatorInfo((t) => isType(t, NodeType.BOOL_TYPE), NodeType.BOOL_TYPE);
-_unOpMap['ord'] = new OperatorInfo((t) => isType(t, NodeType.CHAR_TYPE), NodeType.INT_TYPE);
-_unOpMap['chr'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.CHAR_TYPE);
-_unOpMap['len'] = new OperatorInfo((t) => isType(t, NodeType.STRING_TYPE) || t instanceof NodeType.ArrayTypeNode, NodeType.INT_TYPE);
-
+function genIsPermittedType(...types) {
+	return _.partial(isType, _, types[0] instanceof Array ? types[0] : types);
+}
 
 /*
 	Unary Operator Info
 */
+var _unOpMap = {};
+
+_unOpMap['-'] = new OperatorInfo(NodeType.INT_TYPE, NodeType.INT_TYPE);
+_unOpMap['!'] = new OperatorInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
+_unOpMap['ord'] = new OperatorInfo(genIsPermittedType(NodeType.CHAR_TYPE), NodeType.INT_TYPE);
+_unOpMap['chr'] = new OperatorInfo(genIsPermittedType(NodeType.INT_TYPE), NodeType.CHAR_TYPE);
+_unOpMap['len'] = new OperatorInfo((t) => isType(t, NodeType.STRING_TYPE) || t instanceof NodeType.ArrayTypeNode, NodeType.INT_TYPE);
+
 export var unOpMap = _unOpMap;
 
 /*
