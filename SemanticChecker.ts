@@ -375,27 +375,23 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         var opMap = {};
-        function OperatorInfo(possibleTypes, returnType) {
-            this.possibleTypes = possibleTypes;
+        function OperatorInfo(isPermittedType, returnType) {
+            this.isPermittedType = isPermittedType;
             this.returnType = returnType;
         }
 
-        opMap['!'] = new OperatorInfo([NodeType.BOOL_TYPE], NodeType.BOOL_TYPE);
-        opMap['-'] = new OperatorInfo([NodeType.INT_TYPE], NodeType.INT_TYPE);
-        opMap['len'] = new OperatorInfo([NodeType.STRING_TYPE, ARRAY_TYPE], NodeType.INT_TYPE);
-        opMap['ord'] = new OperatorInfo([NodeType.CHAR_TYPE], NodeType.INT_TYPE);
-        opMap['chr'] = new OperatorInfo([NodeType.INT_TYPE], NodeType.CHAR_TYPE);
+        var isType = SemanticUtil.isType;
 
-        // First check that lhs of the binop is a required type for the operator
-        var allowedTypes = opMap[node.operator].possibleTypes; // The allowed types for the opera tor
+        opMap['-'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.INT_TYPE);
+        opMap['!'] = new OperatorInfo((t)=> isType(t, NodeType.BOOL_TYPE), NodeType.BOOL_TYPE);
+        opMap['ord'] = new OperatorInfo((t) => isType(t, NodeType.CHAR_TYPE), NodeType.INT_TYPE);
+        opMap['chr'] = new OperatorInfo((t) => isType(t, NodeType.INT_TYPE), NodeType.CHAR_TYPE);
+        opMap['len'] = new OperatorInfo((t) => isType(t, [NodeType.STRING_TYPE, ARRAY_TYPE]), NodeType.INT_TYPE);
+
         
-        // If any type is allowed, we do not need to check
-        if (allowedTypes[0]) {
-            // Attempt to match the left operands type with an allowed type
-            var matchedLeftType = _.filter(allowedTypes, (t) => SemanticUtil.isType(node.expr.type, t));
-            if (matchedLeftType.length === 0) {
-                throw ('Oh my, your type is not valid for this unary operator');
-            }
+        // Attempt to match the left operands type with an allowed type
+        if (!opMap[node.operator].isPermittedType(node.expr.type)) {
+            throw ('Oh my, your type is not valid for this unary operator');
         }
 
         node.type = opMap[node.operator].returnType;
