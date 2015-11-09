@@ -79,3 +79,7 @@ function isSameType(typeObj1, typeObj2): boolean {
 
     return this.getType(typeObj1) === this.getType(typeObj2);
 }
+
+export function mapVisitorOverChildren(childrenList: NodeType.TreeNode[], visitor : NodeType.Visitor) {
+    return _.map(childrenList, (statNode: NodeType.Visitable) => statNode.visit(this));
+}
