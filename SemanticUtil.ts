@@ -27,12 +27,7 @@ export class SymbolTable {
 
 	lookup(ident:NodeType.IdentNode):typeAndNodeTuple {
 		var result = this.table[ident.toString()];
-
-		if (result) {
-			return result;
-		}
-
-		return null;
+        return result ? result : null;
 	}
 }
 
