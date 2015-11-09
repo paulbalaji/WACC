@@ -2,7 +2,6 @@
 
 var parser = require('./grammar/grammar');
 var _ = require('underscore');
-var printTree = require('./node_modules/printTree');
 
 import util = require('util');
 import NodeType = require('./NodeType');
@@ -20,32 +19,30 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
         if (err) { throw err };
   
         try {
-
+                // Parse the input and create ast.
                 var ast : NodeType.Visitable = parser.parse(data);
-                // console.log('TEST SUCCEEDED ON FILE NAME ' + filename);
 
+                // Execute semantic check on the input (throws error in 
+                // case of failure).
                 var semanticVisitor = new SemanticChecker.SemanticVisitor();
                 ast.visit(semanticVisitor);
 
-                // Print errors out from semanticVisitor
-                _.map(semanticVisitor.errors, (e) => console.log(e));
-
+                // If the file was not supposed to succeed, write the filename.
+                // For testing purposes only.
                 if (errorFlag === 'success') {  
                   console.log(filename); 
                 }
-                //printTree(ast, 'ROOT');
-                // console.log(util.inspect(ast, false, null));
+                
         } catch (e) {
+                // If the file was not supposed to throw an error, write the filename.
+                // For testing purposes only.
                 if (errorFlag === 'error') {
                     console.log(filename);
                 }
 
+                // If verbose flag is set, write details of the error.
                 if (verbose) {
                   console.log(e);
                 }
-                // console.log('---EXITING---');
-                // process.exit();
         }
-
 });
-
