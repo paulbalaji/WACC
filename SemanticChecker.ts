@@ -260,21 +260,19 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         var funcNode = res.node;
-        //compare arguments
+        // Compare arguments
         if (node.argList.length === funcNode.paramList.length) {
-            
-            for (var i = 0; i < node.argList.length; i++) {
-
-                if(!SemanticUtil.isType(node.argList[i].type, funcNode.paramList[i].type)) {
-                    new Error.SemanticError('Provided function arguments do not that match of the function declaration.', node.argList[i].errorLocation).throw();
+            _.forEach(_.zip(node.argList, funcNode.paramList), function (nodes, i) {
+                if (!SemanticUtil.isType(nodes[0].type, nodes[1].type)) {
+                    new Error.SemanticError('Provided function arguments do not that match of the function declaration.', node.argList[i].errorLocation).throw();                
                 }
-            }
+            }); 
         } else {
-            new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.', node.argList[0].errorLocation).throw();
+            new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  Expected ' + funcNode.paramList.length + ' arguments, given ' + node.argList.length + ' arguments.', node.argList[0].errorLocation).throw();
             
         }
 
-        node.type = res.type; // type of call node is return type of the function being called
+        node.type = res.type; // Type of call node is return type of the function being called
     }
 
     visitPairLiterNode(node: NodeType.PairLiterNode):void {
@@ -321,7 +319,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
-
 
         // Attempt to match the left operands type with an allowed type
         if (!OperatorInfo.unOpMap[node.operator].isPermittedType(node.expr.type)) {
