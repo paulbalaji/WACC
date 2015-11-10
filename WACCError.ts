@@ -39,7 +39,6 @@ export class SemanticError {
 	}; 
 
 	throw() {
-		console.log(this.message);
 		throw this.toString();
 	}
 	

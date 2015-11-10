@@ -86,7 +86,6 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitIntTypeNode(node:NodeType.IntTypeNode):boolean {  return false; }
     visitBoolTypeNode(node:NodeType.BoolTypeNode):boolean {  return false; }
     visitCharTypeNode(node:NodeType.CharTypeNode):boolean {  return false; }
-    visitStringTypeNode(node:NodeType.StringTypeNode):boolean {  return false; }
     visitEmptyArrayTypeNode(node:NodeType.EmptyArrayTypeNode) {  return false; }
     visitNullTypeNode(node:NodeType.NullTypeNode):boolean {  return false; }
     

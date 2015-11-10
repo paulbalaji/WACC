@@ -75,11 +75,13 @@ export class SemanticVisitor implements NodeType.Visitor {
         var opInfo = OperatorInfo.binOpMap[node.operator];
        
         if (!opInfo.isPermittedType(node.leftOperand.type)) {
+                var message = 'Bin Op expr lhs must be the correct type';
                 new Error.SemanticError(message, node.leftOperand.type.errorLocation).throw();
         }
         // MID: Left type is correct, check that the rhs type is the same
         
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
+            var message = 'For a bin op expr, lhs and rhs type must be the same';
             new Error.SemanticError(message, node.leftOperand.type.errorLocation).throw();
         }
 
@@ -100,7 +102,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
-            var message = 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + this.getType(node.lhs) + ' . rhs type is ' + this.getType(node.rhs);
+            var message = 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + SemanticUtil.getType(node.lhs) + ' . rhs type is ' + SemanticUtil.getType(node.rhs);
             new new Error.SemanticError(message, node.rhs.type.errorLocation).throw();
         }
 
@@ -116,7 +118,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
         
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-           !this.isSameType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             var message = "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
             new new Error.SemanticError(message, node.predicateExpr.errorLocation).throw(); 
         }
@@ -227,7 +228,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             var message = 'Absolute nightmare.  Declare node: type of rhs does not match given type';
-            new Error.SemanticError(message, node.rhs.errorLocation).throw();>>>>>>> master
+            new Error.SemanticError(message, node.rhs.errorLocation).throw();
         }
 
         this.currentST.insert(node.ident, {type: node.type, node: node});
@@ -413,7 +414,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // The type of the node is the type of the pair
         node.type = new NodeType.PairTypeNode(node.fstExpr.type, node.sndExpr.type);
     }
-
+q
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
         node.type = NodeType.BOOL_TYPE;
         // There is nothing to check here
@@ -427,7 +428,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitIntTypeNode(node:NodeType.IntTypeNode): void { }
     visitBoolTypeNode(node:NodeType.BoolTypeNode): void { }
     visitCharTypeNode(node:NodeType.CharTypeNode): void { }
-    visitStringTypeNode(node:NodeType.StringTypeNode): void { }
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) :void { }
     visitNullTypeNode(node: NodeType.NullTypeNode):void { }
 }
