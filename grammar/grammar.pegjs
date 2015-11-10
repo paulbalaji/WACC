@@ -147,7 +147,8 @@ AssignLHS
 
 /* AssignRHS */
 AssignRHS
-  = CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
+  = 
+   CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
     return new NodeType.CallNode(ident, exprList ? exprList : []);
   }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
