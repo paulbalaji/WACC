@@ -20,13 +20,11 @@ export class ReturnVisitor implements NodeType.Visitor {
     // expected and actual types match.
     visitReturnNode(node:NodeType.ReturnNode):boolean { 
         if (this.expectedReturnType === null) {
-            var message = 'you fucked hard, you fucktard, global return';
-            new Error.SemanticError(message, node.errorLocation).throw();
+            new Error.SemanticError('Attempted return from global scope.' , node.errorLocation).throw();
         
         }
         if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
-            var message = 'Incorrect return type.  Return the right fucking thing.';
-            new Error.SemanticError(message, node.returnExpr.errorLocation).throw();
+            new Error.SemanticError('', node.returnExpr.errorLocation).throw();
         }
         return true;
     }
@@ -41,8 +39,7 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitFuncNode(node:NodeType.FuncNode):boolean {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
-            var message = 'You lazy bullshit, you need to return from functions.';
-            new Error.SemanticError(message, node.ident.errorLocation).throw();
+            new Error.SemanticError('Function missing return statement.', node.ident.errorLocation).throw();
         }
         return true;
     }
