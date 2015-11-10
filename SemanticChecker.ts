@@ -6,7 +6,6 @@ import OperatorInfo = require('./OperatorInfo');
 
 var _ = require('underscore');
 
-
 export class SemanticVisitor implements NodeType.Visitor {
     errors: any[];
 
@@ -95,6 +94,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitAssignNode(node: NodeType.AssignNode):void {
         node.lhs.visit(this);
         node.rhs.visit(this);
+
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
             throw 'AssignNode error lhs and rhs are not the same fucking'
                 + ' type.  lhs type is ' + SemanticUtil.getType(node.lhs)
