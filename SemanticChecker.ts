@@ -103,7 +103,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
             var message = 'AssignNode error lhs and rhs are not the same fucking type.  lhs type is ' + SemanticUtil.getType(node.lhs) + ' . rhs type is ' + SemanticUtil.getType(node.rhs);
-            new new Error.SemanticError(message, node.rhs.type.errorLocation).throw();
+            new Error.SemanticError(message, node.rhs.type.errorLocation).throw();
         }
 
     }
@@ -119,7 +119,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             var message = "WoW, I assuming you got 3/6 for while loop spec, because you can't even put in a boolean predicate.";
-            new new Error.SemanticError(message, node.predicateExpr.errorLocation).throw(); 
+            new Error.SemanticError(message, node.predicateExpr.errorLocation).throw(); 
         }
 
         this.enterNewScope();
@@ -362,7 +362,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
              var message = "WHERE'S THE EXIT NUMBERS MAAAAAN";
-            new new Error.SemanticError(message, node.expr.errorLocation).throw();
+            new Error.SemanticError(message, node.expr.errorLocation).throw();
         }
         
     }
