@@ -156,7 +156,11 @@ BaseType
 
 ArrayType
   = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
+    if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
+        return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+    }
     return new NodeType.ArrayTypeNode(type, array.length);
+
   }
 PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new NodeType.PairTypeNode(type1, type2); }
@@ -165,8 +169,6 @@ PairElemType
   = (ArrayType 
   / BaseType)
   / PAIR {
-    // return new NodeType.PairElemTypeNode(type); // THIS LINE COMMENTED OUT BECAUSE PairElemTypeNode is un-nescarry - a normal type can be used. ( see line below)
-    //return new NodeType.PairElemTypePAIRNode();
     return NodeType.NULL_TYPE;
   }
 
@@ -185,7 +187,8 @@ AssignLHS
 
 /* AssignRHS */
 AssignRHS
-  = CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
+  = 
+   CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
     return new NodeType.CallNode(ident, exprList ? exprList : []);
   }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
@@ -287,7 +290,7 @@ FactorOp
 
 /* UnaryOp */
 UnaryOp
-  = '!' / '-' / 'len' / 'ord' / 'chr'
+  = '!' / '-' / ((op:('len' / 'ord'/ 'chr') _) { return op; })
 
 /* ArrayElem */
 ArrayElem

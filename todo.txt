@@ -1,0 +1,8 @@
+TODO:
+
+Put common functions between SemanticChecker and ReturnChecker into SemanticUtil (e.g. isSameType).  Refactor
+
+Syntax Error messages printing as nice strings
+Integrate Andreas Error module and grammar into master then update all error throws to use this.
+
+Clean up all code in general, make functions more readable with more comments.

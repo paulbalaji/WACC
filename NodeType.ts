@@ -6,6 +6,7 @@ export interface Visitable {
         visit(v:Visitor):void;
 }
 
+
 export class TreeNode implements Visitable {
     public errorLocation: Error.ErrorLocation;
 
@@ -16,49 +17,50 @@ export class TreeNode implements Visitable {
 }
  
 export interface Visitor {
-    visitProgramNode(node:ProgramNode):void;
-    visitBinOpExprNode(node:BinOpExprNode):void;
-    visitStrLiterNode(node:StrLiterNode):void;
-    visitReturnNode(node:ReturnNode):void;
-    visitAssignNode(node:AssignNode):void;
-    visitBeginEndBlockNode(node:BeginEndBlockNode):void;
-    visitWhileNode(node:WhileNode):void;
-    visitPairTypeNode(node:PairTypeNode):void;
-    visitArrayLiterNode(node:ArrayLiterNode):void;
-    visitCharLiterNode(node:CharLiterNode):void;
-    visitParamNode(node:ParamNode):void;
-    visitFreeNode(node:FreeNode):void;
-    visitPrintNode(node:PrintNode):void;
-    visitDeclareNode(node:DeclareNode):void;
-    visitArrayElemNode(node:ArrayElemNode):void;
-    visitCallNode(node:CallNode):void;
-    visitPairLiterNode(node:PairLiterNode):void;
-    visitIntLiterNode(node:IntLiterNode):void;
-    visitFuncNode(node:FuncNode):void;
-    visitIdentNode(node:IdentNode):void;
-    visitSkipNode(node:SkipNode):void;
-    visitReadNode(node:ReadNode):void;
-    visitPrintlnNode(node:PrintlnNode):void;
-    // visitBaseTypeNode(node:BaseTypeNode):void;
-    visitPairElemTypeNode(node:PairElemTypeNode):void;
-    visitUnOpNode(node:UnOpNode): void;
-    visitSkipNode(node:SkipNode): void;
-    visitExitNode(node:ExitNode): void;
-    visitIfNode(node:IfNode): void;
-    visitArrayTypeNode(node:ArrayTypeNode): void;
+    visitProgramNode(node:ProgramNode):any;
+    visitBinOpExprNode(node:BinOpExprNode):any;
+    visitStrLiterNode(node:StrLiterNode):any;
+    visitReturnNode(node:ReturnNode):any;
+    visitAssignNode(node:AssignNode):any;
+    visitBeginEndBlockNode(node:BeginEndBlockNode):any;
+    visitWhileNode(node:WhileNode):any;
+    visitPairTypeNode(node:PairTypeNode):any;
+    visitArrayLiterNode(node:ArrayLiterNode):any;
+    visitCharLiterNode(node:CharLiterNode):any;
+    visitParamNode(node:ParamNode):any;
+    visitFreeNode(node:FreeNode):any;
+    visitPrintNode(node:PrintNode):any;
+    visitDeclareNode(node:DeclareNode):any;
+    visitArrayElemNode(node:ArrayElemNode):any;
+    visitCallNode(node:CallNode):any;
+    visitPairLiterNode(node:PairLiterNode):any;
+    visitIntLiterNode(node:IntLiterNode):any;
+    visitFuncNode(node:FuncNode):any;
+    visitIdentNode(node:IdentNode):any;
+    visitSkipNode(node:SkipNode):any;
+    visitReadNode(node:ReadNode):any;
+    visitPrintlnNode(node:PrintlnNode):any;
+    visitUnOpNode(node:UnOpNode): any;
+    visitSkipNode(node:SkipNode): any;
+    visitExitNode(node:ExitNode): any;
+    visitIfNode(node:IfNode): any;
+    visitArrayTypeNode(node:ArrayTypeNode): any;
+    visitNewPairNode(node:NewPairNode): any;
+    visitBoolLiterNode(node:BoolLiterNode): any;
+    visitPairElemNode(node:PairElemNode): any;
 
-    visitNewPairNode(node:NewPairNode): void;
-    visitBoolLiterNode(node:BoolLiterNode): void;
-    visitPairElemTypePAIRNode(node:PairElemTypePAIRNode): void;
-    visitPairElemNode(node:PairElemNode): void;
-    visitIntTypeNode(node:IntTypeNode): void;
-    visitBoolTypeNode(node:BoolTypeNode): void;
-    visitCharTypeNode(node:CharTypeNode): void;
-    visitStringTypeNode(node:StringTypeNode): void;
-
+    visitIntTypeNode(node:IntTypeNode): any;
+    visitBoolTypeNode(node:BoolTypeNode): any;
+    visitCharTypeNode(node:CharTypeNode): any;
+    visitStringTypeNode(node:StringTypeNode): any;
     visitEmptyArrayTypeNode(node:EmptyArrayTypeNode);
-    visitNullTypeNode(node:NullTypeNode): void;
+    visitNullTypeNode(node:NullTypeNode): any;
 }
+
+export interface Visitable {
+        visit(v:Visitor):any;
+}
+
 
 export interface StatNode extends TreeNode {
 
@@ -91,7 +93,7 @@ export class ProgramNode extends TreeNode {
     }
 
     visit(v:Visitor):void {
-        v.visitProgramNode(this);        
+        return v.visitProgramNode(this);        
     }
 
 }
@@ -108,8 +110,8 @@ export class FuncNode extends TreeNode {
         this.paramList = paramList;
         this.statList = statList;
     }
-    visit(v:Visitor):void {
-        v.visitFuncNode(this);
+    visit(v:Visitor):any {
+        return v.visitFuncNode(this);
     }
 
 
@@ -136,7 +138,7 @@ export class ReadNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor):void {
-        v.visitReadNode(this);
+        return v.visitReadNode(this);
     }
  
 }
@@ -150,31 +152,11 @@ export class PrintlnNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor):void {
-        v.visitPrintlnNode(this);
+        return v.visitPrintlnNode(this);
     }
 
 }
 
-export class PairElemTypePAIRNode extends TreeNode implements TypeNode {
-    // This is supposed to be empty, dont you worry child
-    constructor() { super(); }
-    visit(v:Visitor):void {
-        v.visitPairElemTypePAIRNode(this);
-    }
-
-}
-
-/*export class BaseTypeNode implements TypeNode {
-    typeName: String;
-
-    constructor(typeName:String) {
-        this.typeName = typeName;
-    }
-
-     visit(v:Visitor):void {
-        v.visitBaseTypeNode(this);
-    }
-}*/
 
 export interface BaseTypeNode extends TreeNode, TypeNode {
 }
@@ -197,28 +179,12 @@ export class BoolTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
     visit(v:Visitor) : void {
         v.visitBoolTypeNode(this);
-    }
-}
 
 export class StringTypeNode extends TreeNode implements BaseTypeNode {
      constructor() { super(); }
      visit(v:Visitor) : void {
-        v.visitStringTypeNode(this);
+        return v.visitStringTypeNode(this);
     }
-}
-
-export class PairElemTypeNode extends TreeNode implements StatNode {
-    type : TypeNode;
-
-    constructor(type:TypeNode) {
-        super();
-        this.type = type;
-    }
-
-     visit(v:Visitor):void {
-        v.visitPairElemTypeNode(this);
-    }
-
 }
 
 export class IdentNode extends TreeNode implements ExprNode, AssignLHSNode {
@@ -230,7 +196,7 @@ export class IdentNode extends TreeNode implements ExprNode, AssignLHSNode {
         this.identStr = identStr;
     }
     visit(v:Visitor) : void {
-        v.visitIdentNode(this);
+        return v.visitIdentNode(this);
     }
     toString() : string {
         return this.identStr;
@@ -252,7 +218,7 @@ export class BinOpExprNode extends TreeNode implements ExprNode {
     }
 
     visit(v:Visitor):void {
-        v.visitBinOpExprNode(this);
+        return v.visitBinOpExprNode(this);
     }
 
 
@@ -269,7 +235,7 @@ export class StrLiterNode extends TreeNode implements ExprNode {
     }
 
     visit(v:Visitor):void {
-        v.visitStrLiterNode(this);
+        return v.visitStrLiterNode(this);
     }
 }
 
@@ -283,7 +249,7 @@ export class AssignNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor):void {
-        v.visitAssignNode(this);
+        return v.visitAssignNode(this);
     }
 }
 
@@ -299,7 +265,7 @@ export class BeginEndBlockNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor): void {
-        v.visitBeginEndBlockNode(this);
+        return v.visitBeginEndBlockNode(this);
     }
 }
 
@@ -312,7 +278,7 @@ export class ReturnNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor): void {
-        v.visitReturnNode(this);
+        return v.visitReturnNode(this);
     }
 }
 
@@ -327,7 +293,7 @@ export class WhileNode extends TreeNode implements StatNode {
     }
 
     visit(v:Visitor): void {
-        v.visitWhileNode(this);
+        return v.visitWhileNode(this);
     }
 }
 
@@ -342,7 +308,7 @@ export class PairTypeNode extends TreeNode implements TypeNode {
     }
 
     visit(v:Visitor): void {
-        v.visitPairTypeNode(this);
+        return v.visitPairTypeNode(this);
     }
 }
 
@@ -357,7 +323,7 @@ export class ArrayLiterNode extends TreeNode implements AssignRHSNode {
      }
 
      visit(v:Visitor):void {
-         v.visitArrayLiterNode(this);
+         return v.visitArrayLiterNode(this);
      }
 }
 
@@ -371,7 +337,7 @@ export class CharLiterNode extends TreeNode implements ExprNode {
     }
 
     visit(v:Visitor):void {
-        v.visitCharLiterNode(this);
+        return v.visitCharLiterNode(this);
     }
 }
 
@@ -392,7 +358,7 @@ export class IfNode extends TreeNode implements StatNode {
     trueStatList: [StatNode];
     falseStatList: [StatNode];
  
-    constructor(predicateExp: ExprNode,
+    constructor(predicateExpr: ExprNode,
                 trueStatList: [StatNode],
                 falseStatList: [StatNode]) {
         super();
@@ -487,6 +453,7 @@ export class UnOpNode extends TreeNode implements ExprNode {
 
 export class ParamNode extends TreeNode {
     type: any; // temporarily set to 'any' from TypeNode
+
     ident: IdentNode;
 
     constructor(type:TypeNode, ident:IdentNode) {
@@ -496,7 +463,7 @@ export class ParamNode extends TreeNode {
     }
     
     visit(v: Visitor): void {
-        v.visitParamNode(this);
+        return v.visitParamNode(this);
     }
 }
 
@@ -509,7 +476,7 @@ export class FreeNode extends TreeNode implements StatNode {
     }
 
     visit(v: Visitor): void {
-        v.visitFreeNode(this);
+        return v.visitFreeNode(this);
     }
 
 }
@@ -523,7 +490,7 @@ export class PrintNode extends TreeNode implements StatNode {
     }
 
     visit(v: Visitor): void {
-        v.visitPrintNode(this);
+        return v.visitPrintNode(this);
     }
 }
 
@@ -540,7 +507,7 @@ export class DeclareNode extends TreeNode implements StatNode {
     }
 
     visit(v: Visitor): void {
-        v.visitDeclareNode(this);
+        return v.visitDeclareNode(this);
     }
 }
 
@@ -559,7 +526,7 @@ export class ArrayElemNode extends TreeNode implements AssignLHSNode, ExprNode{
     }
 
     visit(v: Visitor): void {
-        v.visitArrayElemNode(this);
+        return v.visitArrayElemNode(this);
     }
 }
 
@@ -576,7 +543,7 @@ export class CallNode extends TreeNode implements AssignRHSNode {
     }
 
     visit(v: Visitor): void {
-        v.visitCallNode(this);
+        return v.visitCallNode(this);
     }
     
 }
@@ -586,7 +553,7 @@ export class PairLiterNode extends TreeNode implements ExprNode {
 
     constructor() { super(); }
     visit(v: Visitor): void {
-        v.visitPairLiterNode(this);
+        return v.visitPairLiterNode(this);
     }
 }
 
@@ -614,7 +581,7 @@ export class IntLiterNode extends TreeNode implements ExprNode {
     }
 
     visit(v: Visitor): void {
-        v.visitIntLiterNode(this);
+        return v.visitIntLiterNode(this);
     }
 
 }
@@ -622,7 +589,7 @@ export class IntLiterNode extends TreeNode implements ExprNode {
 export class NullTypeNode extends TreeNode implements TypeNode{
     constructor() { super(); }
     visit(v: Visitor): void {
-        v.visitNullTypeNode(this);
+        return v.visitNullTypeNode(this);
     }
 }
 
@@ -630,7 +597,7 @@ export class EmptyArrayTypeNode extends TreeNode implements TypeNode{
     // This type is equal with any array type when compared
     constructor() { super(); }
     visit(v: Visitor): void {
-        v.visitEmptyArrayTypeNode(this);
+        return v.visitEmptyArrayTypeNode(this);
     }
 }
 
@@ -639,5 +606,4 @@ export var CHAR_TYPE:CharTypeNode = new CharTypeNode();
 export var BOOL_TYPE:BoolTypeNode = new BoolTypeNode();
 export var STRING_TYPE:StringTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
 export var EMPTY_ARRAY_TYPE:EmptyArrayTypeNode = new EmptyArrayTypeNode();
-export var PAIR_ELEM_TYPE_PAIR:PairElemTypePAIRNode = new PairElemTypePAIRNode();
 export var NULL_TYPE:NullTypeNode = new NullTypeNode();
