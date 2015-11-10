@@ -1,5 +1,6 @@
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
+import Error = require("./WACCError");
 var _ = require('underscore');
 
 export class ReturnVisitor implements NodeType.Visitor {
@@ -19,10 +20,13 @@ export class ReturnVisitor implements NodeType.Visitor {
     // expected and actual types match.
     visitReturnNode(node:NodeType.ReturnNode):boolean { 
         if (this.expectedReturnType === null) {
-              throw 'you fucked hard, you fucktard, global return';
+            var message = 'you fucked hard, you fucktard, global return';
+            new Error.SemanticError(message, node.errorLocation).throw();
+        
         }
         if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
-            throw 'Incorrect return type.  Return the right fucking thing.';
+            var message = 'Incorrect return type.  Return the right fucking thing.';
+            new Error.SemanticError(message, node.returnExpr.errorLocation).throw();
         }
         return true;
     }
@@ -37,7 +41,8 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitFuncNode(node:NodeType.FuncNode):boolean {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
-            throw 'You lazy bullshit, you need to return from functions.';
+            var message = 'You lazy bullshit, you need to return from functions.';
+            new Error.SemanticError(message, node.ident.errorLocation).throw();
         }
         return true;
     }

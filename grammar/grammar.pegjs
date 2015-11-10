@@ -98,7 +98,10 @@ Stat
     //node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return new NodeType.ExitNode(expr);
   }
-  / RETURN _ returnExpr:Expr { return new NodeType.ReturnNode(returnExpr); }
+  / RETURN _ returnExpr:Expr { 
+    var node = new NodeType.ReturnNode(returnExpr);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node; }
   / PRINTLN _ expr:Expr {
     return new NodeType.PrintlnNode(expr); 
   }

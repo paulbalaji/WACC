@@ -260,7 +260,7 @@ export class BeginEndBlockNode extends TreeNode implements StatNode {
 }
 
 export class ReturnNode extends TreeNode implements StatNode {
-    returnExpr: ExprNode
+    returnExpr: ExprNode;
 
     constructor(returnExpr:ExprNode) {
         super();
