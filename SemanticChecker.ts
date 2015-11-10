@@ -5,7 +5,6 @@ import Error = require("./WACCError");
 import ReturnChecker = require('./ReturnChecker');
 import OperatorInfo = require('./OperatorInfo');
 
-
 var _ = require('underscore');
 
 export class SemanticVisitor implements NodeType.Visitor {

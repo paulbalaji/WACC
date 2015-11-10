@@ -309,8 +309,10 @@ ArrayElemIndexList
 /* Ident */
 Ident
   = front:IdentStart rest:(IdentNormal*) {
-    var ident = front + rest.join('')
-    return new NodeType.IdentNode(ident);
+    var ident = front + rest.join('');
+    var node = new NodeType.IdentNode(ident);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   }
 
 IdentStart

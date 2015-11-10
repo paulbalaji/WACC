@@ -22,14 +22,13 @@ export class ErrorLocation {
 	}
 }
 
-export class SemanticError {
+export class SemanticError{
 	public message: string;
 	public location: ErrorLocation;
 
 	constructor(message: string, location: ErrorLocation) {
 		this.message = message;
 		this.location = location;
-		
 	}
 
 	toString() {
