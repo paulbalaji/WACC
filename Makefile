@@ -2,7 +2,8 @@ PEGJS = ./node_modules/pegjs/bin/pegjs
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
-default: Parser
+default:
+	node hello.js
 
 preview: Parser
 	node parser.js input.wacc error verbose
