@@ -162,6 +162,10 @@ export class IntTypeNode extends TreeNode implements BaseTypeNode {
     visit(v:Visitor) : void {
         v.visitIntTypeNode(this);
     }
+
+    toString() : string {
+        return 'INT';
+    }
 }
 
 export class CharTypeNode extends TreeNode implements BaseTypeNode {
@@ -169,12 +173,20 @@ export class CharTypeNode extends TreeNode implements BaseTypeNode {
     visit(v:Visitor) : void {
         v.visitCharTypeNode(this);
     }
+
+    toString() : string {
+        return 'CHAR';
+    }
 }
 
 export class BoolTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
     visit(v:Visitor) : void {
         v.visitBoolTypeNode(this);
+    }
+
+    toString() : string {
+        return 'BOOL';
     }
 }
 export class IdentNode extends TreeNode implements ExprNode, AssignLHSNode {

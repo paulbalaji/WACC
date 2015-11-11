@@ -99,7 +99,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
-            new Error.SemanticError('Assignment must be of correct type.  Expecting ' + node.lhs.type + ', actual: ' + node.rhs.type + '.', node.rhs.type.errorLocation).throw();
+            new Error.SemanticError('Assignment must be of correct type.  Expecting ' + node.lhs.type + ', actual: ' + node.rhs.type + '.', node.rhs.errorLocation).throw();
         }
 
     }
@@ -231,6 +231,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check if every index is an integer
 
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
+
             new Error.SemanticError('Array index must be of type INT.', node.exprList[0].errorLocation).throw();
         }
 
@@ -268,7 +269,7 @@ export class SemanticVisitor implements NodeType.Visitor {
                 }
             }); 
         } else {
-            new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  Expected ' + funcNode.paramList.length + ' arguments, given ' + node.argList.length + ' arguments.', node.argList[0].errorLocation).throw();
+            new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  Expected ' + funcNode.paramList.length + ' arguments, given ' + node.argList.length + ' sarguments.', node.argList[0].errorLocation).throw();
             
         }
 
