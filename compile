@@ -1,9 +1,8 @@
-#!/usr/bin/python
+
 # Python front-end for your compiler.
 # You are free to change the language used for this script,
 # but do *not* change its name.
 
 alias node='nodejs'
 node dist/compiler.js $1 &
-puts "Testing node hello.js"
 # system("node", "dist/compiler.js", ARGV[0])
