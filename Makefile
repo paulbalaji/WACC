@@ -6,9 +6,7 @@ default: pre-build dist/compiler.js
 
 pre-build:
 	@which nodejs
-	@which node
-	@sudo rm -r /usr/bin/nodejs
-	@sudo ln -s /usr/bin/node /usr/bin/nodejs 
+	@sudo ln -s /usr/bin/nodejs  /usr/bin/node 
 
 dist/compiler.js: dist/frontend/frontend.js
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
