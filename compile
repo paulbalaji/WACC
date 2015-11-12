@@ -4,4 +4,4 @@
 # but do *not* change its name.
 
 puts "Testing node hello.js"
-system("nodejs", "compiler.js", ARGV[0])
+system("nodejs", "dist/compiler.js", ARGV[0])
