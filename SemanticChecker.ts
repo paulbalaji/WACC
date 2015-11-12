@@ -81,12 +81,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         // MID: Left type is correct, check that the rhs type is the same
         
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
-            throw new Error.SemanticError('Binary operator operand types must be the same.'
+            throw new Error.SemanticError('Right operand of "' + node.operator + '" must be of the correct type.'
                                          , node.leftOperand.errorLocation);
         }
 
         node.type = opInfo.returnType;
-        
     }
 
     visitStrLiterNode(node: NodeType.StrLiterNode): void {
@@ -154,7 +153,7 @@ export class SemanticVisitor implements NodeType.Visitor {
                 //var error = throw new Error.SemanticError(message, location);
                 //throw error.toString();
                 throw new Error.SemanticError('Array Literal types must all be the same.'
-                                             , node.type.errorLocation);
+                                             , node.errorLocation);
 
             }
 
@@ -187,12 +186,12 @@ export class SemanticVisitor implements NodeType.Visitor {
             var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
-                throw new Error.SemanticError('Free statement must be given a variable.'
+                throw new Error.SemanticError('Free statement must be given an array type or pair type.'
                                              , node.expr.errorLocation);
             }
 
         } else {
-            throw new Error.SemanticError('Free statement must be given an array type or pair type.'
+            throw new Error.SemanticError('Free statement must be given a variable.'
                                          , node.expr.errorLocation);
 
         }

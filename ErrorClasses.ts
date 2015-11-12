@@ -37,5 +37,4 @@ declare class SemanticError implements Error {
 
 		return "line: " + line + " position: " column + "; message: " + this.message;
 	}; 
-	}
 }
