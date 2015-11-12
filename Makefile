@@ -7,10 +7,12 @@ default: pre-build dist/compiler.js
 pre-build:
 	@sudo ln -s /usr/bin/nodejs  /usr/bin/node 
 
-dist/compiler.js: dist/frontend/frontend.js
+local-build: dist/compiler.js
+
+dist/compiler.js: frontend
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
 
-dist/frontend/frontend.js: dist/frontend/grammar/grammar.js
+frontend: dist/frontend/grammar/grammar.js
 	@echo "Generating Parser..."
 	@$(TSC) $(TSC_FLAGS) src/frontend/frontend.ts --outDir dist/frontend
 

@@ -229,7 +229,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         SemanticUtil.visitNodeList(node.exprList, this);
         node.ident.visit(this);
         // Check if every index is an integer
-        console.log('hi');
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
 
             throw new Error.SemanticError('Array index must be of type INT.', node.exprList[0].errorLocation);
@@ -318,6 +317,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
     }
     
+    visitPrintNode(node: NodeType.PrintNode):void {
+
+    }
+
     visitUnOpNode(node: NodeType.UnOpNode): void {
         node.expr.visit(this);
 
