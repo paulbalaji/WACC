@@ -197,7 +197,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
     }
-    visitPrintNode(node: NodeType.PrintNode): void {}
+    visitPrintNode(node: NodeType.PrintNode): void {
+        node.expr.visit(this);
+    }
+
     visitDeclareNode(node: NodeType.DeclareNode): void {
 
         node.type.visit(this);
@@ -246,7 +249,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check if every index is an integer
 
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
-
             throw new Error.SemanticError('Array index must be of type INT.'
                                          , node.exprList[0].errorLocation);
         }
@@ -288,7 +290,7 @@ export class SemanticVisitor implements NodeType.Visitor {
                 }
             }); 
         } else {
-            throw new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  '
+            throw new Error.SemanticError('Invalid argument count when calling function named "' + node.ident + '". '
                                          +'Expecting ' + funcNode.paramList.length + ' arguments ' + ', '
                                          +'given '     + node.argList.length       + ' arguments.'
                                          , node.argList[0].errorLocation);
@@ -306,13 +308,13 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.INT_TYPE;
 
         if (node.num > Const.WACC_MAX_INT) {
-            throw new Error.SemanticError('Int literal "' + node.num + '" exceeds max int.'
+            throw new Error.SemanticError('Int literal ' + node.num + ' exceeds max int.'
                                          , node.errorLocation);
 
         }
 
         if (node.num < Const.WACC_MIN_INT) {
-            throw new Error.SemanticError('Int literal "'+ node.num + '" is smaller than min int.'
+            throw new Error.SemanticError('Int literal '+ node.num + ' is smaller than min int.'
                                          , node.errorLocation);
         }
     }
@@ -335,7 +337,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check it is possible to record into target
         if (!SemanticUtil.isReadableType(target.type)) {
             throw new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. ' 
-                                         +'Expecting: INT, BOOL.'
+                                         +'Expecting: INT, CHAR.'
                                          , node.readTarget.errorLocation);
         }
     }
