@@ -7,8 +7,8 @@ interface typeAndNodeTuple {
 }
 
 export class SymbolTable {
-	table:any;
-	parent:SymbolTable;
+	table: any;
+	parent: SymbolTable;
     name: string;
 
 	constructor(parent:SymbolTable) {
@@ -31,18 +31,18 @@ export class SymbolTable {
 	}
 }
 
-export function isType(type, ...compareTypes) {
+export function isType(type, ...compareTypes):boolean {
     if (compareTypes[0] instanceof Array) {
         compareTypes = compareTypes[0];
     }
     return _.some(_.map(compareTypes, _.partial(isSameType.bind(this), type)));
 }
 
-export function getType(obj): string {
+export function getType(obj):string {
     return obj.constructor.name;
 }
 
-function isSameType(typeObj1, typeObj2): boolean {
+function isSameType(typeObj1, typeObj2):boolean {
     // N.B for use on primitive types.
     // Special case for matching empty arrays with any array type
     if (typeObj1 instanceof NodeType.ArrayTypeNode || typeObj2 instanceof NodeType.ArrayTypeNode) {
@@ -68,7 +68,7 @@ function isSameType(typeObj1, typeObj2): boolean {
         return isSamePairType.bind(this)(typeObj1, typeObj2);
     }
 
-    function isSamePairType(pairType1, pairType2) {
+    function isSamePairType(pairType1, pairType2):boolean {
         // PRE: Both types are pair types
 
         // Test if the pair types are the same
@@ -79,11 +79,11 @@ function isSameType(typeObj1, typeObj2): boolean {
 }
 
 
-export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.Visitor) {
+export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.Visitor):boolean {
     return _.map(nodeList, (statNode: NodeType.Visitable) => statNode.visit(visitor));
 }
 
-export function isReadableType(typeObj) {
+export function isReadableType(typeObj):boolean {
         // Types you can read into are INT, BOOL, CHAR
         return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
 }

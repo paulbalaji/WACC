@@ -17,15 +17,15 @@ export class ErrorLocation {
 		this.offset = location.start.offset;
 	}
 
-	getLine() {
+	getLine():number {
 		return this.line;
 	}
 
-	getColumn() {
+	getColumn():number {
 		return this.column;
 	}
 
-	getOffset() {
+	getOffset():number {
 		return this.offset;
 	}
 }
@@ -37,31 +37,19 @@ export class SyntaxError extends Error{
 	constructor(e) {
 		super();
 		this.name = 'Syntax Error';
-		this.message = e.location.start.line +
-                        ":" + e.location.end.line + " --mismatched input '"
-                        + e.found + "' expecting one of {" +
-                        _.pluck(e.expected, 'description').join(', ') + "}";
+		this.message = e.location.start.line + ":" 
+					 + e.location.end.line   + " --mismatched input '"
+                     + e.found 		         + "' expecting one of {"
+                     + _.pluck(e.expected, 'description').join(', ') + "}";
 		this.e = e;
 		this.code = 100;
 	}
 }
 
-/*function _SemanticError(message, location) {
-	this.name = 'Semantic Error';	
-	this.message = '(line: ' + location.getLine() +
-			', column: ' + location.getColumn() +
-			') ' + message;
-	
-};
-
-_SemanticError.prototype.throw = function() { throw this; }
-_SemanticError.prototype = Object.create(Error.prototype);
-export var SemanticError = _SemanticError;*/
-
 export class SemanticError extends Error{
 	public message: string;
 	public location: ErrorLocation;
-	code:number
+	code: number
 
 	constructor(message: string, location: ErrorLocation) {
 		super();
@@ -72,30 +60,4 @@ export class SemanticError extends Error{
 		this.location = location;
 		this.code = 200;
 	}
-
 } 
-
-
-/*
-
-export class SemanticError {
-	public message: string;
-	public location: ErrorLocation;
-
-	constructor(message: string, location: ErrorLocation) {
-		this.message = message;
-		this.location = location;
-	}
-
-	toString() {
-		return "(line: " + this.location.getLine() +
-			", column: " + this.location.getColumn() +
-			") " + this.message;
-	}; 
-
-	throw() {
-		_throw(this.toString());
-	}
-	
-} 
-*/

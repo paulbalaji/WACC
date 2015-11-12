@@ -1,7 +1,7 @@
 declare class ErrorLocation {
-	public line: number;
-	public column: number;
-	public offset: number;
+	public line:number;
+	public column:number;
+	public offset:number;
 
 	constructor(line: number, column: number, offset: number) {
 		this.line = line;
@@ -9,15 +9,15 @@ declare class ErrorLocation {
 		this.offset = offset;
 	}
 
-	getLine() {
+	getLine():number {
 		return this.line;
 	}
 
-	getColumn() {
+	getColumn():number {
 		return this.column;
 	}
 
-	getOffset() {
+	getOffset():number {
 		return this.offset;
 	}
 }
@@ -31,7 +31,7 @@ declare class SemanticError implements Error {
 		this.location = location;
 	}
 
-	toString() {
+	toString():string {
 		var line = parseInt(ErrorLocation.getLine()),
 			column = ErrorLocation.getColumn();
 

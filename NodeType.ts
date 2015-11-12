@@ -3,14 +3,14 @@
 import Const = require('./Constants');
 import Error = require('./WACCError');
 export interface Visitable {
-    visit(v:Visitor):void;
+    visit(v:Visitor):any;
 }
 
 
 export class TreeNode implements Visitable {
     public errorLocation: Error.ErrorLocation;
 
-    visit(v: Visitor): void { throw 'TreeNode subclass visit method is not implemented.';}
+    visit(v: Visitor):any { throw 'TreeNode subclass visit method is not implemented.'; }
     setErrorLocation(errorLocation: Error.ErrorLocation) {
         this.errorLocation = errorLocation;
     }
@@ -40,24 +40,24 @@ export interface Visitor {
     visitSkipNode(node:SkipNode):any;
     visitReadNode(node:ReadNode):any;
     visitPrintlnNode(node:PrintlnNode):any;
-    visitUnOpNode(node:UnOpNode): any;
-    visitSkipNode(node:SkipNode): any;
-    visitExitNode(node:ExitNode): any;
-    visitIfNode(node:IfNode): any;
-    visitArrayTypeNode(node:ArrayTypeNode): any;
-    visitNewPairNode(node:NewPairNode): any;
-    visitBoolLiterNode(node:BoolLiterNode): any;
-    visitPairElemNode(node:PairElemNode): any;
+    visitUnOpNode(node:UnOpNode):any;
+    visitSkipNode(node:SkipNode):any;
+    visitExitNode(node:ExitNode):any;
+    visitIfNode(node:IfNode):any;
+    visitArrayTypeNode(node:ArrayTypeNode):any;
+    visitNewPairNode(node:NewPairNode):any;
+    visitBoolLiterNode(node:BoolLiterNode):any;
+    visitPairElemNode(node:PairElemNode):any;
 
-    visitIntTypeNode(node:IntTypeNode): any;
-    visitBoolTypeNode(node:BoolTypeNode): any;
-    visitCharTypeNode(node:CharTypeNode): any;
-    visitEmptyArrayTypeNode(node:EmptyArrayTypeNode);
-    visitNullTypeNode(node:NullTypeNode): any;
+    visitIntTypeNode(node:IntTypeNode):any;
+    visitBoolTypeNode(node:BoolTypeNode):any;
+    visitCharTypeNode(node:CharTypeNode):any;
+    visitEmptyArrayTypeNode(node:EmptyArrayTypeNode):any;
+    visitNullTypeNode(node:NullTypeNode):any;
 }
 
 export interface Visitable {
-    visit(v:Visitor):any;
+    visit(v: Visitor): any;
 }
 
 
@@ -70,12 +70,12 @@ export interface ExprNode extends TreeNode {
 }
 
 export interface AssignLHSNode extends TreeNode {
-    type:TypeNode;
+    type: TypeNode;
 
 }
 
 export interface AssignRHSNode extends TreeNode {
-    type : TypeNode;
+    type: TypeNode;
 }
 
 export interface TypeNode extends TreeNode {}
@@ -91,17 +91,17 @@ export class ProgramNode extends TreeNode {
         this.statList = statList;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitProgramNode(this);        
     }
 
 }
 
 export class FuncNode extends TreeNode {
-    type : TypeNode;
-    ident : IdentNode;
-    paramList : [ParamNode];
-    statList : [StatNode];
+    type:      TypeNode;
+    ident:     IdentNode;
+    paramList: [ParamNode];
+    statList:  [StatNode];
     constructor(type : TypeNode, ident : IdentNode, paramList : [ParamNode], statList: [StatNode]) {
         super();
         this.type = type;
@@ -109,7 +109,8 @@ export class FuncNode extends TreeNode {
         this.paramList = paramList;
         this.statList = statList;
     }
-    visit(v:Visitor):any {
+
+    visit(v: Visitor): any {
         return v.visitFuncNode(this);
     }
 
@@ -121,7 +122,7 @@ export class SkipNode extends TreeNode implements StatNode {
         super();
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
        return v.visitSkipNode(this);
    }
 }
@@ -129,12 +130,13 @@ export class SkipNode extends TreeNode implements StatNode {
 
 export class ReadNode extends TreeNode implements StatNode {
     readTarget: AssignLHSNode;
+    
     constructor(lhsNode:AssignLHSNode) {
         super();
         this.readTarget = lhsNode;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitReadNode(this);
     }
 
@@ -142,12 +144,13 @@ export class ReadNode extends TreeNode implements StatNode {
 
 export class PrintlnNode extends TreeNode implements StatNode {
     expr: ExprNode;
+    
     constructor(expr : ExprNode) {
         super();
         this.expr = expr;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitPrintlnNode(this);
     }
 
@@ -159,67 +162,72 @@ export interface BaseTypeNode extends TreeNode, TypeNode {
 
 export class IntTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
-    visit(v:Visitor) : void {
+
+    visit(v: Visitor): any {
         v.visitIntTypeNode(this);
     }
 
-    toString() : string {
+    toString(): string {
         return 'INT';
     }
 }
 
 export class CharTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
-    visit(v:Visitor) : void {
+    
+    visit(v: Visitor): any {
         v.visitCharTypeNode(this);
     }
 
-    toString() : string {
+    toString(): string {
         return 'CHAR';
     }
 }
 
 export class BoolTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
-    visit(v:Visitor) : void {
+    
+    visit(v: Visitor): any {
         v.visitBoolTypeNode(this);
     }
 
-    toString() : string {
+    toString(): string {
         return 'BOOL';
     }
 }
 export class IdentNode extends TreeNode implements ExprNode, AssignLHSNode {
-        identStr : string;
-    type : TypeNode; // Filled by semantic visitor
+    identStr: string;
+    type:     TypeNode; // Filled by semantic visitor
 
-    constructor(identStr : string) {
+    constructor(identStr: string) {
         super();
         this.identStr = identStr;
     }
-    visit(v:Visitor) : void {
+
+    visit(v: Visitor): any {
         return v.visitIdentNode(this);
     }
-    toString() : string {
+    
+    toString(): string {
         return this.identStr;
     }
 }
 
 export class BinOpExprNode extends TreeNode implements ExprNode {
-    leftOperand : ExprNode;
-    rightOperand : ExprNode;
-    operator : string;
+    leftOperand:  ExprNode;
+    rightOperand: ExprNode;
+    operator:     string;
 
     type : TypeNode; // Filled by semantic visitor
 
-    constructor(leftOperand : ExprNode, rightOperand : ExprNode, operator : string) {
+    constructor(leftOperand: ExprNode, rightOperand: ExprNode, operator: string) {
         super();
         this.leftOperand = leftOperand;
         this.rightOperand = rightOperand;
         this.operator = operator;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitBinOpExprNode(this);
     }
 
@@ -227,16 +235,15 @@ export class BinOpExprNode extends TreeNode implements ExprNode {
 }
 
 export class StrLiterNode extends TreeNode implements ExprNode {
-    type : TypeNode; // Filled by semantic visitor
+    type: TypeNode; // Filled by semantic visitor
+    str:  string;
 
-    str : string;
-
-    constructor(str : string) {
+    constructor(str: string) {
         super();
         this.str = str;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitStrLiterNode(this);
     }
 }
@@ -244,13 +251,13 @@ export class StrLiterNode extends TreeNode implements ExprNode {
 export class AssignNode extends TreeNode implements StatNode {
     lhs : AssignLHSNode;
     rhs : AssignRHSNode;
-    constructor(lhs : AssignLHSNode, rhs : AssignRHSNode) {
+    constructor(lhs: AssignLHSNode, rhs: AssignRHSNode) {
         super();
         this.lhs = lhs;
         this.rhs = rhs;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitAssignNode(this);
     }
 }
@@ -259,14 +266,15 @@ export class AssignNode extends TreeNode implements StatNode {
 // check lhs is the same type as rhs, or can be cast
 
 export class BeginEndBlockNode extends TreeNode implements StatNode {
-    statList:[StatNode]
+    statList: [StatNode];
 
-    constructor(statList:[StatNode]) {
+
+    constructor(statList: [StatNode]) {
         super();
         this.statList = statList;
     }
 
-    visit(v:Visitor): void {
+    visit(v: Visitor): any {
         return v.visitBeginEndBlockNode(this);
     }
 }
@@ -274,27 +282,27 @@ export class BeginEndBlockNode extends TreeNode implements StatNode {
 export class ReturnNode extends TreeNode implements StatNode {
     returnExpr: ExprNode;
 
-    constructor(returnExpr:ExprNode) {
+    constructor(returnExpr: ExprNode) {
         super();
         this.returnExpr = returnExpr;
     }
 
-    visit(v:Visitor): void {
+    visit(v: Visitor): any {
         return v.visitReturnNode(this);
     }
 }
 
 export class WhileNode extends TreeNode implements StatNode {
-    predicateExpr: ExprNode
-    loopBody: [StatNode]
+    predicateExpr: ExprNode;
+    loopBody:      [StatNode];
 
-    constructor(predicateExpr:ExprNode, loopBody:[StatNode]) {
+    constructor(predicateExpr: ExprNode, loopBody: [StatNode]) {
         super();
         this.predicateExpr = predicateExpr;
         this.loopBody = loopBody;
     }
 
-    visit(v:Visitor): void {
+    visit(v: Visitor): any {
         return v.visitWhileNode(this);
     }
 }
@@ -303,110 +311,110 @@ export class PairTypeNode extends TreeNode implements TypeNode {
     type1: TypeNode;
     type2: TypeNode;
 
-    constructor(type1:TypeNode, type2:TypeNode) {
+    constructor(type1: TypeNode, type2: TypeNode) {
         super();
         this.type1 = type1;
         this.type2 = type2;
     }
 
-    visit(v:Visitor): void {
+    visit(v: Visitor): any {
         return v.visitPairTypeNode(this);
     }
 }
 
 export class ArrayLiterNode extends TreeNode implements AssignRHSNode {
-     type : TypeNode; // Filled by semantic visitor
-
+     type :    TypeNode; // Filled by semantic visitor
      exprList: [ExprNode];
 
-     constructor(exprList:[ExprNode]) {
+     constructor(exprList: [ExprNode]) {
         super();
         this.exprList = exprList;
     }
 
-    visit(v:Visitor):void {
+     visit(v: Visitor): any {
        return v.visitArrayLiterNode(this);
    }
 }
 
 export class CharLiterNode extends TreeNode implements ExprNode {
-    ch: string;
-    type : TypeNode; // Filled by semantic visitor
+    ch:   string;
+    type: TypeNode; // Filled by semantic visitor
 
-    constructor(ch:string) {
+    constructor(ch: string) {
         super();
         this.ch = ch;
     }
 
-    visit(v:Visitor):void {
+    visit(v: Visitor): any {
         return v.visitCharLiterNode(this);
     }
 }
 
 export class ExitNode extends TreeNode implements StatNode {
     expr: ExprNode;
+
     constructor(expr: ExprNode) {
         super();
         this.expr = expr;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitExitNode(this);
     }
 }
 
 export class IfNode extends TreeNode implements StatNode {
     predicateExpr: ExprNode;
-    trueStatList: [StatNode];
+    trueStatList:  [StatNode];
     falseStatList: [StatNode];
 
     constructor(predicateExpr: ExprNode,
-        trueStatList: [StatNode],
-        falseStatList: [StatNode]) {
+                trueStatList:  [StatNode],
+                falseStatList: [StatNode]) {
         super();
         this.predicateExpr = predicateExpr;
         this.trueStatList = trueStatList;
         this.falseStatList = falseStatList;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitIfNode(this);
     }
 }
 
 export class ArrayTypeNode extends TreeNode implements TypeNode {
-    type: TypeNode;
-    depth : number;
+    type:  TypeNode;
+    depth: number;
+    
     constructor(type: TypeNode, depth: number) {
         super();
         this.type = type;
         this.depth = depth;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitArrayTypeNode(this);
     }
 }
 
 export class PairElemNode extends TreeNode implements AssignLHSNode {
-    type : TypeNode; // Filled by semantic visitor
-    ident : IdentNode;
-    index : number;
+    type:  TypeNode; // Filled by semantic visitor
+    ident: IdentNode;
+    index: number;
     
-    constructor(ident : IdentNode, index : number) {
+    constructor(ident: IdentNode, index: number) {
         super();
         this.ident = ident;
         this.index = index;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitPairElemNode(this);
     }
 }
 
 export class NewPairNode extends TreeNode implements AssignRHSNode {
-    type : TypeNode; // Filled by semantic visitor
-
+    type :   TypeNode; // Filled by semantic visitor
     fstExpr: ExprNode;
     sndExpr: ExprNode;
 
@@ -416,14 +424,14 @@ export class NewPairNode extends TreeNode implements AssignRHSNode {
         this.sndExpr = sndExpr;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitNewPairNode(this);
     }
 }
 
 export class BoolLiterNode extends TreeNode implements ExprNode {
     bool: boolean;
-    type : TypeNode; // Filled by semantic visitor
+    type: TypeNode; // Filled by semantic visitor
 
 
     constructor(bool: boolean) {
@@ -431,15 +439,15 @@ export class BoolLiterNode extends TreeNode implements ExprNode {
         this.bool = bool;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitBoolLiterNode(this);
     }
 }
 
 export class UnOpNode extends TreeNode implements ExprNode {
     operator: string;
-    expr: ExprNode;
-    type : TypeNode; // Filled by semantic visitor
+    expr:     ExprNode;
+    type:     TypeNode; // Filled by semantic visitor
 
 
     constructor(operator: string, expr: ExprNode) {
@@ -448,36 +456,35 @@ export class UnOpNode extends TreeNode implements ExprNode {
         this.expr = expr;
     }
 
-    visit(v:Visitor) {
+    visit(v: Visitor): any {
         return v.visitUnOpNode(this);
     }
 }
 
 export class ParamNode extends TreeNode {
-    type: any; // temporarily set to 'any' from TypeNode
-
+    type:  any; // temporarily set to 'any' from TypeNode
     ident: IdentNode;
 
-    constructor(type:TypeNode, ident:IdentNode) {
+    constructor(type: TypeNode, ident: IdentNode) {
         super();
         this.type = type;
         this.ident = ident;
     }
     
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitParamNode(this);
     }
 }
 
 export class FreeNode extends TreeNode implements StatNode {
-    expr : ExprNode;
+    expr: ExprNode;
 
-    constructor(expr:ExprNode) {
+    constructor(expr: ExprNode) {
         super();
         this.expr = expr;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitFreeNode(this);
     }
 
@@ -486,29 +493,29 @@ export class FreeNode extends TreeNode implements StatNode {
 export class PrintNode extends TreeNode implements StatNode {
     expr: ExprNode;
 
-    constructor(expr:ExprNode) {
+    constructor(expr: ExprNode) {
         super();
         this.expr = expr;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitPrintNode(this);
     }
 }
 
 export class DeclareNode extends TreeNode implements StatNode {
-    type: TypeNode;
+    type:  TypeNode;
     ident: IdentNode;
-    rhs: AssignRHSNode;
+    rhs:   AssignRHSNode;
 
-    constructor(type:TypeNode, ident:IdentNode, rhs:AssignRHSNode) {
+    constructor(type: TypeNode, ident: IdentNode, rhs: AssignRHSNode) {
         super();
         this.type = type;
         this.ident = ident;
         this.rhs = rhs;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitDeclareNode(this);
     }
 }
@@ -516,9 +523,9 @@ export class DeclareNode extends TreeNode implements StatNode {
 // check type is the type of rhs
 
 export class ArrayElemNode extends TreeNode implements AssignLHSNode, ExprNode{
-    ident: IdentNode;
-    exprList: [ExprNode];
-    type : TypeNode; // Filled by semantic visitor
+    ident:     IdentNode;
+    exprList:  [ExprNode];
+    type:      TypeNode; // Filled by semantic visitor
 
 
     constructor(ident: IdentNode, exprList: [ExprNode]) {
@@ -527,49 +534,50 @@ export class ArrayElemNode extends TreeNode implements AssignLHSNode, ExprNode{
         this.exprList = exprList;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitArrayElemNode(this);
     }
 }
 
 export class CallNode extends TreeNode implements AssignRHSNode {
-    ident: IdentNode;
+    ident:   IdentNode;
     argList: [ExprNode];
-    type : TypeNode; // Filled by semantic visitor
+    type :   TypeNode; // Filled by semantic visitor
 
 
-    constructor(ident:IdentNode, argList:[ExprNode]) {
+    constructor(ident: IdentNode, argList: [ExprNode]) {
         super();
         this.ident = ident;
         this.argList = argList;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitCallNode(this);
     }
     
 }
 
 export class PairLiterNode extends TreeNode implements ExprNode {
-    type : TypeNode; // Filled by semantic visitor
+    type: TypeNode; // Filled by semantic visitor
 
     constructor() { super(); }
-    visit(v: Visitor): void {
+    
+    visit(v: Visitor): any {
         return v.visitPairLiterNode(this);
     }
 }
 
 export class IntLiterNode extends TreeNode implements ExprNode {
-    num : number; 
-    type : TypeNode; // Filled by semantic visitor
+    num:  number; 
+    type: TypeNode; // Filled by semantic visitor
 
 
-    constructor(num:number) {
+    constructor(num: number) {
         super(); 
         this.num = num;
     }
 
-    visit(v: Visitor): void {
+    visit(v: Visitor): any {
         return v.visitIntLiterNode(this);
     }
 
@@ -577,7 +585,8 @@ export class IntLiterNode extends TreeNode implements ExprNode {
 
 export class NullTypeNode extends TreeNode implements TypeNode {
     constructor() { super(); }
-    visit(v: Visitor): void {
+    
+    visit(v: Visitor): any {
         return v.visitNullTypeNode(this);
     }
 }
@@ -585,7 +594,8 @@ export class NullTypeNode extends TreeNode implements TypeNode {
 export class EmptyArrayTypeNode extends TreeNode implements TypeNode {
     // This type is equal with any array type when compared
     constructor() { super(); }
-    visit(v: Visitor): void {
+    
+    visit(v: Visitor): any {
         return v.visitEmptyArrayTypeNode(this);
     }
 }
