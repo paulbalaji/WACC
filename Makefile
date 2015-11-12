@@ -7,21 +7,18 @@ default: Parser
 preview: Parser
 	node parser.js input.wacc error verbose
 
-Parser: grammar/grammar.js
+Parser: dist/grammar.js
 	@echo "Generating Parser..."
-	@$(TSC) $(TSC_FLAGS) parser.ts
+	@$(TSC) $(TSC_FLAGS)   parser.ts  --sourceRoot src --outDir dist
 
-grammar/grammar.ts: grammar/grammar.pegjs
+dist/grammar.ts: src/grammar/grammar.pegjs
 	@echo "Compiling Grammar to TypeScript"
-	@$(PEGJS) grammar/grammar.pegjs grammar/grammar.ts
+	@$(PEGJS) src/grammar/grammar.pegjs dist/grammar.ts
 
-grammar/grammar.js: grammar/grammar.ts
+dist/grammar.js: dist/grammar.ts
 	@echo "Compiling Grammar to JavaScript..."
-	@$(TSC) $(TSC_FLAGS) grammar/grammar.ts
+	@$(TSC) $(TSC_FLAGS)  dist/grammar.ts --outDir dist
 
-parser.js: parser.ts grammar/grammar.js
-	@echo "Compiling Parser to JavaScript..."
-	@$(TSC) $(TSC_FLAGS) parser.ts
 
 all:
 	@echo "Compiling PEGJS Grammar..."
