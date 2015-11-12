@@ -1,3 +1,4 @@
+sudo apt-get install node
 PEGJS = ./node_modules/pegjs/bin/pegjs
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs

@@ -3,6 +3,5 @@
 # You are free to change the language used for this script,
 # but do *not* change its name.
 
-alias node='nodejs'
 node dist/compiler.js $1 &
 # system("node", "dist/compiler.js", ARGV[0])
