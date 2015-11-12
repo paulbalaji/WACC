@@ -6,7 +6,7 @@ default: pre-build dist/compiler.js
 
 pre-build:
 	@which nodejs
-	@ls -l /usr/bin/node
+	@which node
 	@sudo rm -r /usr/bin/nodejs
 	@sudo ln -s /usr/bin/node /usr/bin/nodejs 
 
