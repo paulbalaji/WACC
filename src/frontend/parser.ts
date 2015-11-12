@@ -14,13 +14,11 @@ var errorFlag :  string = process.argv[3];
 var verbose : string  = process.argv[4];
 
 WACCError.setFileInfo({filename: filename, errorFlag: errorFlag});
-function checkSyntaxAndSemantics(filename) {
-fs.readFile(filename, 'utf8', function(err : Error, data : string) {
-        if (err) { throw err };
+function checkSyntaxAndSemantics(programStr) {
   
             // Parse the input and create ast.
             try {
-                var ast: NodeType.Visitable = parser.parse(data);
+                var ast: NodeType.Visitable = parser.parse(programStr);
             } catch (e) { 
                 throw new WACCError.SyntaxError(e);
             }
@@ -39,7 +37,11 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
                 //console.log(e)
             }
 
-});
+};
+
+
+
+}
 
 process.on('uncaughtException', function (err) {
   if (!err.code) { 
@@ -54,7 +56,7 @@ process.on('uncaughtException', function (err) {
   }
 
   process.exit(err.code);
-})
-}
-checkSyntaxAndSemantics(filename);
+});
+
+
 module.exports = checkSyntaxAndSemantics;

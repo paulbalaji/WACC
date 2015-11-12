@@ -1,0 +1,35 @@
+import frontend = require('./frontend/frontend');
+import NodeType = require('./frontend/NodeType');
+var fs = require('fs');
+
+var filename : string = process.argv[2];
+var errorFlag :  string = process.argv[3];
+var verbose : string  = process.argv[4];
+
+function compile(programStr) {
+	var ast = frontend.parse(programStr);
+	return frontend.semanticCheck(ast);
+}
+
+
+fs.readFile(filename, 'utf8', function (err, programStr) {
+	if (err) { throw err; }
+	compile(programStr);
+});
+
+
+process.on('uncaughtException', function (err) {
+  if (!err.code) { 
+
+    console.log(filename);
+    console.log('Unknown exception occured.');
+    throw err;
+    process.exit(1);
+  }
+
+  if (verbose) {
+      console.log(err.name + ': ' + err.message);
+  }
+
+  process.exit(err.code);
+});

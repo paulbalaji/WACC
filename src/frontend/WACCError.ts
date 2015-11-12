@@ -30,7 +30,7 @@ export class ErrorLocation {
 	}
 }
 
-export class SyntaxError extends Error{
+export class SyntaxError extends Error {
 	e;
 	code;
 
