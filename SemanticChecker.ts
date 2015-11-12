@@ -231,7 +231,6 @@ export class SemanticVisitor implements NodeType.Visitor {
             }
         }
 
-
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw new Error.SemanticError('Declaration expression must be of correct type.  '
                                          +'Expecting: ' + node.type     + ', ' 
@@ -396,16 +395,16 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPairElemNode(node: NodeType.PairElemNode): void {
         node.ident.visit(this);
         var res = this.currentST.lookupAll(node.ident);
-        if (res) {
+        // if (res) {
 
-            if (!(res.type instanceof NodeType.PairTypeNode)) {
-                throw new Error.SemanticError('Given variable must be of type pair. '
-                                             +'Expecting: '+ 'PAIR'    + ', '
-                                             +'Actual: '   +  res.type + '.'
-                                             , node.type.errorLocation);
-            }
+        //     if (!(res.type instanceof NodeType.PairTypeNode)) {
+        //         throw new Error.SemanticError('Given variable must be of type pair. '
+        //                                      +'Expecting: '+ 'PAIR'    + ', '
+        //                                      +'Actual: '   +  res.type + '.'
+        //                                      , node.errorLocation);
+        //     }
 
-        }
+        // }
 
         if (node.index === 0) {
             node.type = res.type.type1;

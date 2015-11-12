@@ -320,6 +320,10 @@ export class PairTypeNode extends TreeNode implements TypeNode {
     visit(v: Visitor): any {
         return v.visitPairTypeNode(this);
     }
+
+    toString(): string {
+        return 'pair(' + this.type1 + ', ' + this.type2 + ')';
+    }
 }
 
 export class ArrayLiterNode extends TreeNode implements AssignRHSNode {
@@ -394,6 +398,18 @@ export class ArrayTypeNode extends TreeNode implements TypeNode {
 
     visit(v: Visitor): any {
         return v.visitArrayTypeNode(this);
+    }
+
+    toString(): string {
+        if (this.type instanceof CharTypeNode && this.depth === 1) {
+            // array of chars is a string
+            return 'STRING';
+        } else {
+            // showing type + duplicating '[]'
+            // to show user the full type of the array
+            // if it's not a string
+            return this.type + (new Array(this.depth + 1)).join('[]');
+        }
     }
 }
 
