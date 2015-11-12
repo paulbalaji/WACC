@@ -1,9 +1,11 @@
-sudo apt-get install node
 PEGJS = ./node_modules/pegjs/bin/pegjs
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
-default: dist/compiler.js
+default: pre-build dist/compiler.js
+
+pre-build:
+	@sudo apt-get install node	
 
 dist/compiler.js: dist/frontend/frontend.js
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
