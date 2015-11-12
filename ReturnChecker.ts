@@ -20,11 +20,11 @@ export class ReturnVisitor implements NodeType.Visitor {
     // expected and actual types match.
     visitReturnNode(node:NodeType.ReturnNode):boolean { 
         if (this.expectedReturnType === null) {
-            new Error.SemanticError('Attempted return from global scope.' , node.errorLocation).throw();
+            throw new Error.SemanticError('Attempted return from global scope.' , node.errorLocation);
         
         }
         if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
-            new Error.SemanticError('', node.returnExpr.errorLocation).throw();
+            throw new Error.SemanticError('', node.returnExpr.errorLocation);
         }
         return true;
     }
@@ -39,7 +39,7 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitFuncNode(node:NodeType.FuncNode):boolean {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
-            new Error.SemanticError('Function missing return statement.', node.ident.errorLocation).throw();
+            throw new Error.SemanticError('Function missing return statement.', node.ident.errorLocation);
         }
         return true;
     }

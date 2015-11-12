@@ -192,8 +192,10 @@ AssignLHS
 AssignRHS
   = 
    CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
-    return new NodeType.CallNode(ident, exprList ? exprList : []);
-  }
+      var node = new NodeType.CallNode(ident, exprList ? exprList : []);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
+    }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
         return new NodeType.NewPairNode(fstExpr, sndExpr);

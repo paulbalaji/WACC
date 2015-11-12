@@ -50,8 +50,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check for redefinition of the function.
         if (this.functionST.lookupAll(node.ident)) {
             var message = '';
-            new Error.SemanticError('Attempted to declare a previously declared function, ' + node.ident + '.',
-                                    node.ident.errorLocation).throw();
+            throw new Error.SemanticError('Attempted to declare a previously declared function, ' + node.ident + '.',
+                                    node.ident.errorLocation);
         }
         // Insert function ident into the function lookup table.
         this.functionST.insert(node.ident, {type: node.type, node: node});
@@ -74,12 +74,12 @@ export class SemanticVisitor implements NodeType.Visitor {
         var opInfo = OperatorInfo.binOpMap[node.operator];
        
         if (!opInfo.isPermittedType(node.leftOperand.type)) {
-            new Error.SemanticError('Binary operator ' + node.operator + ' left operand must be the correct type.', node.leftOperand.type.errorLocation).throw();
+            throw new Error.SemanticError('Binary operator ' + node.operator + ' left operand must be the correct type.', node.leftOperand.errorLocation);
         }
         // MID: Left type is correct, check that the rhs type is the same
         
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
-            new Error.SemanticError('Binary operator operand types must be the same.', node.leftOperand.type.errorLocation).throw();
+            throw new Error.SemanticError('Binary operator operand types must be the same.', node.leftOperand.errorLocation);
         }
 
         node.type = opInfo.returnType;
@@ -99,7 +99,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
-            new Error.SemanticError('Assignment must be of correct type.  Expecting ' + node.lhs.type + ', actual: ' + node.rhs.type + '.', node.rhs.errorLocation).throw();
+            throw new Error.SemanticError('Assignment must be of correct type.  Expecting ' + node.lhs.type + ', actual: ' + node.rhs.type + '.', node.rhs.errorLocation);
         }
 
     }
@@ -114,7 +114,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
         
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-            new Error.SemanticError('Invalid while loop condition.  Expecting BOOL, actual: ' + node.predicateExpr.type + '.', node.predicateExpr.errorLocation).throw(); 
+            throw new Error.SemanticError('Invalid while loop condition.  Expecting BOOL, actual: ' + node.predicateExpr.type + '.', node.predicateExpr.errorLocation); 
         }
 
         this.enterNewScope();
@@ -142,9 +142,9 @@ export class SemanticVisitor implements NodeType.Visitor {
                 // TODO:
                 //var message = 'Deary deary me.  In an array literal all expressions must be of the same type';
                 //var location = ?????????? call first exprnode from mispatched types
-                //var error = new Error.SemanticError(message, location);
+                //var error = throw new Error.SemanticError(message, location);
                 //throw error.toString();
-                new Error.SemanticError('Array Literal types must all be the same.', node.type.errorLocation).throw();
+                throw new Error.SemanticError('Array Literal types must all be the same.', node.type.errorLocation);
 
             }
 
@@ -177,11 +177,11 @@ export class SemanticVisitor implements NodeType.Visitor {
             var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
             if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
-                new Error.SemanticError('Free statement must be given a variable.', node.expr.errorLocation).throw();
+                throw new Error.SemanticError('Free statement must be given a variable.', node.expr.errorLocation);
             }
 
         } else {
-            new Error.SemanticError('Free statement must be given an array type or pair type.', node.expr.errorLocation).throw();
+            throw new Error.SemanticError('Free statement must be given an array type or pair type.', node.expr.errorLocation);
 
         }
 
@@ -194,7 +194,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         var res = this.currentST.lookup(node.ident);
         if (res && !(res.node instanceof NodeType.ParamNode)) {
-            new Error.SemanticError('Redeclaration of variable ' + node.ident + '.', node.ident.errorLocation).throw();
+            throw new Error.SemanticError('Redeclaration of variable ' + node.ident + '.', node.ident.errorLocation);
         }
 
         /*
@@ -218,7 +218,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
 
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
-            new Error.SemanticError('Declaration expression must be of correct type.  Expected ' + node.type + ', actual: ' + node.rhs.type + '.', node.rhs.errorLocation).throw();
+            throw new Error.SemanticError('Declaration expression must be of correct type.  Expected ' + node.type + ', actual: ' + node.rhs.type + '.', node.rhs.errorLocation);
         }
 
         this.currentST.insert(node.ident, {type: node.type, node: node});
@@ -232,14 +232,14 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
 
-            new Error.SemanticError('Array index must be of type INT.', node.exprList[0].errorLocation).throw();
+            throw new Error.SemanticError('Array index must be of type INT.', node.exprList[0].errorLocation);
         }
 
         var res = this.currentST.lookupAll(node.ident);
 
 
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
-            new Error.SemanticError('Cannot access index of a non array type variable, ' + node.ident + '.', node.type.errorLocation).throw();            
+            throw new Error.SemanticError('Cannot access index of a non array type variable, ' + node.ident + '.', node.type.errorLocation);            
         }
 
         if (res.type.depth > node.exprList.length) {
@@ -257,7 +257,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.functionST.lookupAll(node.ident);
 
         if (!res) {
-            new Error.SemanticError('Attempted to call undeclared function named ' + node.ident + '.', node.ident.errorLocation).throw();   
+            throw new Error.SemanticError('Attempted to call undeclared function named ' + node.ident + '.', node.ident.errorLocation);   
         }
 
         var funcNode = res.node;
@@ -265,11 +265,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (node.argList.length === funcNode.paramList.length) {
             _.forEach(_.zip(node.argList, funcNode.paramList), function (nodes, i) {
                 if (!SemanticUtil.isType(nodes[0].type, nodes[1].type)) {
-                    new Error.SemanticError('Provided function arguments do not that match of the function declaration.', node.argList[i].errorLocation).throw();                
+                    throw new Error.SemanticError('Provided function arguments do not that match of the function declaration.', node.argList[i].errorLocation);                
                 }
             }); 
         } else {
-            new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  Expected ' + funcNode.paramList.length + ' arguments, given ' + node.argList.length + ' sarguments.', node.argList[0].errorLocation).throw();
+            throw new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  Expected ' + funcNode.paramList.length + ' arguments, given ' + node.argList.length + ' sarguments.', node.argList[0].errorLocation);
             
         }
 
@@ -285,12 +285,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (node.num > Const.WACC_MAX_INT) {
             var message = 'Int literal number exceeds max int.';
-            new Error.SemanticError(message, node.errorLocation).throw();
+            throw new Error.SemanticError(message, node.errorLocation);
 
         }
 
         if (node.num < Const.WACC_MIN_INT) {
-            new Error.SemanticError('Int literal number is smaller than min int.', node.errorLocation).throw();
+            throw new Error.SemanticError('Int literal number is smaller than min int.', node.errorLocation);
         }
     }
 
@@ -298,7 +298,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.currentST.lookupAll(node);
         
         if (!res) {
-            new Error.SemanticError('The variable named ' + node + ' could not be found.', node.errorLocation).throw();
+            throw new Error.SemanticError('The variable named ' + node + ' could not be found.', node.errorLocation);
         }
 
         node.type = res.type;
@@ -310,7 +310,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // Check it is possible to record into target
         if (!SemanticUtil.isReadableType(target.type)) {
-            new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. Expected: INT, BOOL.', node.readTarget.errorLocation).throw();
+            throw new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. Expected: INT, BOOL.', node.readTarget.errorLocation);
         }
     }
 
@@ -323,7 +323,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // Attempt to match the left operands type with an allowed type
         if (!OperatorInfo.unOpMap[node.operator].isPermittedType(node.expr.type)) {
-            new Error.SemanticError('Unary operator ' + node.operator + ' given invalid expression of type ' + node.expr.type + '.', node.expr.errorLocation).throw();
+            throw new Error.SemanticError('Unary operator ' + node.operator + ' given invalid expression of type ' + node.expr.type + '.', node.expr.errorLocation);
         }
 
         node.type = OperatorInfo.unOpMap[node.operator].returnType;
@@ -335,7 +335,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
           
-            new Error.SemanticError('Exit statement given expression of incorrect type.  Expected INT, actual: ' + node.expr.type + '.', node.expr.errorLocation).throw();
+            throw new Error.SemanticError('Exit statement given expression of incorrect type.  Expected INT, actual: ' + node.expr.type + '.', node.expr.errorLocation);
         }
         
     }
@@ -344,7 +344,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
 
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-            throw new Error.SemanticError('Invalid if loop condition.  Expecting BOOL, actual: ' + node.predicateExpr.type + '.', node.predicateExpr.errorLocation).throw();
+            throw new Error.SemanticError('Invalid if loop condition.  Expecting BOOL, actual: ' + node.predicateExpr.type + '.', node.predicateExpr.errorLocation);
         }
 
         this.enterNewScope(); //scope for the true branch
@@ -363,7 +363,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (res) {
 
             if (!(res.type instanceof NodeType.PairTypeNode)) {
-                new Error.SemanticError('Given variable must be of type pair. Expected PAIR, actual: ' + res.type + '.', node.type.errorLocation).throw();
+                throw new Error.SemanticError('Given variable must be of type pair. Expected PAIR, actual: ' + res.type + '.', node.type.errorLocation);
             }
 
         }

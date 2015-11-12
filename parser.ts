@@ -14,7 +14,7 @@ var errorFlag :  string = process.argv[3];
 var verbose : string  = process.argv[4];
 
 WACCError.setFileInfo({filename: filename, errorFlag: errorFlag});
-
+function checkSyntaxAndSemantics(filename) {
 fs.readFile(filename, 'utf8', function(err : Error, data : string) {
         if (err) { throw err };
   
@@ -22,7 +22,7 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
             try {
                 var ast: NodeType.Visitable = parser.parse(data);
             } catch (e) { 
-                new WACCError.SyntaxError(e).throw();
+                throw new WACCError.SyntaxError(e);
             }
             
             // Execute semantic check on the input (throws error in 
@@ -40,8 +40,20 @@ fs.readFile(filename, 'utf8', function(err : Error, data : string) {
             }
 
 });
-/*
+
 process.on('uncaughtException', function (err) {
-  process.exit(1)
+  if (!err.code) { 
+    console.log(filename);
+    console.log('Unknown exception occured.');
+    throw err;
+    process.exit(1);
+  }
+
+  if (verbose) {
+      console.log(err.name + ': ' + err.message);
+  }
+
+  process.exit(err.code);
 })
-*/
+}
+module.exports = checkSyntaxAndSemantics;

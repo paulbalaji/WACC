@@ -2,14 +2,6 @@ var _ = require('underscore');
 
 var fileInfo:{filename:String, errorFlag: String};
 
-function _throw(e) {
-	if (fileInfo.errorFlag === 'error') { 
-		console.log(fileInfo.filename);
-	}		throw e;
-	
-
-}
-
 export function setFileInfo(_fileInfo) {
 	fileInfo = _fileInfo;
 }
@@ -40,25 +32,17 @@ export class ErrorLocation {
 
 export class SyntaxError extends Error{
 	e;
+	code;
 
 	constructor(e) {
 		super();
 		this.name = 'Syntax Error';
-		this.e = e;
-	}
-
-	toString() {
-		var e = this.e;
-		return "Syntactic error at " + e.location.start.line +
+		this.message = e.location.start.line +
                         ":" + e.location.end.line + " --mismatched input '"
                         + e.found + "' expecting one of {" +
                         _.pluck(e.expected, 'description').join(', ') + "}";
-
-	}; 
-
-	throw() {
-		_throw(this);
-		process.exit(1);
+		this.e = e;
+		this.code = 100;
 	}
 }
 
@@ -77,25 +61,18 @@ export var SemanticError = _SemanticError;*/
 export class SemanticError extends Error{
 	public message: string;
 	public location: ErrorLocation;
+	code:number
 
 	constructor(message: string, location: ErrorLocation) {
 		super();
 		this.name = 'Semantic Error';
-		this.message = message;
+		this.message = '(line: ' + location.getLine() +
+			', column: ' + location.getColumn() +
+			') ' + message;
 		this.location = location;
+		this.code = 200;
 	}
 
-	toString() {
-		return "(line: " + this.location.getLine() +
-			", column: " + this.location.getColumn() +
-			") " + this.message;
-	}; 
-
-	throw() {
-		_throw(this);
-		process.exit(1);
-	}
-	
 } 
 
 
