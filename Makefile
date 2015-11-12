@@ -7,6 +7,7 @@ default: pre-build dist/compiler.js
 pre-build:
 	@echo "$PATH"
 	@export PATH=$PATH:/usr/bin/
+	@echo ls -l /usr/bin/node
 	@sudo rm -r /usr/bin/nodejs
 	@sudo ln -s /usr/bin/node /usr/bin/nodejs 
 
