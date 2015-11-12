@@ -2,11 +2,8 @@ PEGJS = ./node_modules/pegjs/bin/pegjs
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
+default: pre-build compiler
 
-
-default: pre-build dist/compiler.js
-
-	
 pre-build:
 	@sudo ln -s /usr/bin/nodejs  /usr/bin/node 
 
