@@ -56,4 +56,5 @@ process.on('uncaughtException', function (err) {
   process.exit(err.code);
 })
 }
+checkSyntaxAndSemantics(filename);
 module.exports = checkSyntaxAndSemantics;

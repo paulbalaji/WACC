@@ -2,37 +2,31 @@ PEGJS = ./node_modules/pegjs/bin/pegjs
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
-default: Parser
+default: dist/parser.js
 
-preview: Parser
-	node parser.js input.wacc error verbose
+preview: dist/parser.js
+	node dist/parser.js input.wacc error verbose
 
-Parser: dist/grammar.js
+dist/parser.js: dist/grammar/grammar.js
 	@echo "Generating Parser..."
-	@$(TSC) $(TSC_FLAGS)   parser.ts  --sourceRoot src --outDir dist
+	@$(TSC) $(TSC_FLAGS) src/parser.ts --outDir dist
 
-dist/grammar.ts: src/grammar/grammar.pegjs
-	@echo "Compiling Grammar to TypeScript"
-	@$(PEGJS) src/grammar/grammar.pegjs dist/grammar.ts
-
-dist/grammar.js: dist/grammar.ts
+dist/grammar/grammar.js: src/grammar/grammar.ts
 	@echo "Compiling Grammar to JavaScript..."
-	@$(TSC) $(TSC_FLAGS)  dist/grammar.ts --outDir dist
+	@$(TSC) $(TSC_FLAGS) src/grammar/grammar.ts --outDir dist
 
-
-all:
-	@echo "Compiling PEGJS Grammar..."
-	@$(PEGJS) grammar/grammar.pegjs grammar/grammar.ts
-	@echo "Compiling TypeScript Grammar to JavaScript..."
-	@$(TSC) $(TSC_FLAGS) grammar/grammar.ts
-	@echo "Generating JavaScript Parser..."
-	@$(TSC) $(TSC_FLAGS) parser.ts
+src/grammar/grammar.ts: src/grammar/grammar.pegjs
+	@echo "Compiling Grammar to TypeScript"
+	@$(PEGJS) src/grammar/grammar.pegjs src/grammar/grammar.ts
 
 test: Parser
 	python ./runTests.py
 
 clean:
 	@echo "Removing all generated files..."
-	@rm *.js grammar/grammar.js
+	@rm -r -f dist
+	@rm src/grammar/grammar.ts
+	@mkdir dist
+
 
 rebuild: clean all
