@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
-node dist/compiler.js $1 error verbose
-exit `echo $?`
-# system("node", "dist/compiler.js", ARGV[0])
+#!/usr/bin/env node
+var compiler = require('./dist/compiler.js');
+compiler.compile(process.argv[2]);

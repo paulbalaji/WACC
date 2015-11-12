@@ -3,19 +3,20 @@ import NodeType = require('./frontend/NodeType');
 var fs = require('fs');
 
 var filename : string = process.argv[2];
-var errorFlag :  string = process.argv[3];
-var verbose : string  = process.argv[4];
+var errorFlag :  string = 'error';
+var verbose : string  = 'yes';
 
-function compile(programStr) {
+export function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
 	return frontend.semanticCheck(ast);
 }
 
-
-fs.readFile(filename, 'utf8', function (err, programStr) {
-	if (err) { throw err; }
-	compile(programStr);
-});
+export function compile(filename) {
+  fs.readFile(filename, 'utf8', function (err, programStr) {
+    if (err) { throw err; }
+    compileStr(programStr);
+  });
+}
 
 
 process.on('uncaughtException', function (err) {
@@ -33,3 +34,4 @@ process.on('uncaughtException', function (err) {
 
   process.exit(err.code);
 });
+
