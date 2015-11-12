@@ -1,7 +1,4 @@
-
-# Python front-end for your compiler.
-# You are free to change the language used for this script,
-# but do *not* change its name.
-
-node dist/compiler.js $1 &
+#!/usr/bin/env bash
+node dist/compiler.js $1 error verbose
+exit `echo $?`
 # system("node", "dist/compiler.js", ARGV[0])

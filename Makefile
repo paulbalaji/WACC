@@ -5,7 +5,6 @@ TSC_FLAGS = --module commonjs
 default: pre-build dist/compiler.js
 
 pre-build:
-	@which nodejs
 	@sudo ln -s /usr/bin/nodejs  /usr/bin/node 
 
 dist/compiler.js: dist/frontend/frontend.js
