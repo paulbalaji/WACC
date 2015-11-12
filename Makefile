@@ -5,7 +5,8 @@ TSC_FLAGS = --module commonjs
 default: pre-build dist/compiler.js
 
 pre-build:
-	@sudo apt-get install node	
+	@sudo apt-get --assume-yes install node
+
 
 dist/compiler.js: dist/frontend/frontend.js
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
