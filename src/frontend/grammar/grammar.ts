@@ -145,7 +145,9 @@
               return node;
             },
         peg$c29 = function(fstExpr, sndExpr) {
-                return new NodeType.NewPairNode(fstExpr, sndExpr);
+              var node = new NodeType.NewPairNode(fstExpr, sndExpr);
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              return node;
           },
         peg$c30 = function(exprList) { 
             var node = new NodeType.ArrayLiterNode(exprList);

@@ -282,7 +282,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (node.argList.length === funcNode.paramList.length) {
             _.forEach(_.zip(node.argList, funcNode.paramList), function (nodes, i) {
                 if (!SemanticUtil.isType(nodes[0].type, nodes[1].type)) {
-                    throw new Error.SemanticError('Provided function arguments do not that match of the function declaration.'
+                    throw new Error.SemanticError('Provided function arguments do not match the function declaration.'
                                                  , node.argList[i].errorLocation);                
                 }
             }); 
@@ -334,7 +334,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Check it is possible to record into target
         if (!SemanticUtil.isReadableType(target.type)) {
             throw new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. ' 
-                                         +'Expecting: INT, BOOL.'
+                                         +'Expecting: INT, CHAR.'
                                          , node.readTarget.errorLocation);
         }
     }

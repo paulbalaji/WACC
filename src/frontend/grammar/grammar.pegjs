@@ -198,7 +198,9 @@ AssignRHS
     }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
-        return new NodeType.NewPairNode(fstExpr, sndExpr);
+      var node = new NodeType.NewPairNode(fstExpr, sndExpr);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
   }
   / ArrayLiter
   / PairElem
