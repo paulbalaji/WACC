@@ -305,12 +305,14 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.INT_TYPE;
 
         if (node.num > Const.WACC_MAX_INT) {
+            //NEEDS TO BE SYNTAX ERROR HERE
             throw new Error.SemanticError('Int literal "' + node.num + '" exceeds max int.'
                                          , node.errorLocation);
 
         }
 
         if (node.num < Const.WACC_MIN_INT) {
+            //NEEDS TO BE SYNTAX ERROR HERE
             throw new Error.SemanticError('Int literal "'+ node.num + '" is smaller than min int.'
                                          , node.errorLocation);
         }
@@ -378,7 +380,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.predicateExpr.visit(this);
 
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
-            throw new Error.SemanticError('Invalid if loop condition.  '
+            throw new Error.SemanticError('Invalid if statement condition.  '
                                          +'Expecting: ' + 'BOOL'                   + ', '
                                          +'Actual: '    +  node.predicateExpr.type + '.'
                                          , node.predicateExpr.errorLocation);
