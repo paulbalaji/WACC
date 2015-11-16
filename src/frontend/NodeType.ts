@@ -1,6 +1,5 @@
 ///<reference path="node.d.ts"/>
 
-import Const = require('./Constants');
 import Error = require('./WACCError');
 export interface Visitable {
     visit(v:Visitor):any;
