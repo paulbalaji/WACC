@@ -42,7 +42,7 @@ var ReturnVisitor = (function () {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, function (statNode) { return statNode.visit(_this); }))) {
             //NEED TO THROW SYNTAX ERROR HERE
-            throw new Error.SyntaxError('Function missing return statement.', node.ident.errorLocation);
+            throw new Error.SyntaxError('Function "' + node.ident + '" missing return statement.', node.ident.errorLocation);
         }
         return true;
     };
