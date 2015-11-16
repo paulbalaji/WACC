@@ -30,6 +30,16 @@ export class SymbolTable {
 		var result = this.table[ident.toString()];
         return result ? result : null;
 	}
+
+    traverseUp(visitFunc) {
+        for (var ident in this.table) {
+            visitFunc(ident);
+        }
+
+        if (this.parent) {
+            this.parent.traverseUp(visitFunc);
+        }
+    }
 }
 
 export function isType(type, ...compareTypes):boolean {
@@ -85,7 +95,6 @@ function isSameType(typeObj1, typeObj2):boolean {
     return getType(typeObj1) === getType(typeObj2);
 }
 
-
 export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.Visitor):boolean {
     return _.map(nodeList, (statNode: NodeType.Visitable) => statNode.visit(visitor));
 }
@@ -93,4 +102,16 @@ export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.V
 export function isReadableType(typeObj):boolean {
     // Types you can read into are INT, CHAR
     return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
+}
+
+export function getIdentSpellingSuggestion(identNode: NodeType.IdentNode, currentST: SymbolTable) {
+    var spell = require('spell'),
+        dict  = spell();
+
+    // Traverse symbol table and add every ident to dict
+    currentST.traverseUp(function(ident) {
+         dict.add_word(ident);
+    })
+   
+    return dict.lucky(identNode.toString());
 }

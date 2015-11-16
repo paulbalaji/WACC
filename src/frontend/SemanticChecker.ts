@@ -327,7 +327,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.currentST.lookupAll(node);
         
         if (!res) {
-            throw new Error.SemanticError('Variable named "' + node + '" could not be found.'
+            var suggestion = SemanticUtil.getIdentSpellingSuggestion(node, this.currentST);
+            throw new Error.SemanticError('Variable named "' + node + '" could not be found.\n'
+                                         +'Perhaps you meant \'' + suggestion + '\''
                                          , node.errorLocation);
         }
 
