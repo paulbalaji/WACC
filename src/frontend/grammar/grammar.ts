@@ -1,4 +1,4 @@
-///<reference path="../node.d.ts"/>
+///<reference path="../../node.d.ts"/>
  import NodeType = require('../NodeType'); import WACCError = require('../WACCError');module.exports = (function() {
   "use strict";
 
