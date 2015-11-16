@@ -15,8 +15,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     constructor() {
         this.errors = [];
-        this.currentST = new SemanticUtil.SymbolTable(null); // Creating the root symbol table;
+
+        // Creating functions symbol table
         this.functionST = new SemanticUtil.SymbolTable(null);
+
+        // Creating the root symbol table
+        this.currentST = new SemanticUtil.SymbolTable(null);
     }
 
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
@@ -32,9 +36,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): void {
-        // Partially visit all the functionNodes inserting their idents into the symbol table,
-        // and returning the rest of the visit as callback functions.
+        /* 
+            Partially visit all the functionNodes inserting their idents into the symbol table,
+            and returning the rest of the visit as callback functions.
+        */
         var visitFuncNodeCallbacks = SemanticUtil.visitNodeList(node.functionList, this);
+
         // Finish the visiting of all the function nodes.
         _.map(visitFuncNodeCallbacks, (f) => f());
 
@@ -54,12 +61,15 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +' "' + node.ident + '".'
                                          , node.ident.errorLocation);
         }
+
         // Insert function ident into the function lookup table.
         this.functionST.insert(node.ident, {type: node.type, node: node});
         node.ident.type = node.type;
 
-        // Return the rest of visiting method as a function to be called once the rest of the functions
-        // have been inserted into the lookup table.
+        /*
+            Return the rest of visiting method as a function to be called once the rest of the functions
+            have been inserted into the lookup table.
+        */
         return () => {
             this.enterNewScope();
             SemanticUtil.visitNodeList(node.paramList, this);
@@ -78,6 +88,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw new Error.SemanticError('Left operand of "' + node.operator + '" must be of the correct type.'
                                          , node.leftOperand.errorLocation);
         }
+
         // MID: Left type is correct, check that the rhs type is the same
         
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
@@ -106,7 +117,6 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
         }
-
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): void {

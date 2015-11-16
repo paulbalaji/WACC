@@ -12,7 +12,8 @@ export class SymbolTable {
     name: string;
 
 	constructor(parent:SymbolTable) {
-		this.table = {}; // init table
+        // initialise table
+		this.table = {};
 		this.parent = parent;
 	}
 
@@ -35,6 +36,7 @@ export function isType(type, ...compareTypes):boolean {
     if (compareTypes[0] instanceof Array) {
         compareTypes = compareTypes[0];
     }
+    // check if given type matches one of the expected types
     return _.some(_.map(compareTypes, _.partial(isSameType.bind(this), type)));
 }
 
@@ -43,17 +45,22 @@ export function getType(obj):string {
 }
 
 function isSameType(typeObj1, typeObj2):boolean {
-    // N.B for use on primitive types.
-    // Special case for matching empty arrays with any array type
+    /*
+        N.B for use on primitive types.
+        Special case for matching empty arrays with any array type
+    */
     if (typeObj1 instanceof NodeType.ArrayTypeNode || typeObj2 instanceof NodeType.ArrayTypeNode) {
-            
         // The case that an array type is being compared with an empty array type -> always equal
         if (typeObj1 instanceof NodeType.EmptyArrayTypeNode || typeObj2 instanceof NodeType.EmptyArrayTypeNode) {
             return true;
-        } else if (typeObj1 instanceof NodeType.ArrayTypeNode && typeObj2 instanceof NodeType.ArrayTypeNode) { // The case we are comparing two arrays
+        } else if (typeObj1 instanceof NodeType.ArrayTypeNode && typeObj2 instanceof NodeType.ArrayTypeNode) {
+            // The case we are comparing two arrays
             return isSameType(typeObj1.type, typeObj2.type);
         } else { 
-            // The case that an array type is being compared with any other type.  Do the normal check, plus deep equality (checking depth as well as type contained)
+            /*
+                The case that an array type is being compared with any other type.
+                Do the normal check, plus deep equality (checking depth as well as type contained)
+            */
             return getType(typeObj1) === getType(typeObj2) && _.isEqual(typeObj1, typeObj2);
         }
     }
@@ -72,9 +79,9 @@ function isSameType(typeObj1, typeObj2):boolean {
         // PRE: Both types are pair types
 
         // Test if the pair types are the same
-        return isSameType(pairType1.type1, pairType2.type1) &&
-            isSameType(pairType1.type2, pairType2.type2);
+        return isSameType(pairType1.type1, pairType2.type1) && isSameType(pairType1.type2, pairType2.type2);
     }
+    
     return getType(typeObj1) === getType(typeObj2);
 }
 
@@ -84,6 +91,6 @@ export function visitNodeList(nodeList: NodeType.TreeNode[], visitor: NodeType.V
 }
 
 export function isReadableType(typeObj):boolean {
-        // Types you can read into are INT, CHAR
-        return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
+    // Types you can read into are INT, CHAR
+    return isType(typeObj, [NodeType.INT_TYPE, NodeType.CHAR_TYPE]);
 }
