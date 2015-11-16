@@ -28,6 +28,7 @@ export class ErrorLocation {
         return this.offset;
     }
 }
+
 export class SyntaxError extends Error {
     code: number
     constructor(message: string, location: ErrorLocation) {
@@ -58,8 +59,6 @@ export class ParserSyntaxError extends Error {
 }
 
 export class SemanticError extends Error {
-    public message: string;
-    public location: ErrorLocation;
     code: number
 
     constructor(message: string, location: ErrorLocation) {
