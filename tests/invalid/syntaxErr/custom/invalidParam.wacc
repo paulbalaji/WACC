@@ -1,0 +1,6 @@
+begin
+	int f(intx) is
+		skip
+	end
+	skip
+end
