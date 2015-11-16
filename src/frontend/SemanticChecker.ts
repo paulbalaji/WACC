@@ -305,15 +305,13 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.INT_TYPE;
 
         if (node.num > Const.WACC_MAX_INT) {
-            //NEEDS TO BE SYNTAX ERROR HERE
-            throw new Error.SemanticError('Int literal "' + node.num + '" exceeds max int.'
+            throw new Error.SyntaxError('Int literal "' + node.num + '" exceeds max int.'
                                          , node.errorLocation);
 
         }
 
         if (node.num < Const.WACC_MIN_INT) {
-            //NEEDS TO BE SYNTAX ERROR HERE
-            throw new Error.SemanticError('Int literal "'+ node.num + '" is smaller than min int.'
+            throw new Error.SyntaxError('Int literal "'+ node.num + '" is smaller than min int.'
                                          , node.errorLocation);
         }
     }
