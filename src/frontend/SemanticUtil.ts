@@ -105,7 +105,7 @@ export function isReadableType(typeObj):boolean {
 }
 
 export function getIdentSpellingSuggestion(identNode: NodeType.IdentNode, currentST: SymbolTable) {
-    var spell = require('spell'),
+    var spell = require('../../node_modules/spell'),
         dict  = spell();
 
     // Traverse symbol table and add every ident to dict
