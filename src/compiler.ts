@@ -3,8 +3,6 @@ import NodeType = require("./frontend/NodeType");
 var fs = require("fs");
 
 var filename : string = process.argv[2];
-var errorFlag : string = "error";
-var verbose : string  = "yes";
 
 export function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
@@ -25,9 +23,7 @@ process.on("uncaughtException", function (err) {
     throw err;
   }
 
-  if (verbose) {
-      console.log(err.name + ": " + err.message);
-  }
-
+  console.log(err.name + ': ' + err.message);
+  
   process.exit(err.code);
 });

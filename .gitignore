@@ -2,6 +2,7 @@
 
 #ignore typescript related stuff
 dist/*.js
+dist/frontend/*.js
 dist/grammar/*.js
 input.wacc
 grammar/grammar.ts
@@ -43,3 +44,4 @@ testing/test_files/
 *.vrb
 *.nav
 *.toc
+*.DS_Store
