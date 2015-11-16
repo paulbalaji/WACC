@@ -13,37 +13,42 @@ export class ErrorLocation {
         this.offset = location.start.offset;
     }
 
-    getLine() :number {
+    getLine(): number {
         return this.line;
     }
 
-    getColumn() :number {
+    getColumn(): number {
         return this.column;
     }
 
-    getOffset() :number {
+    getOffset(): number {
         return this.offset;
+    }
+
+    toString(): string {
+        return '(' + this.line + ', ' + this.column + ')';
     }
 }
 
 export class SyntaxError extends Error {
+    location: ErrorLocation;
     code: number;
+
     constructor(message: string, location: ErrorLocation) {
         super();
-        this.name = 'Syntax Error at';
-            + '('
-            + location.getLine() + ', '
-            + location.getColumn() + ') --'
-                     + message;
+        this.name = 'Syntax Error';
+        this.location = location;
+        this.message = message;
         this.code = constants.SYNTAX_ERROR_CODE;
     }
 }
 
 export class ParserSyntaxError extends Error {
     code: number;
+
     constructor(pegError) {
         super();
-        this.name = 'Syntax Error at';
+        this.name = 'Syntax Error';
         this.message = '('
             + pegError.location.start.line + ', '
             + pegError.location.end.line + ') ';
@@ -60,15 +65,15 @@ export class ParserSyntaxError extends Error {
 }
 
 export class SemanticError extends Error {
+    location: ErrorLocation
     code: number;
 
     constructor(message: string, location: ErrorLocation) {
         super();
-        this.name = 'Semantic Error at';
-        this.message = '('
-            + location.getLine() + ', '
-            + location.getColumn() + ') --'
-                     + message;
+        this.name = 'Semantic Error';
+        console.log(location);
+        this.location = location;
+        this.message = message;
         this.code = constants.SEMANTIC_ERROR_CODE;
     }
 } 

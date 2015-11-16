@@ -4,7 +4,7 @@ var colors = require('colors');
 
 var fs = require('fs');
 
-var filename : string = process.argv[2];
+var filename: string = process.argv[2];
 var silence: string = process.argv[3];
 
 export function compileStr(programStr) {
@@ -26,8 +26,9 @@ process.on('uncaughtException', function (err) {
     throw err;
   }
   if (!silence) {
-    console.log(err.name + ': ' + err.message);
-
+    var location = err.location ? err.location.toString().magenta : '';
+    console.log(err.name.underline.bold.red + ' ' + location + ': ' + err.message.cyan);
   }
+
   process.exit(err.code);
 });
