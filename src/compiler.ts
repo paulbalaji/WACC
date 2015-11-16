@@ -23,5 +23,7 @@ process.on("uncaughtException", function (err) {
     throw err;
   }
 
+  console.log(err.name + ': ' + err.message);
+  
   process.exit(err.code);
 });
