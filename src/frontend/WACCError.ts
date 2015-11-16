@@ -1,3 +1,4 @@
+
 import constants = require('./constants');
 
 var _ = require('underscore');
@@ -13,15 +14,15 @@ export class ErrorLocation {
         this.offset = location.start.offset;
     }
 
-    getLine():number {
+    getLine() :number {
         return this.line;
     }
 
-    getColumn():number {
+    getColumn() :number {
         return this.column;
     }
 
-    getOffset():number {
+    getOffset() :number {
         return this.offset;
     }
 }
@@ -31,9 +32,9 @@ export class SyntaxError extends Error {
     constructor(message: string, location: ErrorLocation) {
         super();
         this.name = 'Syntax Error at';
-        this.message = '('
-                     + location.getLine() + ', '
-                     + location.getColumn() + ') --'
+            + '('
+            + location.getLine() + ', '
+            + location.getColumn() + ') --'
                      + message;
         this.code = constants.SYNTAX_ERROR_CODE;
     }
@@ -50,7 +51,7 @@ export class ParserSyntaxError extends Error {
         if (pegError.found === null) {
             this.message += 'Found nothing but'
         } else {
-            this.message = '--mismatched input : found:"'
+            this.message += 'Mismatched input - found:"'
                 + pegError.found + '" but';
         }
         this.message += ' expecting one of {'
@@ -65,10 +66,11 @@ export class SemanticError extends Error {
     constructor(message: string, location: ErrorLocation) {
         super();
         this.name = 'Semantic Error at';
-        this.message = '('
-                     + location.getLine() + ', '
-                     + location.getColumn() + ') --'
+            + '('
+            + location.getLine() + ', '
+            + location.getColumn() + ') --'
                      + message;
         this.code = constants.SEMANTIC_ERROR_CODE;
     }
 } 
+ 
