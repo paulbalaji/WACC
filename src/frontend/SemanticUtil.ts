@@ -66,7 +66,7 @@ function isSameType(typeObj1, typeObj2):boolean {
         } else if (typeObj1 instanceof NodeType.ArrayTypeNode && typeObj2 instanceof NodeType.ArrayTypeNode) {
             // The case we are comparing two arrays
             return isSameType(typeObj1.type, typeObj2.type);
-        } else { 
+        } else {
             /*
                 The case that an array type is being compared with any other type.
                 Do the normal check, plus deep equality (checking depth as well as type contained)
@@ -91,7 +91,6 @@ function isSameType(typeObj1, typeObj2):boolean {
         // Test if the pair types are the same
         return isSameType(pairType1.type1, pairType2.type1) && isSameType(pairType1.type2, pairType2.type2);
     }
-    
     return getType(typeObj1) === getType(typeObj2);
 }
 
@@ -110,8 +109,7 @@ export function getIdentSpellingSuggestion(identNode: NodeType.IdentNode, curren
 
     // Traverse symbol table and add every ident to dict
     currentST.traverseUp(function(ident) {
-         dict.add_word(ident);
-    })
-   
+        dict.add_word(ident);
+    });
     return dict.lucky(identNode.toString());
 }

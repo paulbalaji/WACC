@@ -27,7 +27,7 @@ export class ErrorLocation {
 }
 
 export class SyntaxError extends Error {
-    code: number
+    code: number;
     constructor(message: string, location: ErrorLocation) {
         super();
         this.name = 'Syntax Error at';
@@ -35,19 +35,18 @@ export class SyntaxError extends Error {
                      + location.getLine() + ', '
                      + location.getColumn() + ') --'
                      + message;
-       
         this.code = constants.SYNTAX_ERROR_CODE;
-    }   
+    }
 }
 
 export class ParserSyntaxError extends Error {
-    code: number
+    code: number;
     constructor(pegError) {
-        super()
+        super();
         this.name = 'Syntax Error at';
         this.message = '('
             + pegError.location.start.line + ', '
-            + pegError.location.end.line   + ')'
+            + pegError.location.end.line + ')';
         if (pegError.found === null) {
             this.message += 'Found nothing but'
         } else {
@@ -61,7 +60,7 @@ export class ParserSyntaxError extends Error {
 }
 
 export class SemanticError extends Error {
-    code: number
+    code: number;
 
     constructor(message: string, location: ErrorLocation) {
         super();

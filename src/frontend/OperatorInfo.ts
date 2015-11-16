@@ -20,7 +20,7 @@ _unOpMap['-']   = new OpInfo(NodeType.INT_TYPE, NodeType.INT_TYPE);
 _unOpMap['!']   = new OpInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
 _unOpMap['ord'] = new OpInfo(NodeType.CHAR_TYPE, NodeType.INT_TYPE);
 _unOpMap['chr'] = new OpInfo(NodeType.INT_TYPE, NodeType.CHAR_TYPE);
-_unOpMap['len'] = new OpInfo((t, t2) => 
+_unOpMap['len'] = new OpInfo((t, t2) =>
 	SemanticUtil.isType(t, NodeType.STRING_TYPE)
 	|| t instanceof NodeType.ArrayTypeNode, NodeType.INT_TYPE);
 

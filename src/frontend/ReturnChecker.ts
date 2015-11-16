@@ -10,9 +10,9 @@ export class ReturnVisitor implements NodeType.Visitor {
 
     // Checks valid returns in all functions and then check for invalid return in global scope.
     visitProgramNode(node: NodeType.ProgramNode): boolean {
-         SemanticUtil.visitNodeList(node.functionList, this)
+        SemanticUtil.visitNodeList(node.functionList, this);
          this.expectedReturnType = null;
-         SemanticUtil.visitNodeList(node.statList, this)
+         SemanticUtil.visitNodeList(node.statList, this);
          return true;
     }
 
@@ -21,7 +21,7 @@ export class ReturnVisitor implements NodeType.Visitor {
         are in global scope and visitor throws an error. Otherwise it checks if the 
         expected and actual types match.
     */
-    visitReturnNode(node: NodeType.ReturnNode): boolean { 
+    visitReturnNode(node: NodeType.ReturnNode): boolean {
         if (this.expectedReturnType === null) {
             throw new Error.SemanticError('Attempted return from global scope.'
                                          , node.errorLocation);
@@ -56,15 +56,13 @@ export class ReturnVisitor implements NodeType.Visitor {
 
     // Visit node requires that both branches to contain a return statement. 
     visitIfNode(node: NodeType.IfNode): boolean {
-        var branch1 : boolean = _.some(SemanticUtil.visitNodeList(node.trueStatList, this))
-        var branch2 : boolean = _.some(SemanticUtil.visitNodeList(node.falseStatList, this))
-        
+        var branch1: boolean = _.some(SemanticUtil.visitNodeList(node.trueStatList, this));
+        var branch2: boolean = _.some(SemanticUtil.visitNodeList(node.falseStatList, this));
         return branch1 && branch2;
     }
 
     // Exit node acts as return.
-    visitExitNode(node: NodeType.ExitNode): boolean { return true; }    
-
+    visitExitNode(node: NodeType.ExitNode): boolean { return true; } 
     /*
         Implementation of other Node visit functions that 
         do not return nor they can be an valid ancestor of
@@ -104,5 +102,4 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitCharTypeNode(node: NodeType.CharTypeNode): boolean { return false; }
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) { return false; }
     visitNullTypeNode(node: NodeType.NullTypeNode): boolean { return false; }
-    
 }
