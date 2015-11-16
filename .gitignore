@@ -43,3 +43,4 @@ testing/test_files/
 *.vrb
 *.nav
 *.toc
+*.DS_Store
