@@ -16,43 +16,43 @@ export class TreeNode implements Visitable {
 }
 
 export interface Visitor {
-    visitProgramNode(node:ProgramNode):any;
-    visitBinOpExprNode(node:BinOpExprNode):any;
-    visitStrLiterNode(node:StrLiterNode):any;
-    visitReturnNode(node:ReturnNode):any;
-    visitAssignNode(node:AssignNode):any;
-    visitBeginEndBlockNode(node:BeginEndBlockNode):any;
-    visitWhileNode(node:WhileNode):any;
-    visitPairTypeNode(node:PairTypeNode):any;
-    visitArrayLiterNode(node:ArrayLiterNode):any;
-    visitCharLiterNode(node:CharLiterNode):any;
-    visitParamNode(node:ParamNode):any;
-    visitFreeNode(node:FreeNode):any;
-    visitPrintNode(node:PrintNode):any;
-    visitDeclareNode(node:DeclareNode):any;
-    visitArrayElemNode(node:ArrayElemNode):any;
-    visitCallNode(node:CallNode):any;
-    visitPairLiterNode(node:PairLiterNode):any;
-    visitIntLiterNode(node:IntLiterNode):any;
-    visitFuncNode(node:FuncNode):any;
-    visitIdentNode(node:IdentNode):any;
-    visitSkipNode(node:SkipNode):any;
-    visitReadNode(node:ReadNode):any;
-    visitPrintlnNode(node:PrintlnNode):any;
-    visitUnOpNode(node:UnOpNode):any;
-    visitSkipNode(node:SkipNode):any;
-    visitExitNode(node:ExitNode):any;
-    visitIfNode(node:IfNode):any;
-    visitArrayTypeNode(node:ArrayTypeNode):any;
-    visitNewPairNode(node:NewPairNode):any;
-    visitBoolLiterNode(node:BoolLiterNode):any;
-    visitPairElemNode(node:PairElemNode):any;
+    visitProgramNode(node:ProgramNode): any;
+    visitBinOpExprNode(node:BinOpExprNode): any;
+    visitStrLiterNode(node:StrLiterNode): any;
+    visitReturnNode(node:ReturnNode): any;
+    visitAssignNode(node:AssignNode): any;
+    visitBeginEndBlockNode(node:BeginEndBlockNode): any;
+    visitWhileNode(node:WhileNode): any;
+    visitPairTypeNode(node:PairTypeNode): any;
+    visitArrayLiterNode(node:ArrayLiterNode): any;
+    visitCharLiterNode(node:CharLiterNode): any;
+    visitParamNode(node:ParamNode): any;
+    visitFreeNode(node:FreeNode): any;
+    visitPrintNode(node:PrintNode): any;
+    visitDeclareNode(node:DeclareNode): any;
+    visitArrayElemNode(node:ArrayElemNode): any;
+    visitCallNode(node:CallNode): any;
+    visitPairLiterNode(node:PairLiterNode): any;
+    visitIntLiterNode(node:IntLiterNode): any;
+    visitFuncNode(node:FuncNode): any;
+    visitIdentNode(node:IdentNode): any;
+    visitSkipNode(node:SkipNode): any;
+    visitReadNode(node:ReadNode): any;
+    visitPrintlnNode(node:PrintlnNode): any;
+    visitUnOpNode(node:UnOpNode): any;
+    visitSkipNode(node:SkipNode): any;
+    visitExitNode(node:ExitNode): any;
+    visitIfNode(node:IfNode): any;
+    visitArrayTypeNode(node:ArrayTypeNode): any;
+    visitNewPairNode(node:NewPairNode): any;
+    visitBoolLiterNode(node:BoolLiterNode): any;
+    visitPairElemNode(node:PairElemNode): any;
 
-    visitIntTypeNode(node:IntTypeNode):any;
-    visitBoolTypeNode(node:BoolTypeNode):any;
-    visitCharTypeNode(node:CharTypeNode):any;
-    visitEmptyArrayTypeNode(node:EmptyArrayTypeNode):any;
-    visitNullTypeNode(node:NullTypeNode):any;
+    visitIntTypeNode(node:IntTypeNode): any;
+    visitBoolTypeNode(node:BoolTypeNode): any;
+    visitCharTypeNode(node:CharTypeNode): any;
+    visitEmptyArrayTypeNode(node:EmptyArrayTypeNode): any;
+    visitNullTypeNode(node:NullTypeNode): any;
 }
 
 export interface Visitable {
@@ -252,10 +252,8 @@ export class AssignNode extends TreeNode implements StatNode {
     Check lhs ident is declared previously in any of the parent scopes
     check lhs is the same type as rhs, or can be cast
 */
-
 export class BeginEndBlockNode extends TreeNode implements StatNode {
     statList: [StatNode];
-
 
     constructor(statList: [StatNode]) {
         super();
@@ -315,7 +313,7 @@ export class PairTypeNode extends TreeNode implements TypeNode {
 }
 
 export class ArrayLiterNode extends TreeNode implements AssignRHSNode {
-     type :    TypeNode; // Filled by semantic visitor
+     type:    TypeNode; // Filled by semantic visitor
      exprList: [ExprNode];
 
      constructor(exprList: [ExprNode]) {
@@ -437,7 +435,6 @@ export class BoolLiterNode extends TreeNode implements ExprNode {
     bool: boolean;
     type: TypeNode; // Filled by semantic visitor
 
-
     constructor(bool: boolean) {
         super();
         this.bool = bool;
@@ -452,7 +449,6 @@ export class UnOpNode extends TreeNode implements ExprNode {
     operator: string;
     expr:     ExprNode;
     type:     TypeNode; // Filled by semantic visitor
-
 
     constructor(operator: string, expr: ExprNode) {
         super();
@@ -491,7 +487,6 @@ export class FreeNode extends TreeNode implements StatNode {
     visit(v: Visitor): any {
         return v.visitFreeNode(this);
     }
-
 }
 
 export class PrintNode extends TreeNode implements StatNode {
@@ -575,7 +570,6 @@ export class IntLiterNode extends TreeNode implements ExprNode {
     num:  number; 
     type: TypeNode; // Filled by semantic visitor
 
-
     constructor(num: number) {
         super(); 
         this.num = num;
@@ -604,9 +598,9 @@ export class EmptyArrayTypeNode extends TreeNode implements TypeNode {
     }
 }
 
-export var INT_TYPE:IntTypeNode = new IntTypeNode();
-export var CHAR_TYPE:CharTypeNode = new CharTypeNode();
-export var BOOL_TYPE:BoolTypeNode = new BoolTypeNode();
-export var STRING_TYPE:ArrayTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
-export var EMPTY_ARRAY_TYPE:EmptyArrayTypeNode = new EmptyArrayTypeNode();
-export var NULL_TYPE:NullTypeNode = new NullTypeNode();
+export var INT_TYPE: IntTypeNode = new IntTypeNode();
+export var CHAR_TYPE: CharTypeNode = new CharTypeNode();
+export var BOOL_TYPE: BoolTypeNode = new BoolTypeNode();
+export var STRING_TYPE: ArrayTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
+export var EMPTY_ARRAY_TYPE: EmptyArrayTypeNode = new EmptyArrayTypeNode();
+export var NULL_TYPE: NullTypeNode = new NullTypeNode();
