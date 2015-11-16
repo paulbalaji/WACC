@@ -44,14 +44,16 @@ export class SyntaxError extends Error {
 }
 
 export class ParserSyntaxError extends Error {
+    location: String
     code: number;
 
     constructor(pegError) {
         super();
         this.name = 'Syntax Error';
-        this.message = '('
+        this.location = '('
             + pegError.location.start.line + ', '
             + pegError.location.end.line + ') ';
+        this.message = '';
         if (pegError.found === null) {
             this.message += 'Found nothing but'
         } else {

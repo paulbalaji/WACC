@@ -26,8 +26,7 @@ process.on('uncaughtException', function (err) {
     throw err;
   }
   if (!silence) {
-    var location = err.location ? err.location.toString().magenta : '';
-    console.log(err.name.underline.bold.red + ' ' + location + ': ' + err.message.cyan);
+    console.log(err.name.underline.bold.red + ' ' + err.location.toString().magenta + ': ' + err.message.cyan);
   }
 
   process.exit(err.code);
