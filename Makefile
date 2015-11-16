@@ -11,7 +11,7 @@ compiler: frontend
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
 
 frontend: dist/frontend/grammar/grammar.js
-	@echo "Compiling front end..."
+	@echo "Compiling Front End..."
 	@$(TSC) $(TSC_FLAGS) src/frontend/frontend.ts --outDir dist/frontend
 
 dist/frontend/grammar/grammar.js: src/frontend/grammar/grammar.ts
