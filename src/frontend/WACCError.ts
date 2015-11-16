@@ -1,4 +1,3 @@
-
 import constants = require('./constants');
 
 var _ = require('underscore');
@@ -47,7 +46,7 @@ export class ParserSyntaxError extends Error {
         this.name = 'Syntax Error at';
         this.message = '('
             + pegError.location.start.line + ', '
-            + pegError.location.end.line + ')';
+            + pegError.location.end.line + ') ';
         if (pegError.found === null) {
             this.message += 'Found nothing but'
         } else {
