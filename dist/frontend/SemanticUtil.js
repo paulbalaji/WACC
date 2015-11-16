@@ -91,7 +91,7 @@ function isReadableType(typeObj) {
 }
 exports.isReadableType = isReadableType;
 function getIdentSpellingSuggestion(identNode, currentST) {
-    var spell = require('../../node_modules/spell'), dict = spell();
+    var spell = require('spell'), dict = spell();
     // Traverse symbol table and add every ident to dict
     currentST.traverseUp(function (ident) {
         dict.add_word(ident);

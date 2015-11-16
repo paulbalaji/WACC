@@ -2,6 +2,8 @@
 
 #ignore typescript related stuff
 dist/*.js
+dist/grammar/*.js
+
 *.wacc
 grammar/grammar.ts
 
