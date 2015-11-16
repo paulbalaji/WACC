@@ -280,7 +280,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         var res = this.functionST.lookupAll(node.ident);
 
         if (!res) {
-            throw new Error.SemanticError('Attempted to call undeclared function named "' + node.ident + '".'
+            var suggestion = SemanticUtil.getIdentSpellingSuggestion(node.ident, this.functionST);
+            suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
+            throw new Error.SemanticError('Attempted to call undeclared function named "' + node.ident + '".\n'
+                                         + suggestion
                                          , node.ident.errorLocation);   
         }
 
@@ -328,8 +331,9 @@ export class SemanticVisitor implements NodeType.Visitor {
         
         if (!res) {
             var suggestion = SemanticUtil.getIdentSpellingSuggestion(node, this.currentST);
+            suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
             throw new Error.SemanticError('Variable named "' + node + '" could not be found.\n'
-                                         +'Perhaps you meant \'' + suggestion + '\''
+                                         + suggestion
                                          , node.errorLocation);
         }
 

@@ -213,7 +213,10 @@ var SemanticVisitor = (function () {
         SemanticUtil.visitNodeList(node.argList, this);
         var res = this.functionST.lookupAll(node.ident);
         if (!res) {
-            throw new Error.SemanticError('Attempted to call undeclared function named "' + node.ident + '".', node.ident.errorLocation);
+            var suggestion = SemanticUtil.getIdentSpellingSuggestion(node.ident, this.functionST);
+            suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
+            throw new Error.SemanticError('Attempted to call undeclared function named "' + node.ident + '".\n'
+                + suggestion, node.ident.errorLocation);
         }
         var funcNode = res.node;
         // Compare arguments
@@ -248,8 +251,9 @@ var SemanticVisitor = (function () {
         var res = this.currentST.lookupAll(node);
         if (!res) {
             var suggestion = SemanticUtil.getIdentSpellingSuggestion(node, this.currentST);
+            suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
             throw new Error.SemanticError('Variable named "' + node + '" could not be found.\n'
-                + 'Perhaps you meant \'' + suggestion + '\'', node.errorLocation);
+                + suggestion, node.errorLocation);
         }
         node.type = res.type;
     };
