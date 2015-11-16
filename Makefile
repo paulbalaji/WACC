@@ -32,5 +32,5 @@ clean:
 	@echo "Removing all generated files..."
 	@rm -r -f dist
 	@rm src/frontend/grammar/grammar.ts
-	@mkdir dist
+	
 rebuild: clean all
