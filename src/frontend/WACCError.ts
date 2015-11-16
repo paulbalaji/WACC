@@ -65,7 +65,7 @@ export class ParserSyntaxError extends Error {
 }
 
 export class SemanticError extends Error {
-    location: ErrorLocation
+    location: ErrorLocation;
     code: number;
 
     constructor(message: string, location: ErrorLocation) {
