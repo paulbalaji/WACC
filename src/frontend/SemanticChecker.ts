@@ -26,7 +26,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
         this.currentST = newCurrentST;
     }
-    
     enterNewScope(): void {
         this.setCurrentScope(new SemanticUtil.SymbolTable(this.currentST));
     }
@@ -47,7 +46,6 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // Visit all the statments in the global program scope.
         SemanticUtil.visitNodeList(node.statList, this);
-        
         // Execute return visitor to check for valid (and invalid) returns.
         var returnVisitor : NodeType.Visitor = new ReturnChecker.ReturnVisitor();
         node.visit(returnVisitor);
@@ -83,14 +81,12 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rightOperand.visit(this);
 
         var opInfo = OperatorInfo.binOpMap[node.operator];
-       
         if (!opInfo.isPermittedType(node.leftOperand.type)) {
             throw new Error.SemanticError('Left operand of "' + node.operator + '" must be of the correct type.'
                                          , node.leftOperand.errorLocation);
         }
 
         // MID: Left type is correct, check that the rhs type is the same
-        
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
             throw new Error.SemanticError('Right operand of "' + node.operator + '" must be of the correct type.'
                                          , node.leftOperand.errorLocation);
@@ -112,7 +108,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.rhs.visit(this);
 
         if (!SemanticUtil.isType(node.lhs.type, node.rhs.type)) {
-            throw new Error.SemanticError('Assignment must be of correct type.  ' 
+            throw new Error.SemanticError('Assignment must be of correct type.  '
                                          +'Expecting: ' + node.lhs.type + ', '
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
@@ -127,7 +123,6 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitWhileNode(node: NodeType.WhileNode): void {
         node.predicateExpr.visit(this);
-        
         if (!SemanticUtil.isType(node.predicateExpr.type, NodeType.BOOL_TYPE)) {
             throw new Error.SemanticError('Invalid while loop condition.  '
                                          +'Expecting: ' + 'BOOL'                   + ', '
@@ -144,12 +139,11 @@ export class SemanticVisitor implements NodeType.Visitor {
         // Visit all expressions
         SemanticUtil.visitNodeList(node.exprList, this);
 
-        if (_.isEmpty(node.exprList)) { 
+        if (_.isEmpty(node.exprList)) {
             // The case that the list is empty            
-            node.type = NodeType.EMPTY_ARRAY_TYPE;        
-        } else { 
+            node.type = NodeType.EMPTY_ARRAY_TYPE;
+        } else {
             // The case that the list is not empty
-            
             // Check that all expressions are of the same type
             var type = node.exprList[0].type;
 
@@ -215,7 +209,6 @@ export class SemanticVisitor implements NodeType.Visitor {
          in the type. 
          This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
         */
-        
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
             var arrayLiter:NodeType.ArrayLiterNode = <NodeType.ArrayLiterNode>node.rhs;
             if(_.isEmpty(arrayLiter.exprList)) {
@@ -225,7 +218,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw new Error.SemanticError('Declaration expression must be of correct type.  '
-                                         +'Expecting: ' + node.type     + ', ' 
+                                         +'Expecting: ' + node.type     + ', '
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
         }
@@ -247,7 +240,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
             throw new Error.SemanticError('Cannot access index of a non array type variable "' + node.ident + '".'
-                                         , node.type.errorLocation);            
+                                         , node.type.errorLocation);
         }
 
         /*
@@ -284,7 +277,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
             throw new Error.SemanticError('Attempted to call undeclared function named "' + node.ident + '".\n'
                                          + suggestion
-                                         , node.ident.errorLocation);   
+                                         , node.ident.errorLocation);
         }
 
         var funcNode = res.node;
@@ -294,9 +287,9 @@ export class SemanticVisitor implements NodeType.Visitor {
             _.forEach(_.zip(node.argList, funcNode.paramList), function (nodes, i) {
                 if (!SemanticUtil.isType(nodes[0].type, nodes[1].type)) {
                     throw new Error.SemanticError('Provided function arguments do not match the function declaration.'
-                                                 , node.argList[i].errorLocation);                
+                                                 , node.argList[i].errorLocation);
                 }
-            }); 
+            });
         } else {
             throw new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '. '
                                          +'Expecting ' + funcNode.paramList.length + ' arguments ' + ', '
@@ -328,7 +321,6 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): void {
         var res = this.currentST.lookupAll(node);
-        
         if (!res) {
             var suggestion = SemanticUtil.getIdentSpellingSuggestion(node, this.currentST);
             // if suggestion is undefined, it will go to false part of ternary
@@ -347,7 +339,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // Check it is possible to record into target
         if (!SemanticUtil.isReadableType(target.type)) {
-            throw new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. ' 
+            throw new Error.SemanticError('Cannot read into expression of type ' + node.readTarget.type + '. '
                                          +'Expecting: INT, CHAR.'
                                          , node.readTarget.errorLocation);
         }
@@ -356,7 +348,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitPrintlnNode(node: NodeType.PrintlnNode): void {
         node.expr.visit(this);
     }
-    
+
     visitPrintNode(node: NodeType.PrintNode): void {
         node.expr.visit(this);
     }
@@ -378,8 +370,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
 
         if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
-            throw new Error.SemanticError('Exit statement given expression of incorrect type. ' 
-                                         +'Expecting: ' + 'INT'           + ', ' 
+            throw new Error.SemanticError('Exit statement given expression of incorrect type. '
+                                         +'Expecting: ' + 'INT'           + ', '
                                          +'Actual: '    +  node.expr.type + '.'
                                          , node.expr.errorLocation);
         }
@@ -442,13 +434,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
 
-    visitSkipNode(node: NodeType.SkipNode): void { }
-    visitPairTypeNode(node: NodeType.PairTypeNode): void { }
-    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void { }
-    
-    visitIntTypeNode(node: NodeType.IntTypeNode): void { }
-    visitBoolTypeNode(node: NodeType.BoolTypeNode): void { }
-    visitCharTypeNode(node: NodeType.CharTypeNode): void { }
-    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): void { }
-    visitNullTypeNode(node: NodeType.NullTypeNode): void { }
+    visitSkipNode(node: NodeType.SkipNode): void {}
+    visitPairTypeNode(node: NodeType.PairTypeNode): void {}
+    visitArrayTypeNode(node: NodeType.ArrayTypeNode): void {}
+    visitIntTypeNode(node: NodeType.IntTypeNode): void {}
+    visitBoolTypeNode(node: NodeType.BoolTypeNode): void {}
+    visitCharTypeNode(node: NodeType.CharTypeNode): void {}
+    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): void {}
+    visitNullTypeNode(node: NodeType.NullTypeNode): void {}
 }
