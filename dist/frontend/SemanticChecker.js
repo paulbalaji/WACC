@@ -228,7 +228,7 @@ var SemanticVisitor = (function () {
             });
         }
         else {
-            throw new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '.  '
+            throw new Error.SemanticError('Invalid argument count when calling function named ' + node.ident + '. '
                 + 'Expecting ' + funcNode.paramList.length + ' arguments ' + ', '
                 + 'given ' + node.argList.length + ' arguments.', node.argList[0].errorLocation);
         }
@@ -251,6 +251,7 @@ var SemanticVisitor = (function () {
         var res = this.currentST.lookupAll(node);
         if (!res) {
             var suggestion = SemanticUtil.getIdentSpellingSuggestion(node, this.currentST);
+            // if suggestion is undefined, it will go to false part of ternary
             suggestion = suggestion ? 'Perhaps you meant \'' + suggestion + '\'' : '';
             throw new Error.SemanticError('Variable named "' + node + '" could not be found.\n'
                 + suggestion, node.errorLocation);
@@ -284,7 +285,7 @@ var SemanticVisitor = (function () {
     SemanticVisitor.prototype.visitExitNode = function (node) {
         node.expr.visit(this);
         if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
-            throw new Error.SemanticError('Exit statement given expression of incorrect type.'
+            throw new Error.SemanticError('Exit statement given expression of incorrect type. '
                 + 'Expecting: ' + 'INT' + ', '
                 + 'Actual: ' + node.expr.type + '.', node.expr.errorLocation);
         }

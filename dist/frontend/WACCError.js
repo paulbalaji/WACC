@@ -44,8 +44,15 @@ var ParserSyntaxError = (function (_super) {
         this.name = 'Syntax Error at';
         this.message = '('
             + pegError.location.start.line + ', '
-            + pegError.location.end.line + ') --mismatched input "'
-            + pegError.found + '" expecting one of {'
+            + pegError.location.end.line + ')';
+        if (pegError.found === null) {
+            this.message += 'Found nothing but';
+        }
+        else {
+            this.message = '--mismatched input : found:"'
+                + pegError.found + '" but';
+        }
+        this.message += ' expecting one of {'
             + _.pluck(pegError.expected, 'description').join(', ') + '}';
         this.code = constants.SYNTAX_ERROR_CODE;
     }
