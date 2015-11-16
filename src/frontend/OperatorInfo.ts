@@ -20,7 +20,9 @@ _unOpMap['-']   = new OpInfo(NodeType.INT_TYPE, NodeType.INT_TYPE);
 _unOpMap['!']   = new OpInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
 _unOpMap['ord'] = new OpInfo(NodeType.CHAR_TYPE, NodeType.INT_TYPE);
 _unOpMap['chr'] = new OpInfo(NodeType.INT_TYPE, NodeType.CHAR_TYPE);
-_unOpMap['len'] = new OpInfo((t) => SemanticUtil.isType(t, NodeType.STRING_TYPE) || t instanceof NodeType.ArrayTypeNode, NodeType.INT_TYPE);
+_unOpMap['len'] = new OpInfo((t, t2) => 
+	SemanticUtil.isType(t, NodeType.STRING_TYPE)
+	|| t instanceof NodeType.ArrayTypeNode, NodeType.INT_TYPE);
 
 export var unOpMap = _unOpMap;
 
@@ -46,4 +48,3 @@ _binOpMap['&&'] = new OpInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
 _binOpMap['||'] = new OpInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
 
 export var binOpMap = _binOpMap;
-

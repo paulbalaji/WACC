@@ -1,4 +1,4 @@
-import Const = require('./Constants');
+import constants = require('./constants');
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
 import Error = require("./WACCError");
@@ -312,12 +312,12 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitIntLiterNode(node: NodeType.IntLiterNode): void {
         node.type = NodeType.INT_TYPE;
 
-        if (node.num > Const.WACC_MAX_INT) {
+        if (node.num > constants.WACC_MAX_INT) {
             throw new Error.SyntaxError('Int literal "' + node.num + '" exceeds max int.'
                                          , node.errorLocation);
         }
 
-        if (node.num < Const.WACC_MIN_INT) {
+        if (node.num < constants.WACC_MIN_INT) {
             throw new Error.SyntaxError('Int literal "'+ node.num + '" is smaller than min int.'
                                          , node.errorLocation);
         }
