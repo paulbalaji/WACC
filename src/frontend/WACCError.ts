@@ -71,7 +71,6 @@ export class SemanticError extends Error {
     constructor(message: string, location: ErrorLocation) {
         super();
         this.name = 'Semantic Error';
-        console.log(location);
         this.location = location;
         this.message = message;
         this.code = constants.SEMANTIC_ERROR_CODE;
