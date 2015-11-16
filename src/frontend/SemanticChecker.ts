@@ -439,7 +439,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = NodeType.BOOL_TYPE;
     }
 
-
     visitSkipNode(node: NodeType.SkipNode): void { }
     visitPairTypeNode(node: NodeType.PairTypeNode): void { }
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): void { }
