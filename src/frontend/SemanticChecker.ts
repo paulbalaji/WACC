@@ -8,13 +8,11 @@ import OperatorInfo = require('./OperatorInfo');
 var _ = require('underscore');
 
 export class SemanticVisitor implements NodeType.Visitor {
-    errors: any[];
 
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
     constructor() {
-        this.errors = [];
 
         // Creating functions symbol table
         this.functionST = new SemanticUtil.SymbolTable(null);
@@ -440,7 +438,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
         node.type = NodeType.BOOL_TYPE;
     }
-
 
     visitSkipNode(node: NodeType.SkipNode): void { }
     visitPairTypeNode(node: NodeType.PairTypeNode): void { }

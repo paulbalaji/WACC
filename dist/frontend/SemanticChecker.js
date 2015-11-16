@@ -7,7 +7,6 @@ var OperatorInfo = require('./OperatorInfo');
 var _ = require('underscore');
 var SemanticVisitor = (function () {
     function SemanticVisitor() {
-        this.errors = [];
         // Creating functions symbol table
         this.functionST = new SemanticUtil.SymbolTable(null);
         // Creating the root symbol table
