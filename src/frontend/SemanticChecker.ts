@@ -132,7 +132,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw new Error.SemanticError('Invalid while loop condition.  '
                                          +'Expecting: ' + 'BOOL'                   + ', '
                                          +'Actual: '    +  node.predicateExpr.type + '.'
-                                         , node.predicateExpr.errorLocation); 
+                                         , node.predicateExpr.errorLocation);
         }
 
         this.enterNewScope();
@@ -140,43 +140,37 @@ export class SemanticVisitor implements NodeType.Visitor {
         this.switchToParentScope();
     }
 
-
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): void {
         // Visit all expressions
         SemanticUtil.visitNodeList(node.exprList, this);
 
-        if (_.isEmpty(node.exprList)) { // The case that the list is empty
-            // Nothing more to check, just fill in the node type as null
+        if (_.isEmpty(node.exprList)) { 
+            // The case that the list is empty            
             node.type = NodeType.EMPTY_ARRAY_TYPE;        
-        } else { // The case that the list is not empty
+        } else { 
+            // The case that the list is not empty
+            
             // Check that all expressions are of the same type
             var type = node.exprList[0].type;
-            // Check that all types are equal to type
 
             // mismatchedTypes is a list of types which do not match the first one in the list
             var mismatchedTypes = _.filter(node.exprList, (expr) => !SemanticUtil.isType(type, expr.type));
 
+            // check if all are same type
             if (!_.isEmpty(mismatchedTypes)) {
-                // TODO:
-                //var message = 'Deary deary me.  In an array literal all expressions must be of the same type';
-                //var location = ?????????? call first exprnode from mispatched types
-                //var error = throw new Error.SemanticError(message, location);
-                //throw error.toString();
                 throw new Error.SemanticError('Array Literal types must all be the same.'
                                              , node.errorLocation);
-
             }
 
             if (node.exprList[0].type instanceof NodeType.ArrayTypeNode) {
+                // consider if it's a nested array
                 var n: any = node.exprList[0].type;
                 node.type = new NodeType.ArrayTypeNode(n.type, n.depth + 1);
-
             } else {
+                // not nested array
                 node.type = new NodeType.ArrayTypeNode(node.exprList[0].type, 1);
             }
-
         }
-
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): void {
@@ -199,17 +193,13 @@ export class SemanticVisitor implements NodeType.Visitor {
                 throw new Error.SemanticError('Free statement must be given an array type or pair type.'
                                              , node.expr.errorLocation);
             }
-
         } else {
             throw new Error.SemanticError('Free statement must be given a variable.'
                                          , node.expr.errorLocation);
-
         }
-
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): void {
-
         node.type.visit(this);
         node.rhs.visit(this);
 
@@ -224,11 +214,6 @@ export class SemanticVisitor implements NodeType.Visitor {
          If it is a list of empty expressions, then it is the responsibility of declare node to fill
          in the type. 
          This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
-
-          If you have enjoyed my essay then please leave me a mark out of 10 in the fields below:
-          Jan:
-          Andrea:
-          Paul: MAX_INT + 1 ;)
         */
         
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
@@ -238,7 +223,6 @@ export class SemanticVisitor implements NodeType.Visitor {
             }
         }
 
-
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw new Error.SemanticError('Declaration expression must be of correct type.  '
                                          +'Expecting: ' + node.type     + ', ' 
@@ -247,26 +231,40 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         this.currentST.insert(node.ident, {type: node.type, node: node});
-
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): void {
         SemanticUtil.visitNodeList(node.exprList, this);
         node.ident.visit(this);
+
         // Check if every index is an integer
         if (!_.every(node.exprList, (exprNode: NodeType.ExprNode) => SemanticUtil.isType(exprNode.type, NodeType.INT_TYPE))) {
-
             throw new Error.SemanticError('Array index must be of type INT.'
                                          , node.exprList[0].errorLocation);
         }
 
         var res = this.currentST.lookupAll(node.ident);
 
-
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
             throw new Error.SemanticError('Cannot access index of a non array type variable "' + node.ident + '".'
                                          , node.type.errorLocation);            
         }
+
+        /*
+            can be considered as:
+                res.type.depth - node.exprList.length > 0
+
+            The case when we are not accessing the full depth of the array
+            
+            e.g.
+                int[][][] y = ....;
+                y[0] = ....; 
+
+                here y[0] will have same base type as y's base type (ie int)
+                but y[0]'s type's depth will be the (depth of y's type) - (the #indices referred)
+                ie. depth(y) = 3, #indices = 1 (since y[0] only looks at the first nested array)
+                hence y[0]'s type's depth will be 2, as expected
+        */
 
         if (res.type.depth > node.exprList.length) {
             node.type = new NodeType.ArrayTypeNode(res.type.type, res.type.depth - node.exprList.length);
@@ -277,7 +275,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitCallNode(node: NodeType.CallNode): void {
-        // node.ident.visit(this); NO LONGER NEEDED AS node.ident is a function ident, not stored in main symbol table
         SemanticUtil.visitNodeList(node.argList, this);
 
         var res = this.functionST.lookupAll(node.ident);
@@ -288,6 +285,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         var funcNode = res.node;
+
         // Compare arguments
         if (node.argList.length === funcNode.paramList.length) {
             _.forEach(_.zip(node.argList, funcNode.paramList), function (nodes, i) {
@@ -301,10 +299,10 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +'Expecting ' + funcNode.paramList.length + ' arguments ' + ', '
                                          +'given '     + node.argList.length       + ' arguments.'
                                          , node.argList[0].errorLocation);
-            
         }
 
-        node.type = res.type; // Type of call node is return type of the function being called
+        // Type of call node is return type of the function being called
+        node.type = res.type;
     }
 
     visitPairLiterNode(node: NodeType.PairLiterNode): void {
@@ -317,7 +315,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (node.num > Const.WACC_MAX_INT) {
             throw new Error.SyntaxError('Int literal "' + node.num + '" exceeds max int.'
                                          , node.errorLocation);
-
         }
 
         if (node.num < Const.WACC_MIN_INT) {
@@ -353,8 +350,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.expr.visit(this);
     }
     
-    visitPrintNode(node: NodeType.PrintNode):void {
-
+    visitPrintNode(node: NodeType.PrintNode): void {
+        node.expr.visit(this);
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): void {
@@ -368,20 +365,17 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         node.type = OperatorInfo.unOpMap[node.operator].returnType;
-
     }
 
     visitExitNode(node: NodeType.ExitNode): void {
         node.expr.visit(this);
 
         if (!SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
-          
             throw new Error.SemanticError('Exit statement given expression of incorrect type.' 
                                          +'Expecting: ' + 'INT'           + ', ' 
                                          +'Actual: '    +  node.expr.type + '.'
                                          , node.expr.errorLocation);
         }
-        
     }
 
     visitIfNode(node: NodeType.IfNode): void {
@@ -394,10 +388,13 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          , node.predicateExpr.errorLocation);
         }
 
-        this.enterNewScope(); //scope for the true branch
+        // scope for the true branch
+        this.enterNewScope();
         SemanticUtil.visitNodeList(node.trueStatList, this);
-        this.switchToParentScope(); //same parent but
-        this.enterNewScope();       //different scope for the false branch
+        this.switchToParentScope();
+
+        // same parent but different scope for the false branch
+        this.enterNewScope();
         SemanticUtil.visitNodeList(node.falseStatList, this);
         this.switchToParentScope();
     }
@@ -408,23 +405,21 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.ident.visit(this);
         var res = this.currentST.lookupAll(node.ident);
         if (res) {
-
             if (!(res.type instanceof NodeType.PairTypeNode)) {
                 throw new Error.SemanticError('Given variable must be of type pair. '
                                              +'Expecting: '+ 'PAIR'    + ', '
                                              +'Actual: '   +  res.type + '.'
                                              , node.type.errorLocation);
             }
-
         }
 
         if (node.index === 0) {
+            // pair.fst
             node.type = res.type.type1;
         } else {
+            // pair.snd
             node.type = res.type.type2;
         }
-
-
     }
 
     visitNewPairNode(node: NodeType.NewPairNode): void {
@@ -437,7 +432,6 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
         node.type = NodeType.BOOL_TYPE;
-        // There is nothing to check here
     }
 
 
