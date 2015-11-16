@@ -66,7 +66,7 @@ export class SemanticError extends Error {
     constructor(message: string, location: ErrorLocation) {
         super();
         this.name = 'Semantic Error at';
-            + '('
+        this.message = '('
             + location.getLine() + ', '
             + location.getColumn() + ') --'
                      + message;
