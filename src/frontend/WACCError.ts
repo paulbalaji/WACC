@@ -29,7 +29,7 @@ export class ErrorLocation {
         return this.offset;
     }
 }
-export class SyntaxErrror extends Error {
+export class SyntaxError extends Error {
     code: number
     constructor(message: string, location: ErrorLocation) {
         super();

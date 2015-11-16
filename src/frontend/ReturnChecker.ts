@@ -44,7 +44,7 @@ export class ReturnVisitor implements NodeType.Visitor {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
             //NEED TO THROW SYNTAX ERROR HERE
-            throw new Error.SyntaxErrror('Function missing return statement.'
+            throw new Error.SyntaxError('Function missing return statement.'
                                          , node.ident.errorLocation);
         }
         return true;
