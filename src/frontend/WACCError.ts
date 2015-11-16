@@ -1,9 +1,6 @@
-var _ = require('underscore');
-var fileInfo: {filename:String, errorFlag: String};
+import constants = require('./constants');
 
-export function setFileInfo(_fileInfo) {
-    fileInfo = _fileInfo;
-}
+var _ = require('underscore');
 
 export class ErrorLocation {
     private line: number;
@@ -39,22 +36,22 @@ export class SyntaxError extends Error {
                      + location.getColumn() + ') --'
                      + message;
        
-        this.code = 100;
+        this.code = constants.SYNTAX_ERROR_CODE;
     }   
 }
 
 export class ParserSyntaxError extends Error {
     code: number
-    constructor(e) {
+    constructor(pegError) {
         super()
         this.name = 'Syntax Error at';
         this.message = '('
-                     + e.location.start.line + ', '
-                     + e.location.end.line   + ') --mismatched input "'
-                     + e.found + '" expecting one of {'
-                     + _.pluck(e.expected, 'description').join(', ') + '}';
+                     + pegError.location.start.line + ', '
+                     + pegError.location.end.line   + ') --mismatched input "'
+                     + pegError.found + '" expecting one of {'
+                     + _.pluck(pegError.expected, 'description').join(', ') + '}';
     
-        this.code = 100;
+        this.code = constants.SYNTAX_ERROR_CODE;
     }
 }
 
@@ -68,7 +65,6 @@ export class SemanticError extends Error {
                      + location.getLine() + ', '
                      + location.getColumn() + ') --'
                      + message;
-        this.location = location;
-        this.code = 200;
+        this.code = constants.SEMANTIC_ERROR_CODE;
     }
 } 
