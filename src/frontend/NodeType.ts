@@ -6,7 +6,6 @@ export interface Visitable {
     visit(v:Visitor):any;
 }
 
-
 export class TreeNode implements Visitable {
     public errorLocation: Error.ErrorLocation;
 
@@ -60,10 +59,7 @@ export interface Visitable {
     visit(v: Visitor): any;
 }
 
-
-export interface StatNode extends TreeNode {
-
-}
+export interface StatNode extends TreeNode {}
 
 export interface ExprNode extends TreeNode {
     type: TypeNode;
@@ -80,7 +76,6 @@ export interface AssignRHSNode extends TreeNode {
 
 export interface TypeNode extends TreeNode {}
 
-
 export class ProgramNode extends TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
@@ -94,7 +89,6 @@ export class ProgramNode extends TreeNode {
     visit(v: Visitor): any {
         return v.visitProgramNode(this);        
     }
-
 }
 
 export class FuncNode extends TreeNode {
@@ -113,9 +107,7 @@ export class FuncNode extends TreeNode {
     visit(v: Visitor): any {
         return v.visitFuncNode(this);
     }
-
 }
-
 
 export class SkipNode extends TreeNode implements StatNode {
     constructor() {
@@ -139,7 +131,6 @@ export class ReadNode extends TreeNode implements StatNode {
     visit(v: Visitor): any {
         return v.visitReadNode(this);
     }
-
 }
 
 export class PrintlnNode extends TreeNode implements StatNode {
@@ -153,12 +144,9 @@ export class PrintlnNode extends TreeNode implements StatNode {
     visit(v: Visitor): any {
         return v.visitPrintlnNode(this);
     }
-
 }
 
-
-export interface BaseTypeNode extends TreeNode, TypeNode {
-}
+export interface BaseTypeNode extends TreeNode, TypeNode {}
 
 export class IntTypeNode extends TreeNode implements BaseTypeNode {
     constructor() { super(); }
@@ -230,8 +218,6 @@ export class BinOpExprNode extends TreeNode implements ExprNode {
     visit(v: Visitor): any {
         return v.visitBinOpExprNode(this);
     }
-
-
 }
 
 export class StrLiterNode extends TreeNode implements ExprNode {
@@ -262,8 +248,10 @@ export class AssignNode extends TreeNode implements StatNode {
     }
 }
 
-// check lhs ident is declared previously in any of the parent scopes
-// check lhs is the same type as rhs, or can be cast
+/* 
+    Check lhs ident is declared previously in any of the parent scopes
+    check lhs is the same type as rhs, or can be cast
+*/
 
 export class BeginEndBlockNode extends TreeNode implements StatNode {
     statList: [StatNode];

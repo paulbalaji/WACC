@@ -35,7 +35,9 @@
         peg$startRuleFunctions = { Program: peg$parseProgram },
         peg$startRuleFunction  = peg$parseProgram,
 
-        peg$c0 = function(functionList, statList) {return new NodeType.ProgramNode(functionList, statList);},
+        peg$c0 = function(functionList, statList) {
+            return new NodeType.ProgramNode(functionList, statList);
+          },
         peg$c1 = function(type, ident, params, stats) {
             return new NodeType.FuncNode(type, ident, params ? params : [], stats);
           },
@@ -51,7 +53,7 @@
           },
         peg$c5 = function(stat, stats) {
               return generateListFromRecursiveRule(stat, stats);
-            },
+          },
         peg$c6 = function(stat) {
               return generateSingletonListFromRule(stat);
           },
@@ -72,14 +74,13 @@
             return new NodeType.FreeNode(expr);
           },
         peg$c11 = function(expr) {
-            //var node = new NodeType.ExitNode();
-            //node.setErrorLocation(new WACCError.ErrorLocation(location()));
             return new NodeType.ExitNode(expr);
           },
         peg$c12 = function(returnExpr) { 
-            var node = new NodeType.ReturnNode(returnExpr);
-            node.setErrorLocation(new WACCError.ErrorLocation(location()));
-            return node; },
+              var node = new NodeType.ReturnNode(returnExpr);
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              return node;
+          },
         peg$c13 = function(expr) {
             return new NodeType.PrintlnNode(expr); 
           },
@@ -87,63 +88,61 @@
             return new NodeType.PrintNode(expr);
           },
         peg$c15 = function(predicate, trueStats, falseStats) {
-                                  return new NodeType.IfNode(predicate, trueStats, falseStats)
+                                  return new NodeType.IfNode(predicate, trueStats, falseStats);
           },
-        peg$c16 = function(predicateExpr, loopBody) { return new NodeType.WhileNode(predicateExpr, loopBody); },
+        peg$c16 = function(predicateExpr, loopBody) { 
+            return new NodeType.WhileNode(predicateExpr, loopBody);
+          },
         peg$c17 = function(lhs, rhs) {
             return new NodeType.AssignNode(lhs,rhs);
-
           },
         peg$c18 = function(type, ident, rhs) {
             return new NodeType.DeclareNode(type, ident, rhs);
           },
         peg$c19 = function(expr) { return expr; },
         peg$c20 = function() { 
-            //var errorLocation = new WACCError.ErrorLocation(location());
-            var node = new NodeType.IntTypeNode();
-            node.setErrorLocation(new WACCError.ErrorLocation(location()));
-            return node;
+              var node = new NodeType.IntTypeNode();
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              return node;
           },
         peg$c21 = function() { 
-            //var errorLocation = new WACCError.ErrorLocation(location());
-            var node = new NodeType.BoolTypeNode();
-            node.setErrorLocation(new WACCError.ErrorLocation(location()));
-            return node;
-            },
+              var node = new NodeType.BoolTypeNode();
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              return node;
+          },
         peg$c22 = function() { 
-            //var errorLocation = new WACCError.ErrorLocation(location());
-            var node = new NodeType.CharTypeNode();
-            node.setErrorLocation(new WACCError.ErrorLocation(location()));
-            return node;
-            },
+              var node = new NodeType.CharTypeNode();
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              return node;
+          },
         peg$c23 = function() { 
-            var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
-            node.setErrorLocation(new WACCError.ErrorLocation(location()));
+              var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
+              node.setErrorLocation(new WACCError.ErrorLocation(location()));
             return node;
           },
         peg$c24 = function(type, array) {
-            if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
-                return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
-            }
-            return new NodeType.ArrayTypeNode(type, array.length);
-
+              if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
+                  return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+              }
+              return new NodeType.ArrayTypeNode(type, array.length);
           },
-        peg$c25 = function(type1, type2) { return new NodeType.PairTypeNode(type1, type2); },
+        peg$c25 = function(type1, type2) {
+              return new NodeType.PairTypeNode(type1, type2);
+          },
         peg$c26 = function() {
             return NodeType.NULL_TYPE;
           },
-        peg$c27 = function(ahoj) {
-            if (ahoj) {
-              ahoj.setErrorLocation(new WACCError.ErrorLocation(location()));
+        peg$c27 = function(lhs) {
+            if (lhs) {
+              lhs.setErrorLocation(new WACCError.ErrorLocation(location()));
             }
-            return ahoj;
-
+            return lhs;
           },
         peg$c28 = function(ident, exprList) {
               var node = new NodeType.CallNode(ident, exprList ? exprList : []);
               node.setErrorLocation(new WACCError.ErrorLocation(location()));
               return node;
-            },
+          },
         peg$c29 = function(fstExpr, sndExpr) {
               var node = new NodeType.NewPairNode(fstExpr, sndExpr);
               node.setErrorLocation(new WACCError.ErrorLocation(location()));
@@ -156,14 +155,16 @@
           },
         peg$c31 = function(expr, exprs) {
               return generateListFromRecursiveRule(expr, exprs);
-            },
+          },
         peg$c32 = function(expr) {
               return generateSingletonListFromRule(expr);
-            },
+          },
         peg$c33 = function(ident) {
             return new NodeType.PairElemNode(ident, 0);
           },
-        peg$c34 = function(ident) {return new NodeType.PairElemNode(ident, 1);},
+        peg$c34 = function(ident) {
+            return new NodeType.PairElemNode(ident, 1);
+          },
         peg$c35 = function(head, tail) { 
             return buildBinaryExpTree(head, tail)
           },
@@ -171,7 +172,6 @@
             var node = buildBinaryExpTree(head,tail);
             node.setErrorLocation(new WACCError.ErrorLocation(location()));
             return node;
-            //return buildBinaryExpTree(head, tail)
           },
         peg$c37 = function(unOp, expr) { return new NodeType.UnOpNode(unOp, expr); },
         peg$c38 = "!",
@@ -223,11 +223,12 @@
           var node = new NodeType.BoolLiterNode(true);
           node.setErrorLocation(new WACCError.ErrorLocation(location()));
           return node;
-            },
+          },
         peg$c66 = function() { 
             var node = new NodeType.BoolLiterNode(false);
-          node.setErrorLocation(new WACCError.ErrorLocation(location()));
-          return node;},
+            node.setErrorLocation(new WACCError.ErrorLocation(location()));
+            return node;
+          },
         peg$c67 = "'",
         peg$c68 = { type: "literal", value: "'", description: "\"'\"" },
         peg$c69 = function(ch) {
@@ -4047,7 +4048,7 @@
 
       //var util = require('util');
       var _ = require('underscore');
-    var util= require('util');
+      var util= require('util');
       
       function generateListFromRecursiveRule(head, tail) {
         if (head !== null) {
@@ -4055,6 +4056,7 @@
         }
         return tail;
       }
+
       function generateSingletonListFromRule(elem) {
         if (elem === null) {
           return [];
@@ -4075,18 +4077,13 @@
           var result = tail[tail.length - 1][1];
           // Iterate backwards through list (left associativity)
           for (var i = tail.length - 2; i >= 0; i--) {
-           
             result = new NodeType.BinOpExprNode(tail[i][1], result, tail[i+1][0]);
-
           }
           // Stick the head and first operand as root
           var node = new NodeType.BinOpExprNode(head, result, tail[0][0]);
           node.setErrorLocation(new WACCError.ErrorLocation(location()));
           return node;
       }
-
-
-
 
 
     peg$result = peg$startRuleFunction();

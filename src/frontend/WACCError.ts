@@ -1,6 +1,5 @@
 var _ = require('underscore');
-
-var fileInfo:{filename:String, errorFlag: String};
+var fileInfo: {filename:String, errorFlag: String};
 
 export function setFileInfo(_fileInfo) {
     fileInfo = _fileInfo;
@@ -29,25 +28,36 @@ export class ErrorLocation {
         return this.offset;
     }
 }
-
-export class SyntaxError extends Error{
-    e;
-    code;
-
-    constructor(e) {
+export class SyntaxError extends Error {
+    code: number
+    constructor(message: string, location: ErrorLocation) {
         super();
+        this.name = 'Syntax Error at';
+        this.message = '('
+                     + location.getLine() + ', '
+                     + location.getColumn() + ') --'
+                     + message;
+       
+        this.code = 100;
+    }   
+}
+
+export class ParserSyntaxError extends Error {
+    code: number
+    constructor(e) {
+        super()
         this.name = 'Syntax Error at';
         this.message = '('
                      + e.location.start.line + ', '
                      + e.location.end.line   + ') --mismatched input "'
                      + e.found + '" expecting one of {'
                      + _.pluck(e.expected, 'description').join(', ') + '}';
-        this.e = e;
+    
         this.code = 100;
     }
 }
 
-export class SemanticError extends Error{
+export class SemanticError extends Error {
     public message: string;
     public location: ErrorLocation;
     code: number
