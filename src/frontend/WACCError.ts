@@ -29,37 +29,33 @@ export class ErrorLocation {
         return this.offset;
     }
 }
-export class ReturnSyntaxErrror extends Error {
-    public message: string;
-    public location: ErrorLocation;
+export class SyntaxErrror extends Error {
     code: number
-
     constructor(message: string, location: ErrorLocation) {
         super();
-        this.name = 'Return Error at';
+        this.name = 'Syntax Error at';
         this.message = '('
                      + location.getLine() + ', '
                      + location.getColumn() + ') --'
                      + message;
-        this.location = location;
+       
         this.code = 100;
     }
     
 }
 
-export class SyntaxError extends Error {
-    e;
-    code;
+export class ParserSyntaxError extends Error {
 
+    code: number
     constructor(e) {
-        super();
+        super()
         this.name = 'Syntax Error at';
         this.message = '('
                      + e.location.start.line + ', '
                      + e.location.end.line   + ') --mismatched input "'
                      + e.found + '" expecting one of {'
                      + _.pluck(e.expected, 'description').join(', ') + '}';
-        this.e = e;
+    
         this.code = 100;
     }
 }

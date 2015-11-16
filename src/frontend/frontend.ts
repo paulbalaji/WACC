@@ -15,7 +15,7 @@ export function parse(programStr) {
             try {
                 var ast: NodeType.Visitable = parser.parse(programStr);
             } catch (e) { 
-                throw new WACCError.SyntaxError(e);
+                throw new WACCError.ParserSyntaxError(e);
             }
             
             return ast;

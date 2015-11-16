@@ -44,7 +44,7 @@ export class ReturnVisitor implements NodeType.Visitor {
         this.expectedReturnType = node.type;
         if (!_.some(_.map(node.statList, (statNode: NodeType.Visitable) => statNode.visit(this)))) {
             //NEED TO THROW SYNTAX ERROR HERE
-            throw new Error.ReturnSyntaxErrror('Function missing return statement.'
+            throw new Error.SyntaxErrror('Function missing return statement.'
                                          , node.ident.errorLocation);
         }
         return true;
@@ -90,7 +90,6 @@ export class ReturnVisitor implements NodeType.Visitor {
     // There is no general guarantee that while loop is entered at runtime,
     // so even if it contains a return statement, we do not consider it.
     visitWhileNode(node: NodeType.WhileNode): boolean { return false; }
-    
     visitIntTypeNode(node: NodeType.IntTypeNode): boolean { return false; }
     visitBoolTypeNode(node: NodeType.BoolTypeNode): boolean { return false; }
     visitCharTypeNode(node: NodeType.CharTypeNode): boolean { return false; }
