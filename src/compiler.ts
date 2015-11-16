@@ -1,5 +1,7 @@
 import frontend = require('./frontend/frontend');
 import NodeType = require('./frontend/NodeType');
+var colors = require('colors');
+
 var fs = require('fs');
 
 var filename : string = process.argv[2];
@@ -23,6 +25,6 @@ process.on('uncaughtException', function (err) {
     throw err;
   }
 
-  console.log(err.name + ': ' + err.message);
+  console.log(err.name.bold.underline.red + ': ' + err.message.cyan);
   process.exit(err.code);
 });
