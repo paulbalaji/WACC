@@ -9,7 +9,6 @@ pre-build:
 
 compiler: frontend
 	@$(TSC) $(TSC_FLAGS) src/compiler.ts --outDir dist
-	
 
 frontend: dist/frontend/grammar/grammar.js
 	@echo "Compiling front end..."

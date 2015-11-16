@@ -1,6 +1,5 @@
 var _ = require('underscore');
-
-var fileInfo:{filename:String, errorFlag: String};
+var fileInfo: {filename:String, errorFlag: String};
 
 export function setFileInfo(_fileInfo) {
     fileInfo = _fileInfo;
@@ -40,12 +39,10 @@ export class SyntaxError extends Error {
                      + message;
        
         this.code = 100;
-    }
-    
+    }   
 }
 
 export class ParserSyntaxError extends Error {
-
     code: number
     constructor(e) {
         super()
@@ -59,8 +56,6 @@ export class ParserSyntaxError extends Error {
         this.code = 100;
     }
 }
-
-
 
 export class SemanticError extends Error {
     public message: string;
