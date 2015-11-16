@@ -3,7 +3,7 @@
 
   //var util = require('util');
   var _ = require('underscore');
-var util= require('util');
+  var util= require('util');
   
   function generateListFromRecursiveRule(head, tail) {
     if (head !== null) {
@@ -11,6 +11,7 @@ var util= require('util');
     }
     return tail;
   }
+
   function generateSingletonListFromRule(elem) {
     if (elem === null) {
       return [];
@@ -31,22 +32,19 @@ var util= require('util');
       var result = tail[tail.length - 1][1];
       // Iterate backwards through list (left associativity)
       for (var i = tail.length - 2; i >= 0; i--) {
-       
         result = new NodeType.BinOpExprNode(tail[i][1], result, tail[i+1][0]);
-
       }
       // Stick the head and first operand as root
       var node = new NodeType.BinOpExprNode(head, result, tail[0][0]);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
-
-
-
 }
 
 Program
-  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {return new NodeType.ProgramNode(functionList, statList);}
+  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {
+    return new NodeType.ProgramNode(functionList, statList);
+  }
 
 Func
   = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
@@ -71,7 +69,7 @@ Param
 StatList
   = stat: Stat __ SEMICOLON __ stats: StatList {
       return generateListFromRecursiveRule(stat, stats);
-    }  
+  }  
   / stat:Stat {
       return generateSingletonListFromRule(stat);
   }
@@ -94,14 +92,13 @@ Stat
     return new NodeType.FreeNode(expr);
   }
   / EXIT _ expr:Expr {
-    //var node = new NodeType.ExitNode();
-    //node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return new NodeType.ExitNode(expr);
   }
   / RETURN _ returnExpr:Expr { 
-    var node = new NodeType.ReturnNode(returnExpr);
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node; }
+      var node = new NodeType.ReturnNode(returnExpr);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
+  }
   / PRINTLN _ expr:Expr {
     return new NodeType.PrintlnNode(expr); 
   }
@@ -109,13 +106,14 @@ Stat
     return new NodeType.PrintNode(expr);
   }
   / IF predicate:Predicate THEN _ trueStats:StatList
-                        __ ELSE _ falseStats:StatList __ FI {
-                          return new NodeType.IfNode(predicate, trueStats, falseStats)
+                        __ ELSE _ falseStats:StatList __ FI{
+                          return new NodeType.IfNode(predicate, trueStats, falseStats);
   }
-  / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { return new NodeType.WhileNode(predicateExpr, loopBody); }
+  / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { 
+    return new NodeType.WhileNode(predicateExpr, loopBody);
+  }
   / lhs:AssignLHS __ EQUALS __ rhs:AssignRHS {
     return new NodeType.AssignNode(lhs,rhs);
-
   }
   / type:Type _ ident:Ident __ EQUALS __ rhs:AssignRHS {
     return new NodeType.DeclareNode(type, ident, rhs);
@@ -124,7 +122,7 @@ Stat
 /* Predicate */
 Predicate
   = LEFT_PAREN __ expr:Expr __ RIGHT_PAREN  { return expr; }
-  / _ expr:Expr __ { return expr; } /* Broken, ask Mark */
+  / _ expr:Expr __ { return expr; }
 
 /* Type */
 Type
@@ -134,39 +132,37 @@ Type
 
 BaseType
   = INT { 
-    //var errorLocation = new WACCError.ErrorLocation(location());
-    var node = new NodeType.IntTypeNode();
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
+      var node = new NodeType.IntTypeNode();
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
   }
   / BOOL { 
-    //var errorLocation = new WACCError.ErrorLocation(location());
-    var node = new NodeType.BoolTypeNode();
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
-    }
+      var node = new NodeType.BoolTypeNode();
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
+  }
   / CHAR { 
-    //var errorLocation = new WACCError.ErrorLocation(location());
-    var node = new NodeType.CharTypeNode();
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
-    }
+      var node = new NodeType.CharTypeNode();
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
+  }
   / STRING { 
-    var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
   }
 
 ArrayType
   = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
-    if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
-        return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
-    }
-    return new NodeType.ArrayTypeNode(type, array.length);
-
+      if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
+          return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+      }
+      return new NodeType.ArrayTypeNode(type, array.length);
   }
 PairType
-  = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN { return new NodeType.PairTypeNode(type1, type2); }
+  = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN {
+      return new NodeType.PairTypeNode(type1, type2);
+  }
 
 PairElemType
   = (ArrayType 
@@ -177,25 +173,24 @@ PairElemType
 
 /* AssignLHS */
 AssignLHS
-  = ahoj:(ArrayElem
+  = lhs:(ArrayElem
   / PairElem
   / &BaseType /* This line is here so that an BaseTypes are NOT recognised as Idents */
   / Ident) {
-    if (ahoj) {
-      ahoj.setErrorLocation(new WACCError.ErrorLocation(location()));
+    if (lhs) {
+      lhs.setErrorLocation(new WACCError.ErrorLocation(location()));
     }
-    return ahoj;
-
+    return lhs;
   }
 
 /* AssignRHS */
 AssignRHS
   = 
-   CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
+    CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
       var node = new NodeType.CallNode(ident, exprList ? exprList : []);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
-    }
+  }
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
       var node = new NodeType.NewPairNode(fstExpr, sndExpr);
@@ -217,10 +212,10 @@ ArrayLiter
 ExprList
   = expr:Expr __ COMMA __ exprs:ExprList {
       return generateListFromRecursiveRule(expr, exprs);
-    }
+  }
   / expr:Expr {
       return generateSingletonListFromRule(expr);
-    }
+  }
 
 
 /* PairElem */
@@ -228,7 +223,9 @@ PairElem
   = FST __ ident:Ident {
     return new NodeType.PairElemNode(ident, 0);
   }
-  / SND __ ident:Ident {return new NodeType.PairElemNode(ident, 1);}
+  / SND __ ident:Ident {
+    return new NodeType.PairElemNode(ident, 1);
+  }
 
 /* Expr */
 Expr
@@ -241,7 +238,6 @@ AndExpr
     var node = buildBinaryExpTree(head,tail);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
-    //return buildBinaryExpTree(head, tail)
   }
 
 EqualsExpr
@@ -355,11 +351,12 @@ BoolLiter
   var node = new NodeType.BoolLiterNode(true);
   node.setErrorLocation(new WACCError.ErrorLocation(location()));
   return node;
-    }
+  }
   / FALSE { 
     var node = new NodeType.BoolLiterNode(false);
-  node.setErrorLocation(new WACCError.ErrorLocation(location()));
-  return node;}
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
 
 /* CharLiter */
 CharLiter
@@ -385,7 +382,6 @@ EscapedChar
   = '0' / 'b' / 't' / 'n' / 'f' / 'r' / '"' / "'" / '\\'
 
 /* Utils */
-
 _
   = (WhiteSpace / LineTerminatorSequence / Comment)+ { return null; }
 
@@ -412,6 +408,8 @@ Comment
 
 SourceCharacter
   = .
+
+/* TOKENS */
 
 IS     = 'is'
 RETURN = 'return'

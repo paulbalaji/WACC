@@ -3,7 +3,7 @@ import NodeType = require('./frontend/NodeType');
 var fs = require('fs');
 
 var filename : string = process.argv[2];
-var errorFlag :  string = 'error';
+var errorFlag : string = 'error';
 var verbose : string  = 'yes';
 
 export function compileStr(programStr) {
@@ -18,10 +18,8 @@ export function compile(filename) {
   });
 }
 
-
 process.on('uncaughtException', function (err) {
   if (!err.code) { 
-
     console.log(filename);
     console.log('Unknown exception occured.');
     throw err;
@@ -34,4 +32,3 @@ process.on('uncaughtException', function (err) {
 
   process.exit(err.code);
 });
-

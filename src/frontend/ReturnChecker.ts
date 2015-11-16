@@ -1,6 +1,7 @@
 import NodeType = require('./NodeType');
 import SemanticUtil = require('./SemanticUtil');
 import Error = require("./WACCError");
+
 var _ = require('underscore');
 
 export class ReturnVisitor implements NodeType.Visitor {
@@ -15,14 +16,15 @@ export class ReturnVisitor implements NodeType.Visitor {
          return true;
     }
 
-    // Return node must be of the right type. If expectedReturnType is not set, we are
-    // are in global scope and visitor throws an error. Otherwise it checks if the 
-    // expected and actual types match.
+    /* 
+        Return node must be of the right type. If expectedReturnType is not set, we are
+        are in global scope and visitor throws an error. Otherwise it checks if the 
+        expected and actual types match.
+    */
     visitReturnNode(node: NodeType.ReturnNode): boolean { 
         if (this.expectedReturnType === null) {
             throw new Error.SemanticError('Attempted return from global scope.'
                                          , node.errorLocation);
-        
         }
         if (!SemanticUtil.isType(node.returnExpr.type, this.expectedReturnType)) {
             throw new Error.SemanticError('Incorrect return type. '
@@ -33,8 +35,10 @@ export class ReturnVisitor implements NodeType.Visitor {
         return true;
     }
 
-    // BeginEnd block can be an ancestor of valid return statement, so we need to check
-    // all its children.
+    /* 
+        BeginEnd block can be an ancestor of valid return statement, so we need to check
+        all its children.
+    */
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): boolean {
         return _.some(SemanticUtil.visitNodeList(node.statList, this));
     }
@@ -61,8 +65,11 @@ export class ReturnVisitor implements NodeType.Visitor {
     // Exit node acts as return.
     visitExitNode(node: NodeType.ExitNode): boolean { return true; }    
 
-    // Implementation of other Node visit functions that by nature of the node
-    // do not return nor they can be an valid ancestor of a return node.
+    /*
+        Implementation of other Node visit functions that 
+        do not return nor they can be an valid ancestor of
+        a return node.
+    */
     visitBinOpExprNode(node: NodeType.BinOpExprNode): boolean { return false; }
     visitStrLiterNode(node: NodeType.StrLiterNode): boolean { return false; }
     visitAssignNode(node: NodeType.AssignNode): boolean { return false; }
@@ -87,8 +94,10 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitBoolLiterNode(node: NodeType.BoolLiterNode): boolean { return false; }
     visitPairElemNode(node: NodeType.PairElemNode): boolean { return false; }
 
-    // There is no general guarantee that while loop is entered at runtime,
-    // so even if it contains a return statement, we do not consider it.
+    /* 
+        There is no general guarantee that while loop is entered at runtime,
+        so even if it contains a return statement, we do not consider it.
+    */
     visitWhileNode(node: NodeType.WhileNode): boolean { return false; }
     visitIntTypeNode(node: NodeType.IntTypeNode): boolean { return false; }
     visitBoolTypeNode(node: NodeType.BoolTypeNode): boolean { return false; }
