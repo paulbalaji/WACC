@@ -3,8 +3,7 @@
 #ignore typescript related stuff
 dist/*.js
 dist/grammar/*.js
-
-*.wacc
+input.wacc
 grammar/grammar.ts
 
 #ignore temp files
