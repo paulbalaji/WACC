@@ -6,6 +6,7 @@ dist/frontend/*.js
 dist/grammar/*.js
 input.wacc
 grammar/grammar.ts
+src/frontend/grammar/grammar.ts
 
 #ignore temp files
 *~
