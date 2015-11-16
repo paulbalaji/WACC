@@ -29,8 +29,25 @@ export class ErrorLocation {
         return this.offset;
     }
 }
+export class ReturnSyntaxErrror extends Error {
+    public message: string;
+    public location: ErrorLocation;
+    code: number
 
-export class SyntaxError extends Error{
+    constructor(message: string, location: ErrorLocation) {
+        super();
+        this.name = 'Return Error at';
+        this.message = '('
+                     + location.getLine() + ', '
+                     + location.getColumn() + ') --'
+                     + message;
+        this.location = location;
+        this.code = 100;
+    }
+    
+}
+
+export class SyntaxError extends Error {
     e;
     code;
 
@@ -47,7 +64,9 @@ export class SyntaxError extends Error{
     }
 }
 
-export class SemanticError extends Error{
+
+
+export class SemanticError extends Error {
     public message: string;
     public location: ErrorLocation;
     code: number
