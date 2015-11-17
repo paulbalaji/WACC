@@ -87,7 +87,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // MID: Left type is correct, check that the rhs type is the same
         if (!SemanticUtil.isType(node.leftOperand.type, node.rightOperand.type)) {
             throw new Error.SemanticError('Right operand of "' + node.operator + '" must be of the correct type.'
-                                         , node.leftOperand.errorLocation);
+                                         , node.rightOperand.errorLocation);
         }
 
         node.type = opInfo.returnType;
