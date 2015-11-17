@@ -24,6 +24,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
         this.currentST = newCurrentST;
     }
+    
     enterNewScope(): void {
         this.setCurrentScope(new SemanticUtil.SymbolTable(this.currentST));
     }

@@ -1,10 +1,8 @@
 {
-  //import ErrorClasses = require('./ErrorClasses');
-
-  //var util = require('util');
   var _ = require('underscore');
-  var util= require('util');
-  
+
+  // Functions generating list from recursive rules. It is used for
+  // param lists, expr list and statlist
   function generateListFromRecursiveRule(head, tail) {
     if (head !== null) {
       tail.unshift(head);
@@ -13,20 +11,22 @@
   }
 
   function generateSingletonListFromRule(elem) {
+
     if (elem === null) {
       return [];
     }
     return [elem];
   }
 
+  // Generates a binary Exp tree respecting the precendence of operators.
   function buildBinaryExpTree(head, tail) {
+      // 
       if (tail.length == 0) {
         head.setErrorLocation(new WACCError.ErrorLocation(location()));
         return head
       }
+       // Filter out all nulls corresponding to whitespace
       tail = _.map(tail, (row) => _.filter(row, (elem) => elem))
-      // Filter out all nulls corresponding to whitespace
-      
 
       // Set last element as a right most element
       var result = tail[tail.length - 1][1];
@@ -235,9 +235,7 @@ Expr
 
 AndExpr
   = head:EqualsExpr tail:(__ DOUBLE_AMP __ EqualsExpr)* { 
-    var node = buildBinaryExpTree(head,tail);
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
+    return buildBinaryExpTree(head,tail);;
   }
 
 EqualsExpr

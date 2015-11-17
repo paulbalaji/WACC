@@ -1,4 +1,4 @@
-PEGJS = ./node_modules/pegjs/bin/pegjs
+PEGJS = ./node_modules/pegjs/bin/pegjs 
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
@@ -22,7 +22,7 @@ src/frontend/grammar/grammar.ts: src/frontend/grammar/grammar.pegjs
 	@echo "Compiling Grammar to TypeScript"
 	@$(PEGJS) src/frontend/grammar/grammar.pegjs src/frontend/grammar/grammar.ts
 
-test: Parser
+test: compiler
 	python ./runTests.py
 
 preview: compiler
