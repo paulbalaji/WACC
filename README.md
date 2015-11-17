@@ -29,6 +29,7 @@ And of course our compiler itself is available within a private repository on Gi
 
 ### Installation and Usage
 
+#### Installation
 First clone the repo as below:
 
 ```sh
@@ -37,6 +38,7 @@ $ git clone https://gitlab.doc.ic.ac.uk/lab1516_autumn/wacc_33.git
 
 Ensure you have Node.js installed before proceeding to usage. [See here.]
 
+#### Usage
 
 ```sh
 # Make the complete compiler
