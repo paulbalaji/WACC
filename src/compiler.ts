@@ -7,14 +7,19 @@ var fs = require('fs');
 var filename : string = process.argv[2];
 var silence: string = process.argv[3];
 
-export function compileStr(programStr) {
+function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
-	return frontend.semanticCheck(ast);
+	frontend.semanticCheck(ast);
 }
 
 export function compile(filename) {
   fs.readFile(filename, 'utf8', function (err, programStr) {
-    if (err) { throw err; }
+    if (err) { 
+      err.code = 1;     
+      err.message = 'File ' + filename + ' not found.';
+      err.name = 'IO error';
+      throw err;
+    }
     compileStr(programStr);
   });
 }
