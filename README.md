@@ -4,7 +4,7 @@ WACC Compiler is a compiler for the WACC language.
   - Currently only Front End
   - Back End to be done in the coming weeks
 
-### Todos
+### TODO:
  - Write Back End Tests
  - Write Back End
  - Discuss and Implement Cool Extension
@@ -21,70 +21,66 @@ Our compiler uses a number of open source projects to work properly:
 
 Because we are using Node.js, we required some additional node modules:
 * [PEG.js] - parser generator for JavaScript
-* [colors]
-* [node-dir]
-* [spell]
-* [underscore]
+* [colors] - to throw colourful error messages
+* [spell] - for suggesting variable or function names where none can be found
+* [underscore] - JavaScript library for functional programming helpers
 
 And of course our compiler itself is available within a private repository on GitLab.
 
-### Installation
+### Installation and Usage
 
-You need Gulp installed globally:
+First clone the repo as below:
 
 ```sh
-$ npm i -g gulp
+$ git clone https://gitlab.doc.ic.ac.uk/lab1516_autumn/wacc_33.git
+```
+
+Ensure you have Node.js installed before proceeding to usage. [See here.]
+
+
+```sh
+# Make the complete compiler
+$ make compiler
 ```
 
 ```sh
-$ git clone [git-repo-url] dillinger
-$ cd dillinger
-$ npm i -d
-$ mkdir -p downloads/files/{md,html,pdf}
-$ gulp build --prod
-$ NODE_ENV=production node app
+# Rebuilding just the frontend (if changed since previous make)
+$ make frontend
 ```
 
-### Plugins
+```sh
+# Run the local testing suite
+$ make test
+```
 
-Dillinger is currently extended with the following plugins
+```sh
+# the file input.wacc in the root folder
+$ make preview
+```
 
-* Dropbox
-* Github
-* Google Drive
-* OneDrive
+```sh
+# Removes all generated files
+$ make clean
+```
 
-Readmes, how to use them in your own application can be found here:
-
-* [plugins/dropbox/README.md] [PlDb]
-* [plugins/github/README.md] [PlGh]
-* [plugins/googledrive/README.md] [PlGd]
-* [plugins/onedrive/README.md] [PlOd]
+```sh
+# Removes all generated files and then makes the compiler afresh
+$ make rebuild
+```
 
 ### Development
 
-Want to contribute? Great!
+#### Developers
+* Sam Wood
+* Jan Matas
+* Andrea Janoscikova
+* Paul Balaji
 
-Dillinger uses Gulp + Webpack for fast developing.
-Make a change in your file and instantanously see your updates!
+#### Contribute
 
-Open your favorite Terminal and run these commands.
+Want to contribute? Too bad! This is a second year group project that only we're meant to contribute to!
 
-First Tab:
-```sh
-$ node app
-```
-
-Second Tab:
-```sh
-$ gulp watch
-```
-
-(optional) Third:
-```sh
-$ karma start
-```
-
+However, feel free to donate pizza!
 
 
 
@@ -96,10 +92,7 @@ $ karma start
    [PEG.js]: <http://pegjs.org/>
    [node.js]: <https://nodejs.org/en/>
    [Python]: <https://www.python.org>
-   [colors]: <>
-   [node-dir]: <>
-   [spell]: <>
-   [underscore]: <>
-
-
-
+   [colors]: <https://github.com/marak/colors.js/>
+   [spell]: <https://github.com/dscape/spell>
+   [underscore]: <http://underscorejs.org/>
+   [See here.]: <https://nodejs.org/en/download/package-manager/>
