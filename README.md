@@ -70,13 +70,13 @@ $ make rebuild
 
 ### Development
 
-##### Developers
+#### Developers
 * Sam Wood
 * Jan Matas
 * Andrea Janoscikova
 * Paul Balaji
 
-##### Contribute
+#### Contribute
 
 Want to contribute? Too bad! This is a second year group project that only we're meant to contribute to!
 
@@ -96,5 +96,3 @@ However, feel free to donate pizza!
    [spell]: <https://github.com/dscape/spell>
    [underscore]: <http://underscorejs.org/>
    [See here.]: <https://nodejs.org/en/download/package-manager/>
-
-
