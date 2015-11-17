@@ -1,4 +1,4 @@
-PEGJS = ./node_modules/pegjs/bin/pegjs
+PEGJS = ./node_modules/pegjs/bin/pegjs 
 TSC = ./node_modules/tsc/bin/tsc
 TSC_FLAGS = --module commonjs
 
@@ -19,10 +19,10 @@ dist/frontend/grammar/grammar.js: src/frontend/grammar/grammar.ts
 	@$(TSC) $(TSC_FLAGS) src/frontend/grammar/grammar.ts --outDir dist/frontend
 
 src/frontend/grammar/grammar.ts: src/frontend/grammar/grammar.pegjs
-	@echo "Compiling Grammar to TypeScript"
+	@echo "Compiling Grammar to TypeScript..."
 	@$(PEGJS) src/frontend/grammar/grammar.pegjs src/frontend/grammar/grammar.ts
 
-test: Parser
+test: compiler
 	python ./runTests.py
 
 preview: compiler
@@ -33,4 +33,4 @@ clean:
 	@rm -r -f dist
 	@rm src/frontend/grammar/grammar.ts
 	
-rebuild: clean all
+rebuild: clean compiler
