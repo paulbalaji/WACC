@@ -245,7 +245,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         // if giving too many indexes than array is capable of handling
         if (res.type.depth < node.exprList.length) {
             throw new Error.SemanticError('Giving incorrect dimension for array.'
-                                         , node.exprList[0].errorLocation);hrow
+                                         , node.exprList[0].errorLocation);
         }
 
         /*
