@@ -3,7 +3,7 @@
 WACC Compiler is a compiler for the WACC language.
   - Currently only Front End
   - Back End to be done in the coming weeks
-
+  - Front End Code Review COMPLETE
 ### TODO:
  - Write Back End Tests
  - Write Back End
