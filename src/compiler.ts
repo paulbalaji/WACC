@@ -1,4 +1,5 @@
 import frontend = require('./frontend/frontend');
+import backend = require('./backend/backend');
 var colors = require('colors');
 
 var fs = require('fs');
@@ -9,6 +10,7 @@ var silence: string = process.argv[3];
 function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
 	frontend.semanticCheck(ast);
+    backend.generateCode(ast);
 }
 
 /*
