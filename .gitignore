@@ -4,6 +4,7 @@
 dist
 dist/*.js
 dist/frontend/*.js
+dist/backend/*.js
 dist/grammar/*.js
 input.wacc
 grammar/grammar.ts

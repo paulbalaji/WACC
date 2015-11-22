@@ -5,7 +5,7 @@ var _ = require('underscore');
 export class CodeGenerator implements NodeType.Visitor {
 
     constructor() {
-
+        //testing testing
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -85,10 +85,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-
-    }
-
-    visitSkipNode(node: NodeType.SkipNode): any {
 
     }
 

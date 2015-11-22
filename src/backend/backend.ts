@@ -5,6 +5,6 @@ export function generateCode(ast) {
     /* 
         visit the AST using the code generator
     */
-    var codeGenerator = new CodeGenerator.CodeGenVisitor();
+    var codeGenerator = new CodeGenerator.CodeGenerator();
     ast.visit(codeGenerator);
 };

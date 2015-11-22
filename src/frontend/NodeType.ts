@@ -35,7 +35,6 @@ export interface Visitor {
     visitIntLiterNode(node:IntLiterNode): any;
     visitFuncNode(node:FuncNode): any;
     visitIdentNode(node:IdentNode): any;
-    visitSkipNode(node:SkipNode): any;
     visitReadNode(node:ReadNode): any;
     visitPrintlnNode(node:PrintlnNode): any;
     visitUnOpNode(node:UnOpNode): any;
