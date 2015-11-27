@@ -366,9 +366,9 @@ CharLiter
 
 /* StrLiter */
 StrLiter
- = '"' str:Character* '"' {
+ = '"' chars:Character* '"' {
   //var errorLocation = new WACCError.ErrorLocation(location());
-  var node = new NodeType.StrLiterNode(str);
+  var node = new NodeType.StrLiterNode(chars.join(''));
   node.setErrorLocation(new WACCError.ErrorLocation(location()));
   return node;
  }
