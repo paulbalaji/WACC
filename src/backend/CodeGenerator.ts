@@ -1,21 +1,54 @@
 import NodeType = require('../frontend/NodeType');
+import SemanticUtil = require('../frontend/SemanticUtil')
 
 var _ = require('underscore');
 
 export class CodeGenerator implements NodeType.Visitor {
 
+    nextReg: number;
+
+    generatedCode: string[];
+
     constructor() {
-        //testing testing
+        this.nextReg = 4;
+        this.generatedCode = [];
+    }
+
+    addLabel(label: string) {
+        this.generatedCode.push(label + '\n');
+    }
+
+    addCode(str: string) {
+        this.generatedCode.push('\t' + str + '\n');
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
 
+        this.addLabel('.text');
+        this.addLabel('.global main');
+
+        SemanticUtil.visitNodeList(node.functionList, this);
+
+        this.addLabel('main:');
+        this.addCode('PUSH {lr}');
+
+        SemanticUtil.visitNodeList(node.statList, this);
+
+        this.addCode('LDR r0, =0');
+        this.addCode('POP {pc}');
+        this.addCode('.ltorg');
+
+        return this.generatedCode.join('');
+    }
+
+    getNextReg() {
+        return 'r' + this.nextReg++;
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
 
     }
-
+ 
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
 
     }
@@ -101,11 +134,15 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitSkipNode(node: NodeType.SkipNode): any {
-
+        // done
+        return '';
     }
 
     visitExitNode(node: NodeType.ExitNode): any {
-
+        var reg = this.getNextReg();
+        this.addCode('LDR ' + reg + ', =' + (<NodeType.IntLiterNode>node.expr).num)
+        this.addCode('MOV r0, ' + reg);
+        this.addCode('BL exit');
     }
 
     visitIfNode(node: NodeType.IfNode): any {
