@@ -51,8 +51,16 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
+var nextDataLabel = function() {
+	var l = 0;
+	return function() {
+		return l++;
+	}
+} ();
+
 export function genStrDataBlock(str) {
-	return {label: 'lol', instructions: [Label('lol'),
+	var label = 'msg_' + nextDataLabel();
+	return {label: label, instructions: [Label(label),
 			Directive('word', str.length),
 			Directive('ascii', str)]}
 		;
