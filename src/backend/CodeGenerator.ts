@@ -3,29 +3,17 @@ import SemanticUtil = require('../frontend/SemanticUtil')
 
 var _ = require('underscore');
 
-export class CodeGenerator implements NodeType.Visitor {
 
-    Section = { DATA: 'dataHeader', FUNC: 'functionHeader' };
+export class CodeGenerator implements NodeType.Visitor {
 
     nextReg: number;
     nextMessageLabel: number;
 
-    generatedCode: {dataHeader: string[], functionHeader: string[], main: string[]};
-
     constructor() {
         this.nextReg = 4;
-
-        this.generatedCode = { dataHeader: [], functionHeader: [], main: [] };
     }
 
     insertStringData(str: string) {
-        if (this.generatedCode.dataHeader.length === 0) {
-            this.addLabel('.data', this.Section.DATA);
-        }
-
-        this.addLabel('msg_' + this.nextMessageLabel++ + ':', this.Section.DATA);
-        this.addCode('.word ' + str.length);
-        this.addCode('.ascii ' + str);
     }
 
     addLabel(label: string, section?: string) {
@@ -43,25 +31,39 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        this.addLabel('.text');
-        this.addLabel('.global main');
-
-        SemanticUtil.visitNodeList(node.functionList, this);
-
-        this.addLabel('main:');
-        this.addCode('PUSH {lr}');
-
-        SemanticUtil.visitNodeList(node.statList, this);
-
-        this.addCode('LDR r0, =0');
-        this.addCode('POP {pc}');
-        this.addCode('.ltorg');
-
-        return this.joinEverything();
+        return BuildList( Directive('text'),
+                          Directive('global', 'main'),
+                          _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
+                          Label('main'),
+                          Push(Reg.LR),
+                          _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+                          Ldr(Reg.R0, Const(0)),
+                          Pop(Reg.PC),
+                          Directive('ltorg'));
     }
 
     getNextReg() {
         return 'r' + this.nextReg++;
+    }
+
+    createPrintStringFunction() {
+        this.insertStringData('%.*s\0');
+
+        var addSys = (addFunc) => _.partial(addFunc, _, this.Section.SYS_FUNC);
+        addSys(this.addLabel)('p_print_string')
+        addSys(this.addCode)('PUSH {lr}')
+        this.addLabel('p_print_string:', this.Section.SYS_FUNC);
+        _.map( ['PUSH {lr}',
+                'LDR r1, [r0]',
+                'ADD r2, r0, #4',
+                'LDR r0, =msg_1',
+                'ADD r0, r0, #4',
+                'BL printf',
+                'MOV r0, #0',
+                'BL fflush',
+                'POP {pc}'],
+                _.partial(addSys(this.addCode)))
+
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
@@ -109,6 +111,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
+        //
+
+    }
+
+    visitPrintlnNode(node: NodeType.PrintlnNode): any {
 
     }
 
@@ -141,10 +148,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
-
-    }
-
-    visitPrintlnNode(node: NodeType.PrintlnNode): any {
 
     }
 
