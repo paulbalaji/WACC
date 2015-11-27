@@ -1,3 +1,5 @@
+var _ = require('underscore');
+
 export function Directive(name, ...args) {
 	var dir = {};
 	dir.name = name;
@@ -21,6 +23,19 @@ export function Const(n) {
 	var cst = {};
 	cst. n = n;
 	return cst;
+}
+
+export function Label(labelName) {
+    var label: any = {};
+    label.labelName = labelName;
+    return label;
+}
+
+export function Ldr(dst, src) {
+    var ldr: any = {};
+    ldr.dst = dst;
+    ldr.src = src;
+    return ldr;
 }
 
 export function buildList(unflattenedList) {
