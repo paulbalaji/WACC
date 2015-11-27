@@ -12,23 +12,27 @@ export class CodeGenerator implements NodeType.Visitor {
     nextMessageLabel: number;
     sections: any;
 
-    this.insertPrintStringFormat = _.once(function() {
-        return Instr.genStrDataBlock("%.*s\0");
-    });
+    insertPrintStringFormat: any;
+    insertPrintString: any;
 
-    this.insertPrintString = _.once(function() {
-        var {label: dataLabel, instructions: strDataInstructions} = this.insertPrintStringFormat();
-        this.sections.header.push(strDataInstructions);
-        this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
-    });
 
     constructor() {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
+        this.defineSystemFunctions();
     }
 
 
-    insertStringData(str: string) {
+    defineSystemFunctions() {
+        this.insertPrintStringFormat = _.once(function() {
+            return Instr.genStrDataBlock("%.*s\0");
+        });
+
+        this.insertPrintString = _.once(function() {
+            var {label: dataLabel, instructions: strDataInstructions} = this.insertPrintStringFormat();
+            this.sections.header.push(strDataInstructions);
+            this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+        });
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -93,7 +97,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var toReturn = [];
 
         if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
-            insertPrintString();
+            this.insertPrintString();
             var str = '';
             if (node.expr instanceof NodeType.StrLiterNode) {
                 str = (<NodeType.StrLiterNode>node.expr).str;

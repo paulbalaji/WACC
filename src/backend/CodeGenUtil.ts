@@ -1,4 +1,6 @@
 import Instr = require('./Instruction');
+import Reg = require('./Register');
+
 export var funcDefs = {
 	printString: function(stringFormatLabel) {
 		return [Instr.Label('p_print_string'),
