@@ -1,5 +1,3 @@
 begin
-    print "there are no strings on me";
-    print "this is the second print";
-    print "fuck you WACC"
+  print "Hello World!\n"
 end
