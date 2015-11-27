@@ -1,5 +1,5 @@
 import subprocess
-import os
+import os, sys
 import time
 from glob import glob
 from multiprocessing import Pool
@@ -55,7 +55,10 @@ def run_valid(fname):
 
 if __name__ == '__main__':
     t = time.time()
-    valid_files = [y for x in os.walk('tests/valid') for y in glob(os.path.join(x[0], '*.wacc'))]
+    if len(sys.argv) > 1:
+        valid_files = sys.argv
+    else:
+        valid_files = [y for x in os.walk('tests/valid') for y in glob(os.path.join(x[0], '*.wacc'))]
     #invalid_files_semantics = [y for x in os.walk('tests/invalid/semanticErr') for y in glob(os.path.join(x[0], '*.wacc'))]
     #invalid_files_syntax = [y for x in os.walk('tests/invalid/syntaxErr') for y in glob(os.path.join(x[0], '*.wacc'))]
     p = Pool(n_threads)
