@@ -13,8 +13,11 @@ export class CodeGenerator implements NodeType.Visitor {
     sections: any;
 
     insertDataLabel: any;
-    insertPrintStringFormat: any;
+    insertStringDataHeader: any;
     insertPrintString: any;
+
+    insertOverflowError: any;
+    insertRuntimeError: any;
 
     closingInsertions: any[];
 
@@ -30,16 +33,31 @@ export class CodeGenerator implements NodeType.Visitor {
             this.sections.header.push(Instr.Directive('data'));
         })
 
-        this.insertPrintStringFormat = function() {
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock('%.*s\\0');
+        this.insertStringDataHeader = function(str: string) {
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
 
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertPrintStringFormat();
+                var dataLabel = this.insertStringDataHeader('%.*s\\0');
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
+        });
+
+        this.insertOverflowError = _.once(() => {
+            this.closingInsertions.push(function() {
+                var dataLabel = this.insertStringDataHeader('OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n');
+                this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
+                this.insertRuntimeError();
+            });
+        });
+
+        this.insertRuntimeError = _.once(() => {
+            this.closingInsertions.push(function() {
+                this.insertPrintString();
+                this.sections.footer.push(CodeGenUtil.funcDefs.runtimeError());
             });
         });
     }
@@ -63,8 +81,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
         var lhsInstructions = node.leftOperand.visit(this);
-        var rest = [Instr.Push(Reg.R0), node.rightOperand.visit(this), Instr.Mov(Reg.R1, Reg.R0), Instr.Pop(Reg.R0),
-            Instr.Add(Reg.R0, Reg.R0, Reg.R1)];
+        var rest = [Instr.Push(Reg.R0),
+                    node.rightOperand.visit(this),
+                    Instr.Mov(Reg.R1, Reg.R0),
+                    Instr.Pop(Reg.R0),
+                    Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
+                    Instr.Blvs('p_throw_overflow_error')];
+        this.insertOverflowError();
         return [lhsInstructions, rest];
     }
  
