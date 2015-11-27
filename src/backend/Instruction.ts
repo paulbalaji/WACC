@@ -104,7 +104,7 @@ export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
     add.toString = function() {
-        return 'ADD ' + commaJoin(args);
+        return 'ADD ' + commaJoin(add.args);
     }
 	return add;
 }
