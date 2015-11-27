@@ -23,15 +23,15 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         return Instr.buildList(this.sections.header, Instr.Directive('text'),
-            Instr.Directive('global', 'main'),
-            Instr.Label('main'),
-            Instr.Push(Reg.LR),
-            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-            Instr.Ldr(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC),
-            Instr.Directive('ltorg'),
-            _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
-            this.sections.footer);
+               Instr.Directive('global', 'main'),
+               Instr.Label('main'),
+               Instr.Push(Reg.LR),
+               _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+               Instr.Ldr(Reg.R0, Instr.Const(0)),
+               Instr.Pop(Reg.PC),
+               Instr.Directive('ltorg'),
+               _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
+               this.sections.footer);
     }
    
 
@@ -94,16 +94,14 @@ export class CodeGenerator implements NodeType.Visitor {
                 str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
             }
 
-            console.log(str);
+            var {label:dataLabel, instructions: strDataInstructions} = Inst.genStringDataBlock(string);
+            this.sections.header.push(strDataInstructions);
 
-            // Inst.genStringDataBlock(string)
+            var spareReg = Reg.R4;
+            toReturn = [Instr.Ldr(spareReg, LabelRef(dataLabel)),
+                        Instr.Mov(Reg.R0, spareReg),
+                        Instr.Bl('p_print_string')];
         }
-
-        // var blah = _.map(node.expr.exprList, (f) => f.ch).join('')
-        // console.log(blah);
-        // this.sections.header.push(Instr.genStringDataBlock(blah));
-
-        // toReturn.push(LDR(Reg.R4, Instr.LabelRef(name)))
 
         // LDR r4, =msg_0
         // 15        MOV r0, r4
