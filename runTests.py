@@ -25,6 +25,8 @@ def compare_files(ours, ref):
             print "Fail in: " + ref + " on line " + str(i)
             print "    Ours: " + ours
             print "    Ref: " + l
+            return False
+    return True
 
 
 
@@ -50,13 +52,13 @@ def run_valid(fname):
         return False
     else:
         ref = fname.replace("valid", "reference").replace("wacc", "s")
-        compare_files("test.out", ref)
+        return compare_files("test.out", ref)
         return True
 
 if __name__ == '__main__':
     t = time.time()
     if len(sys.argv) > 1:
-        valid_files = sys.argv
+        valid_files = sys.argv[1:]
     else:
         valid_files = [y for x in os.walk('tests/valid') for y in glob(os.path.join(x[0], '*.wacc'))]
     #invalid_files_semantics = [y for x in os.walk('tests/invalid/semanticErr') for y in glob(os.path.join(x[0], '*.wacc'))]
