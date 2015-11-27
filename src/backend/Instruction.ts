@@ -36,6 +36,10 @@ export function Pop(...rs) {
 export function Const(n) {
 	var cst: any = {};
 	cst.n = n;
+	cst.toString = function() {
+		return '#' + n;
+	}
+
 	return cst;
 }
 
@@ -52,6 +56,9 @@ export function Label(labelName: string) {
 export function Liter(arg) {
 	var liter: any = {};
 	liter.arg = arg;
+	liter.toString = function() {
+		return '=' + liter.arg;
+	}
 	return liter;
 }
 
@@ -69,6 +76,9 @@ export function Mov(dst, src) {
 	var mov: any = {};
 	mov.dst = dst;
 	mov.src = src;
+	mov.toString = function() {
+		return 'MOV ' + dst + ', ' + src;
+	}
 	return mov;
 }
 
@@ -84,6 +94,9 @@ export function Mem(memArg) {
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
+	bl.toString = function() {
+		return 'BL ' + bl.branchLabel;
+	}
 	return bl;
 }
 
