@@ -45,6 +45,13 @@ export function Ldr(dst, src) {
     return ldr;
 }
 
+export function Mov(dst, src) {
+	var mov: any = {};
+	mov.dst = dst;
+	mov.src = src;
+	return mov;
+}
+
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
