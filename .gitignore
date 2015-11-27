@@ -34,7 +34,7 @@ credentials.py
 *.class
 
 #ignore junk files from running the WACC compiler
-*.s
+
 *.ast
 
 #ignore the WACC tempory test_files copy
