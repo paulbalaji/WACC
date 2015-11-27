@@ -1,6 +1,7 @@
 import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil')
-
+import Instr = require('./Instruction');
+import Reg = require('./Register');
 var _ = require('underscore');
 
 
@@ -16,55 +17,22 @@ export class CodeGenerator implements NodeType.Visitor {
     insertStringData(str: string) {
     }
 
-    addLabel(label: string, section?: string) {
-        section = section || 'main';
-        this.generatedCode[section].push(label + '\n');
-    }
 
-    addCode(str: string, section?: string) {
-        section = section || 'main';
-        this.generatedCode[section].push('\t' + str + '\n');
-    }
-
-    joinEverything() {
-        return _.map(this.generatedCode, (code) => code.join('')).join('\n');
-    }
+     
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        return BuildList( Directive('text'),
-                          Directive('global', 'main'),
+        return Instr.buildList( Instr.Directive('text'),
+                          Instr.Directive('global', 'main'),
                           _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
-                          Label('main'),
-                          Push(Reg.LR),
+                          Instr.Label('main'),
+                          Instr.Push(Reg.LR),
                           _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                          Ldr(Reg.R0, Const(0)),
-                          Pop(Reg.PC),
-                          Directive('ltorg'));
+                          Instr.Ldr(Reg.R0, Const(0)),
+                          Instr.Pop(Reg.PC),
+                          Instr.Directive('ltorg'));
     }
 
-    getNextReg() {
-        return 'r' + this.nextReg++;
-    }
-
-    createPrintStringFunction() {
-        this.insertStringData('%.*s\0');
-
-        var addSys = (addFunc) => _.partial(addFunc, _, this.Section.SYS_FUNC);
-        addSys(this.addLabel)('p_print_string')
-        addSys(this.addCode)('PUSH {lr}')
-        this.addLabel('p_print_string:', this.Section.SYS_FUNC);
-        _.map( ['PUSH {lr}',
-                'LDR r1, [r0]',
-                'ADD r2, r0, #4',
-                'LDR r0, =msg_1',
-                'ADD r0, r0, #4',
-                'BL printf',
-                'MOV r0, #0',
-                'BL fflush',
-                'POP {pc}'],
-                _.partial(addSys(this.addCode)))
-
-    }
+   
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
 
