@@ -16,11 +16,13 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintStringFormat: any;
     insertPrintString: any;
 
+    closingInsertions: any[];
 
     constructor() {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
         this.defineSystemFunctions();
+        this.closingInsertions = [];
     }
 
     defineSystemFunctions() {
@@ -28,28 +30,34 @@ export class CodeGenerator implements NodeType.Visitor {
             this.sections.header.push(Instr.Directive('data'));
         })
 
-        this.insertPrintStringFormat = _.once(function() {
-            return Instr.genStrDataBlock("%.*s\0");
-        });
-
-        this.insertPrintString = _.once(function() {
-            var {label: dataLabel, instructions: strDataInstructions} = this.insertPrintStringFormat();
+        this.insertPrintStringFormat = function() {
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock("%.*s\0");
             this.sections.header.push(strDataInstructions);
-            this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            return dataLabel;
+        };
+
+        this.insertPrintString = _.once(() => {
+            this.closingInsertions.push(function() {
+                var dataLabel = this.insertPrintStringFormat();
+                this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
         });
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        return Instr.buildList(this.sections.header, Instr.Directive('text'),
-               Instr.Directive('global', 'main'),
-               Instr.Label('main'),
-               Instr.Push(Reg.LR),
-               _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-               Instr.Ldr(Reg.R0, Instr.Const(0)),
-               Instr.Pop(Reg.PC),
-               Instr.Directive('ltorg'),
-               _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
-               this.sections.footer);
+        var instructionList =
+               [Instr.Directive('text'),
+                Instr.Directive('global', 'main'),
+                Instr.Label('main'),
+                Instr.Push(Reg.LR),
+                _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+                Instr.Ldr(Reg.R0, Instr.Const(0)),
+                Instr.Pop(Reg.PC),
+                Instr.Directive('ltorg'),
+                _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+
+        _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
+        return Instr.buildList(this.sections.header, instructionList, this.sections.footer);
     }
    
 
