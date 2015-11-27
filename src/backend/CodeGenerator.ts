@@ -9,7 +9,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        
 
     }
 
