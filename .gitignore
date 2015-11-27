@@ -6,9 +6,10 @@ dist/*.js
 dist/frontend/*.js
 dist/backend/*.js
 dist/grammar/*.js
-input.wacc
 grammar/grammar.ts
 src/frontend/grammar/grammar.ts
+credentials.py
+*.pyc
 
 #ignore temp files
 *~
