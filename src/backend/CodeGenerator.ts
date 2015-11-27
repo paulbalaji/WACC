@@ -31,7 +31,7 @@ export class CodeGenerator implements NodeType.Visitor {
         })
 
         this.insertPrintStringFormat = function() {
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock("%.*s\0");
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock('%.*s\\0');
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
@@ -126,6 +126,9 @@ export class CodeGenerator implements NodeType.Visitor {
             toReturn = [Instr.Ldr(spareReg, Instr.Liter(dataLabel)),
                         Instr.Mov(Reg.R0, spareReg),
                         Instr.Bl('p_print_string')];
+        } else if (SemanticUtil.isType(node.expr.type, NodeType.INT_TYPE)) {
+            var str = '';
+
         }
 
         return toReturn;
