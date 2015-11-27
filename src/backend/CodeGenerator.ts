@@ -96,7 +96,6 @@ export class CodeGenerator implements NodeType.Visitor {
         var toReturn = [];
 
         if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
-            this.insertPrintString();
             var str = '';
             
             if (node.expr instanceof NodeType.StrLiterNode) {
@@ -107,6 +106,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var {label:dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
             this.sections.header.push(strDataInstructions);
+            this.insertPrintString();
 
             var spareReg = Reg.R4;
             toReturn = [Instr.Ldr(spareReg, Instr.Liter(dataLabel)),
