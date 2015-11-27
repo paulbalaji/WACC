@@ -22,7 +22,6 @@ export class CodeGenerator implements NodeType.Visitor {
         this.defineSystemFunctions();
     }
 
-
     defineSystemFunctions() {
         this.insertPrintStringFormat = _.once(function() {
             return Instr.genStrDataBlock("%.*s\0");
@@ -99,6 +98,7 @@ export class CodeGenerator implements NodeType.Visitor {
         if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
             this.insertPrintString();
             var str = '';
+            
             if (node.expr instanceof NodeType.StrLiterNode) {
                 str = (<NodeType.StrLiterNode>node.expr).str;
             } else {

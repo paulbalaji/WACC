@@ -7,5 +7,5 @@ export function generateCode(ast) {
     */
     var codeGenerator = new CodeGenerator.CodeGenerator();
     var code = ast.visit(codeGenerator);
-    return code;
+    return code.join('\n');
 };
