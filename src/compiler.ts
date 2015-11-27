@@ -11,7 +11,7 @@ function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
 	frontend.semanticCheck(ast);
     var code = backend.generateCode(ast);
-    console.log(code);
+    //console.log(code);
 }
 
 /*
