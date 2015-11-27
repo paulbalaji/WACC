@@ -1,6 +1,3 @@
 begin
-    print 5;
-    print "there are no strings on me";
-    println 6;
-    println "there are no str on you"
+    print "there are no strings on me"
 end
