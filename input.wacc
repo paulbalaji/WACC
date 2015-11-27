@@ -1,3 +1,9 @@
 begin
+<<<<<<< HEAD
   print "Hello World!\n"
 end
+=======
+  print "hello world";
+  exit 3 + (5 + 6)
+end
+>>>>>>> ddfa9ca5fb52c8fb37fabdf29bc8120d314670f8

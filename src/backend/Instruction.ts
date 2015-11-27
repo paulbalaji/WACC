@@ -98,6 +98,14 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
+export function Blvs(branchLabel) {
+	var blvs: any = {};
+	blvs.branchLabel = branchLabel;
+	blvs.toString = function() {
+		return 'BLVS ' + blvs.branchLabel;
+	}
+	return blvs;
+}
 
 export function Add(...addArgs) {
 	var add: any = {};
@@ -106,6 +114,15 @@ export function Add(...addArgs) {
         return 'ADD ' + add.args.join(', ');
     }
 	return add;
+}
+
+export function Adds(...addsArgs) {
+	var adds: any = {};
+	adds.args = addsArgs;
+	adds.toString = function() {
+		return 'ADDS ' + adds.args.join(', ');
+	}
+	return adds;
 }
 
 var nextDataLabel = function() {
