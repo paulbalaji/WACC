@@ -1,5 +1,10 @@
 var _ = require('underscore');
 
+function commaJoin(list) {
+	var joined = list.join(', ');
+	return joined.slice(1, joined.length - 1);
+}
+
 export function Directive(name, ...args) {
 	var dir: any = {};
 	dir.name = name;
@@ -10,6 +15,10 @@ export function Directive(name, ...args) {
 export function Push(...rs) {
 	var push: any = {};
 	push.pushRegs = rs;
+	push.toString = function() {
+		return 'push ' + '{' + commaJoin(push.pushRegs) + '}';
+	}
+
 	return push;
 }
 
@@ -19,6 +28,7 @@ export function Pop(...rs) {
 	return pop;
 }
 
+/* Represents #n */
 export function Const(n) {
 	var cst: any = {};
 	cst.n = n;
@@ -31,11 +41,11 @@ export function Label(labelName: string) {
     return label;
 }
 
-/* Represents =label */
-export function LabelRef(labelName: string) {
-	var labelRef: any = {};
-	labelRef.labelName = labelName;
-	return labelRef;
+/* Represents =... */
+export function Liter(arg) {
+	var liter: any = {};
+	liter.arg = arg;
+	return liter;
 }
 
 export function Ldr(dst, src) {
@@ -52,21 +62,33 @@ export function Mov(dst, src) {
 	return mov;
 }
 
+export function Mem(memArg) {
+	var mem: any = {};
+	mem.memArg = memArg;
+	return mem;
+}
+
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
 	return bl;
 }
 
+export function Add(...addArgs) {
+	var add: any = {};
+	add.args = addArgs;
+	return add;
+}
+
 var nextDataLabel = function() {
 	var l = 0;
 	return function() {
-		return l++;
+		return 'msg_' + (l++);
 	}
 } ();
 
 export function genStrDataBlock(str) {
-	var label = 'msg_' + nextDataLabel();
+	var label = nextDataLabel();
 	return {label: label, instructions: [Label(label),
 			Directive('word', str.length),
 			Directive('ascii', str)]}

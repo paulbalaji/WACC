@@ -109,7 +109,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertPrintString();
 
             var spareReg = Reg.R4;
-            toReturn = [Instr.Ldr(spareReg, Instr.LabelRef(dataLabel)),
+            toReturn = [Instr.Ldr(spareReg, Instr.Liter(dataLabel)),
                         Instr.Mov(Reg.R0, spareReg),
                         Instr.Bl('p_print_string')];
         }
