@@ -50,15 +50,15 @@ export class CodeGenerator implements NodeType.Visitor {
             this.closingInsertions.push(function() {
                 var dataLabel = this.insertStringDataHeader('OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n');
                 this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
-                this.insertRuntimeError();
             });
+            this.insertRuntimeError();
         });
 
         this.insertRuntimeError = _.once(() => {
             this.closingInsertions.push(function() {
-                this.insertPrintString();
                 this.sections.footer.push(CodeGenUtil.funcDefs.runtimeError());
             });
+            this.insertPrintString();
         });
     }
 
@@ -71,7 +71,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
                 Instr.Ldr(Reg.R0, Instr.Liter(0)),
                 Instr.Pop(Reg.PC),
-                Instr.Directive('ltorg'),
                 _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));

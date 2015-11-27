@@ -100,9 +100,9 @@ export function Bl(branchLabel) {
 
 export function Blvs(branchLabel) {
 	var blvs: any = {};
-	bl.branchLabel = branchLabel;
-	bl.toString = function() {
-		return 'BLVS';
+	blvs.branchLabel = branchLabel;
+	blvs.toString = function() {
+		return 'BLVS ' + blvs.branchLabel;
 	}
 	return blvs;
 }
@@ -120,7 +120,7 @@ export function Adds(...addsArgs) {
 	var adds: any = {};
 	adds.args = addsArgs;
 	adds.toString = function() {
-		return 'ADDS' + adds.args join(', ');
+		return 'ADDS' + adds.args.join(', ');
 	}
 	return adds;
 }
