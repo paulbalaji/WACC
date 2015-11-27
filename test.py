@@ -3,32 +3,58 @@
 import sys, getopt
 import paramiko
 from scp import SCPClient
+import subprocess
 import credentials
+import os
+import atexit
 
-def copy_to_remote(ssh_connect, filename):
-	with SCPClient(ssh.get_transport()) as scp:
-		scp.put(filename, filename)
+TEMP_FNAME = "tmp.s"
+
+
+class MySSH:
+
+    def __init__(self):
+        client = paramiko.SSHClient()
+        client.load_system_host_keys()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect("matrix29.doc.ic.ac.uk", username=credentials.username, password=credentials.password)
+        atexit.register(client.close)
+        self.client = client
+
+    def copy_to_remote(self, filename):
+        with SCPClient(self.client.get_transport()) as scp:
+            scp.put(filename, filename)
+
+    def call(self, command):
+      
+        stdin,stdout,stderr = self.client.exec_command(command)
+        sshdata = stdout.readlines()
+        for line in sshdata:
+            print(line)
+        sshdata = stderr.readlines()
+        for line in sshdata:
+            print(line)
+
 
 def connect_and_execute(f):
-	try:
-		ssh = paramiko.SSHClient()
-		ssh.load_system_host_keys() 
-		ssh.connect("shell2.doc.ic.ac.uk", username=credentials.username, password=credentials.password)
-		copy_to_remote(ssh, f)
-	finally:
-		ssh.close()
+        ssh = MySSH()
+        ssh.copy_to_remote(f)
+        ssh.call('arm-linux-gnueabi-gcc -o tmp_exec -mcpu=arm1176jzf-s -mtune=arm1176jzf-s tmp.s')
+        ssh.call('qemu-arm -L /usr/arm-linux-gnueabi/ tmp_exec')
+
 
 def main(argv):
-
-	with open('test.s', 'r') as f:
-		f.write(subprocess.check_output(["./compile", argv[0]]))
-
-
+    with open(TEMP_FNAME, 'w') as f:
+        f.write(subprocess.check_output(["./compile", argv[0]]))
+   connect_and_execute(TEMP_FNAME)
 
 
 
-	
-	
+
+
+
+    
+    
 
 if __name__ == "__main__":
    main(sys.argv[1:])
@@ -38,7 +64,4 @@ if __name__ == "__main__":
 
 
 
-
-ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command("ls -a")
-print ssh_stdout.readlines()
 
