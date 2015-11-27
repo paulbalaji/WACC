@@ -51,7 +51,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Label('main'),
                 Instr.Push(Reg.LR),
                 _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                Instr.Ldr(Reg.R0, Instr.Const(0)),
+                Instr.Ldr(Reg.R0, Instr.Liter(0)),
                 Instr.Pop(Reg.PC),
                 Instr.Directive('ltorg'),
                 _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
@@ -62,7 +62,10 @@ export class CodeGenerator implements NodeType.Visitor {
    
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
-
+        var lhsInstructions = node.leftOperand.visit(this);
+        var rest = [Instr.Push(Reg.R0), node.rightOperand.visit(this), Instr.Mov(Reg.R1, Reg.R0), Instr.Pop(Reg.R0),
+            Instr.Add(Reg.R0, Reg.R0, Reg.R1)];
+        return [lhsInstructions, rest];
     }
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
@@ -152,7 +155,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIntLiterNode(node: NodeType.IntLiterNode): any {
-
+        return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -173,11 +176,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitSkipNode(node: NodeType.SkipNode): any {
         // done
-        return '';
+        return [];
     }
 
     visitExitNode(node: NodeType.ExitNode): any {
-       
+        return [node.expr.visit(this), Instr.Bl('exit')];
     }
 
     visitIfNode(node: NodeType.IfNode): any {
