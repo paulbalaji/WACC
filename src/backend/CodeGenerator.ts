@@ -2,6 +2,7 @@ import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil')
 import Instr = require('./Instruction');
 import Reg = require('./Register');
+import CodeGenUtil = require('./CodeGenUtil')
 var _ = require('underscore');
 
 
@@ -11,12 +12,21 @@ export class CodeGenerator implements NodeType.Visitor {
     nextMessageLabel: number;
     sections: any;
 
+    this.insertPrintStringFormat = _.once(function() {
+        return Instr.genStrDataBlock("%.*s\0");
+    });
+
+    this.insertPrintString = _.once(function() {
+        var {label: dataLabel, instructions: strDataInstructions} = this.insertPrintStringFormat();
+        this.sections.header.push(strDataInstructions);
+        this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+    });
 
     constructor() {
         this.nextReg = 4;
-
         this.sections = { header: [], footer: [] };
     }
+
 
     insertStringData(str: string) {
     }
@@ -80,13 +90,10 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        //making msg
-        //putting message in spare reg
-        //moving from reg to r0
-        //BL p_print_string
         var toReturn = [];
 
         if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
+            insertPrintString();
             var str = '';
             if (node.expr instanceof NodeType.StrLiterNode) {
                 str = (<NodeType.StrLiterNode>node.expr).str;
@@ -94,7 +101,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
             }
 
-            var {label:dataLabel, instructions: strDataInstructions} = Instr.genStringDataBlock(str);
+            var {label:dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
             this.sections.header.push(strDataInstructions);
 
             var spareReg = Reg.R4;
@@ -103,10 +110,7 @@ export class CodeGenerator implements NodeType.Visitor {
                         Instr.Bl('p_print_string')];
         }
 
-        // LDR r4, =msg_0
-        // 15        MOV r0, r4
-        // 16        BL p_print_string
-        return [Instr.Push(Reg.R0)];
+        return toReturn;
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
