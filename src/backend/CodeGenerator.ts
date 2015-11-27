@@ -9,29 +9,30 @@ export class CodeGenerator implements NodeType.Visitor {
 
     nextReg: number;
     nextMessageLabel: number;
+    sections: any;
+
 
     constructor() {
         this.nextReg = 4;
+
+        this.sections = { header: [], footer: [] };
     }
 
     insertStringData(str: string) {
     }
 
-
-     
-
     visitProgramNode(node: NodeType.ProgramNode): any {
-        return Instr.buildList( Instr.Directive('text'),
-                          Instr.Directive('global', 'main'),
-                          _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
-                          Instr.Label('main'),
-                          Instr.Push(Reg.LR),
-                          _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                          Instr.Ldr(Reg.R0, Instr.Const(0)),
-                          Instr.Pop(Reg.PC),
-                          Instr.Directive('ltorg'));
+        return Instr.buildList(this.sections.header, Instr.Directive('text'),
+            Instr.Directive('global', 'main'),
+            Instr.Label('main'),
+            Instr.Push(Reg.LR),
+            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+            Instr.Ldr(Reg.R0, Instr.Const(0)),
+            Instr.Pop(Reg.PC),
+            Instr.Directive('ltorg'),
+            _.flatten(SemanticUtil.visitNodeList(node.functionList, this)),
+            this.sections.footer);
     }
-
    
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
@@ -79,7 +80,34 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        //
+        //making msg
+        //putting message in spare reg
+        //moving from reg to r0
+        //BL p_print_string
+        var toReturn = [];
+
+        if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
+            var str = '';
+            if (node.expr instanceof NodeType.StrLiterNode) {
+                str = (<NodeType.StrLiterNode>node.expr).str;
+            } else {
+                str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
+            }
+
+            console.log(str);
+
+            // Inst.genStringDataBlock(string)
+        }
+
+        // var blah = _.map(node.expr.exprList, (f) => f.ch).join('')
+        // console.log(blah);
+        // this.sections.header.push(Instr.genStringDataBlock(blah));
+
+        // toReturn.push(LDR(Reg.R4, Instr.LabelRef(name)))
+
+        // LDR r4, =msg_0
+        // 15        MOV r0, r4
+        // 16        BL p_print_string
         return [Instr.Push(Reg.R0)];
     }
 
