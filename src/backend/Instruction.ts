@@ -1,14 +1,12 @@
 var _ = require('underscore');
 
-function commaJoin(list) {
-	var joined = list.join(', ');
-	return joined.slice(1, joined.length - 1);
-}
-
 export function Directive(name, ...args) {
 	var dir: any = {};
 	dir.name = name;
 	dir.args = args;
+    dir.toString = function() {
+        return '.' + dir.name + ' ' + args.join(' ');
+    }
 	return dir;
 }
 
@@ -16,7 +14,7 @@ export function Push(...rs) {
 	var push: any = {};
 	push.pushRegs = rs;
 	push.toString = function() {
-		return 'PUSH ' + '{' + commaJoin(push.pushRegs) + '}';
+		return 'PUSH ' + '{' + push.pushRegs.join(', ') + '}';
 	}
 
 	return push;
@@ -26,7 +24,7 @@ export function Pop(...rs) {
 	var pop: any = {};
 	pop.popRegs = rs;
     pop.toString = function() {
-        return 'POP ' + '{' + commaJoin(pop.popRegs) + '}';
+        return 'POP ' + '{' + pop.popRegs.join(', ') + '}';
     }
 
 	return pop;
@@ -67,7 +65,7 @@ export function Ldr(dst, src) {
     ldr.dst = dst;
     ldr.src = src;
     ldr.toString = function() {
-        return 'LDR ' + commaJoin([dst, src]);
+        return 'LDR ' + [dst, src].join(', ');
     }
     return ldr;
 }
@@ -77,7 +75,7 @@ export function Mov(dst, src) {
 	mov.dst = dst;
 	mov.src = src;
 	mov.toString = function() {
-		return 'MOV ' + dst + ', ' + src;
+		return 'MOV ' + [dst, src].join(', ');
 	}
 	return mov;
 }
@@ -104,7 +102,7 @@ export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
     add.toString = function() {
-        return 'ADD ' + commaJoin(add.args);
+        return 'ADD ' + add.args.join(', ');
     }
 	return add;
 }
@@ -120,7 +118,7 @@ export function genStrDataBlock(str) {
 	var label = nextDataLabel();
 	return {label: label, instructions: [Label(label),
 			Directive('word', str.length),
-			Directive('ascii', str)]}
+			Directive('ascii', '"' + str + '"')]}
 		;
 }
 
