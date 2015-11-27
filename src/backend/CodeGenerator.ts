@@ -12,6 +12,7 @@ export class CodeGenerator implements NodeType.Visitor {
     nextMessageLabel: number;
     sections: any;
 
+    insertDataLabel: any;
     insertPrintStringFormat: any;
     insertPrintString: any;
 
@@ -23,6 +24,10 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     defineSystemFunctions() {
+        this.insertDataLabel = _.once(function() {
+            this.sections.header.push(Instr.Directive('data'));
+        })
+
         this.insertPrintStringFormat = _.once(function() {
             return Instr.genStrDataBlock("%.*s\0");
         });
@@ -104,6 +109,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
             }
 
+            this.insertDataLabel();
             var {label:dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
             this.sections.header.push(strDataInstructions);
             this.insertPrintString();
