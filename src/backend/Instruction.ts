@@ -16,7 +16,7 @@ export function Push(...rs) {
 	var push: any = {};
 	push.pushRegs = rs;
 	push.toString = function() {
-		return 'push ' + '{' + commaJoin(push.pushRegs) + '}';
+		return 'PUSH ' + '{' + commaJoin(push.pushRegs) + '}';
 	}
 
 	return push;
@@ -25,6 +25,10 @@ export function Push(...rs) {
 export function Pop(...rs) {
 	var pop: any = {};
 	pop.popRegs = rs;
+    pop.toString = function() {
+        return 'POP ' + '{' + commaJoin(pop.popRegs) + '}';
+    }
+
 	return pop;
 }
 
@@ -38,6 +42,9 @@ export function Const(n) {
 export function Label(labelName: string) {
     var label: any = {};
     label.labelName = labelName;
+    label.toString = function() {
+        return label.labelName + ':';
+    }
     return label;
 }
 
@@ -52,6 +59,9 @@ export function Ldr(dst, src) {
     var ldr: any = {};
     ldr.dst = dst;
     ldr.src = src;
+    ldr.toString = function() {
+        return 'LDR ' + commaJoin([dst, src]);
+    }
     return ldr;
 }
 
@@ -65,6 +75,9 @@ export function Mov(dst, src) {
 export function Mem(memArg) {
 	var mem: any = {};
 	mem.memArg = memArg;
+    mem.toString = function() {
+        return '[' + memArg + ']';
+    }
 	return mem;
 }
 
@@ -77,6 +90,9 @@ export function Bl(branchLabel) {
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
+    add.toString = function() {
+        return 'ADD ' + commaJoin(args);
+    }
 	return add;
 }
 
