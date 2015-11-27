@@ -1,4 +1,3 @@
 begin
-  exit 42 ;
-  print "Should not print this."
+    exit 42
 end

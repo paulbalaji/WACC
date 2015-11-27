@@ -5,21 +5,41 @@ var _ = require('underscore');
 
 export class CodeGenerator implements NodeType.Visitor {
 
-    nextReg: number;
+    Section = { DATA: 'dataHeader', FUNC: 'functionHeader' };
 
-    generatedCode: string[];
+    nextReg: number;
+    nextMessageLabel: number;
+
+    generatedCode: {dataHeader: string[], functionHeader: string[], main: string[]};
 
     constructor() {
         this.nextReg = 4;
-        this.generatedCode = [];
+
+        this.generatedCode = { dataHeader: [], functionHeader: [], main: [] };
     }
 
-    addLabel(label: string) {
-        this.generatedCode.push(label + '\n');
+    insertStringData(str: string) {
+        if (this.generatedCode.dataHeader.length === 0) {
+            this.addLabel('.data', this.Section.DATA);
+        }
+
+        this.addLabel('msg_' + this.nextMessageLabel++ + ':', this.Section.DATA);
+        this.addCode('.word ' + str.length);
+        this.addCode('.ascii ' + str);
     }
 
-    addCode(str: string) {
-        this.generatedCode.push('\t' + str + '\n');
+    addLabel(label: string, section?: string) {
+        section = section || 'main';
+        this.generatedCode[section].push(label + '\n');
+    }
+
+    addCode(str: string, section?: string) {
+        section = section || 'main';
+        this.generatedCode[section].push('\t' + str + '\n');
+    }
+
+    joinEverything() {
+        return _.map(this.generatedCode, (code) => code.join('')).join('\n');
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -37,7 +57,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.addCode('POP {pc}');
         this.addCode('.ltorg');
 
-        return this.generatedCode.join('');
+        return this.joinEverything();
     }
 
     getNextReg() {
