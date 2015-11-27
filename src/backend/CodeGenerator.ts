@@ -27,7 +27,7 @@ export class CodeGenerator implements NodeType.Visitor {
                           Instr.Label('main'),
                           Instr.Push(Reg.LR),
                           _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                          Instr.Ldr(Reg.R0, Const(0)),
+                          Instr.Ldr(Reg.R0, Instr.Const(0)),
                           Instr.Pop(Reg.PC),
                           Instr.Directive('ltorg'));
     }
@@ -80,7 +80,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         //
-
+        return [Instr.Push(Reg.R0)];
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -108,7 +108,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
-
+        return Instr.Push(Reg.R0);
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
@@ -129,10 +129,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitExitNode(node: NodeType.ExitNode): any {
-        var reg = this.getNextReg();
-        this.addCode('LDR ' + reg + ', =' + (<NodeType.IntLiterNode>node.expr).num)
-        this.addCode('MOV r0, ' + reg);
-        this.addCode('BL exit');
+       
     }
 
     visitIfNode(node: NodeType.IfNode): any {
