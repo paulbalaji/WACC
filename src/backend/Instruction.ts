@@ -120,7 +120,7 @@ export function Adds(...addsArgs) {
 	var adds: any = {};
 	adds.args = addsArgs;
 	adds.toString = function() {
-		return 'ADDS' + adds.args.join(', ');
+		return 'ADDS ' + adds.args.join(', ');
 	}
 	return adds;
 }

@@ -34,6 +34,7 @@ export class CodeGenerator implements NodeType.Visitor {
         })
 
         this.insertStringDataHeader = function(str: string) {
+            this.insertDataLabel();
             var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
@@ -69,7 +70,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Label('main'),
                 Instr.Push(Reg.LR),
                 _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                Instr.Ldr(Reg.R0, Instr.Liter(0)),
+                Instr.Mov(Reg.R0, Instr.Const(0)),
                 Instr.Pop(Reg.PC),
                 _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
@@ -148,8 +149,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertPrintString();
 
             var spareReg = Reg.R4;
-            toReturn = [Instr.Ldr(spareReg, Instr.Liter(dataLabel)),
-                        Instr.Mov(Reg.R0, spareReg),
+            toReturn = [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel)),
                         Instr.Bl('p_print_string')];
         }
         
@@ -197,7 +197,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitSkipNode(node: NodeType.SkipNode): any {
-        // done
+        // skip does nothing, so return empty list
         return [];
     }
 
