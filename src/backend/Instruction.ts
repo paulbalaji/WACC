@@ -187,6 +187,22 @@ var nextDataLabel = function() {
 	}
 } ();
 
+/*function unescape(str) {
+	console.log(str);
+	str = str.replace('\0', '\\0')
+		.replace('\b', '\\b')
+		.replace('\t', '\\t')
+		.replace('\n', '\\n')
+		.replace('\f', '\\f')
+		.replace('\r', '\\r')
+		.replace('\"', '\\"')
+		.replace('\'', '\\\'')
+		.replace('\\', '\\\\');
+	console.log(str);
+
+	return str;
+}*/
+
 export function genStrDataBlock(str) {
 	var label = nextDataLabel();
 	return {label: label, instructions: [Label(label),

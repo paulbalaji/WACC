@@ -145,7 +145,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
-
+        this.insertDataLabel();
+        var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(node.str);
+        this.sections.header.push(strDataInstructions);
+       
+        return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];
     }
 
     visitReturnNode(node: NodeType.ReturnNode): any {
@@ -185,28 +189,9 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        var toReturn = [];
-
-        if (SemanticUtil.isType(node.expr.type, NodeType.STRING_TYPE)) {
-            var str = '';
-            
-            if (node.expr instanceof NodeType.StrLiterNode) {
-                str = (<NodeType.StrLiterNode>node.expr).str;
-            } else {
-                str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
-            }
-
-            this.insertDataLabel();
-            var {label:dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
-            this.sections.header.push(strDataInstructions);
-            this.insertPrintString();
-
-            var spareReg = Reg.R4;
-            toReturn = [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel)),
-                        Instr.Bl('p_print_string')];
-        }
-        
-        return toReturn;
+        var exprInstructions = node.expr.visit(this);
+        this.insertPrintString();
+        return [exprInstructions, Instr.Bl('p_print_string')];       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -277,7 +262,6 @@ export class CodeGenerator implements NodeType.Visitor {
     visitPairElemNode(node: NodeType.PairElemNode): any {
 
     }
-
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
 

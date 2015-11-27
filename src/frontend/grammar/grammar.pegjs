@@ -369,15 +369,24 @@ StrLiter
  = '"' chars:Character* '"' {
   //var errorLocation = new WACCError.ErrorLocation(location());
   var node = new NodeType.StrLiterNode(chars.join(''));
+
   node.setErrorLocation(new WACCError.ErrorLocation(location()));
   return node;
  }
 
 Character
-  = '\\' EscapedChar / [^\'"]
+  = '\\' escapedCh:EscapedChar { return escapedCh; } / [^\'"]
 
 EscapedChar
-  = '0' / 'b' / 't' / 'n' / 'f' / 'r' / '"' / "'" / '\\'
+  = '0' { return '\0'; }
+  / 'b' { return '\b'; }
+  / 't' { return '\t'; }
+  / 'n' { return '\n'; }
+  / 'f' { return '\f'; }
+  / 'r' { return '\r'; }
+  / '"' { return '\"'; }
+  / "'" { return '\''; }
+  / '\\'{ return '\\'; }
 
 /* Utils */
 _
