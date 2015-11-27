@@ -25,10 +25,17 @@ export function Const(n) {
 	return cst;
 }
 
-export function Label(labelName:string) {
+export function Label(labelName: string) {
     var label: any = {};
     label.labelName = labelName;
     return label;
+}
+
+/* Represents =label */
+export function LabelRef(labelName: string) {
+	var labelRef: any = {};
+	labelRef.labelName = labelName;
+	return labelRef;
 }
 
 export function Ldr(dst, src) {
@@ -36,6 +43,19 @@ export function Ldr(dst, src) {
     ldr.dst = dst;
     ldr.src = src;
     return ldr;
+}
+
+export function Bl(branchLabel) {
+	var bl: any = {};
+	bl.branchLabel = branchLabel;
+	return bl;
+}
+
+export function genStrDataBlock(str) {
+	return {label: 'lol', instructions: [Label('lol'),
+			Directive('word', str.length),
+			Directive('ascii', str)]}
+		;
 }
 
 export function buildList(...unflattenedList) {
