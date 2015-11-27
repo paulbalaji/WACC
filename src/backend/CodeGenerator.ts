@@ -94,11 +94,11 @@ export class CodeGenerator implements NodeType.Visitor {
                 str = _.map((<NodeType.ArrayLiterNode>node.expr).exprList, (charNode) => charNode.ch).join('')
             }
 
-            var {label:dataLabel, instructions: strDataInstructions} = Inst.genStringDataBlock(string);
+            var {label:dataLabel, instructions: strDataInstructions} = Instr.genStringDataBlock(str);
             this.sections.header.push(strDataInstructions);
 
             var spareReg = Reg.R4;
-            toReturn = [Instr.Ldr(spareReg, LabelRef(dataLabel)),
+            toReturn = [Instr.Ldr(spareReg, Instr.LabelRef(dataLabel)),
                         Instr.Mov(Reg.R0, spareReg),
                         Instr.Bl('p_print_string')];
         }
