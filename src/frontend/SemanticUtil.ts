@@ -12,20 +12,23 @@ export class SymbolTable {
 	parent: SymbolTable;
     name: string;
 
-    byteSizes: [number];
+    byteSizes: number[];
     totalByteSize: number
 
 	constructor(parent:SymbolTable) {
         // initialise table
 		this.table = {};
 		this.parent = parent;
+
+        this.byteSizes = [];
+        this.totalByteSize = 0;
 	}
 
 	insert(ident:NodeType.IdentNode, infoObj:typeAndNodeTuple):void {
 		this.table[ident.toString()] = infoObj;
 
-        this.byteSizes.push(CodeGenUtil.getByteSizeFromNode(infoObj.node.type));
-        this.totalByteSize += CodeGenUtil.getByteSizeFromNode(infoObj.node.type);
+        this.byteSizes.push(CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type) + this.totalByteSize);
+        this.totalByteSize += CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type);
 	}
 
 	lookupAll(ident:NodeType.IdentNode):typeAndNodeTuple {
@@ -38,7 +41,7 @@ export class SymbolTable {
         return result ? result : null;
 	}
 
-    getByteSize() {
+    /*getByteSize() {
         var sum = (xs) => _.reduce(xs, (acc, n) => acc + n);
 
         var counts =  _.countBy(this.table, (tup) => {
@@ -51,7 +54,7 @@ export class SymbolTable {
                             ? counts[typeName] : counts[typeName] * 4));
         
         return byteCount;
-    }
+    }*/
 
     traverseUp(visitFunc) {
         for (var ident in this.table) {

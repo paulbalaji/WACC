@@ -37,6 +37,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
     stackMap: any; // Maps ident strings to corresponding stack locations
 
+    currentST: SemanticUtil.SymbolTable;
+
     constructor(programInfo) {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
@@ -50,6 +52,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.stackMap = {};
 
+    }
+
+    enterNewScope(st) {
+        this.currentST = st;
     }
 
     defineSystemFunctions() {
@@ -161,11 +167,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        var byteSize = node.st.getByteSize();
+        this.currentST = node.st;
+        var byteSize = node.st.totalByteSize;
        
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main'),
-            Instr.Label('main')];
+            Instr.Label('main'), Instr.Push(Reg.LR)];
         
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
@@ -342,10 +349,15 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Mov(Reg.R3, Reg.R0));
 
         for (var i = 1; i <= arrayLength; i++) {
-            instrList.push(node.exprList[i].visit(this),
-                           Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
+            instrList.push(node.exprList[i].visit(this))
+            instrList.push(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
         }
 
+        instrList.push(Instr.Mov(Reg.R0, Instr.Const(arrayLength)),
+                       Instr.Str(Reg.R0, Instr.Mem(Reg.R3)),
+                       Instr.Mov(Reg.R0, Reg.R3));
+
+        return instrList;
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
@@ -378,11 +390,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
-        var spOffset = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
-
-        this.spSubCurrent += 4;
-        this.stackMap[node.ident.toString()] = spOffset;
-        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, spOffset))];
+        var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); // Pops from front of byte sizes
+        
+        // Decide whether to use a Strb instruction or just a str, depending on the type of the node
+        var strInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
+        
+        return [rhsInstructions,
+                strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(spOffset)))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
