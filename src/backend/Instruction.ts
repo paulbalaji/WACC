@@ -182,7 +182,7 @@ export function Smull(...smullArgs) {
     return smull;
 }
 
-export function Cmp(mod, ...cmpArgs) {
+export function Cmp(...cmpArgs) {
     var cmp: any = {};
     cmp.args = cmpArgs;
     cmp.toString = function() {
