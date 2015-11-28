@@ -209,7 +209,7 @@ export function Eor(...eorArgs) {
 	var eor: any = {};
 	eor.args = eorArgs;
 	eor.toString = function() {
-		return 'EOR' + eor.ergs.join(', ');
+		return 'EOR ' + eor.args.join(', ');
 	}
 	return eor;
 }
