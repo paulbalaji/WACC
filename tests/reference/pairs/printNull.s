@@ -12,13 +12,11 @@ msg_1:
 .global main
 main:
 PUSH {lr}
-LDR r4, =0
-MOV r0, r4
+MOV r0, #0
 BL p_print_reference
 BL p_print_ln
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_reference:
 PUSH {lr}
 MOV r1, r0

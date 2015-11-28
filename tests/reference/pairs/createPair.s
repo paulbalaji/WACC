@@ -4,21 +4,26 @@
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r0, =8
+LDR r0, =10
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, =10
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, =3
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, =3
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp]
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp]
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg

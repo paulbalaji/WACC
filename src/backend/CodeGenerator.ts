@@ -26,22 +26,25 @@ export class CodeGenerator implements NodeType.Visitor {
     insertRuntimeError: any;
 
     closingInsertions: any[];
+    printNodeLogic: any;
 
     labelNum: number;
 
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
-    constructor() {
+    programInfo: any; // Containing info about the program, as returned by semantic checker
+
+    constructor(programInfo) {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
 
         this.labelNum = 0;
+        this.programInfo = programInfo;
 
-        this.spSubNum = 0;
-        this.spSubCurrent = 0;
+        this.spSubCurrent = 4;
 
     }
 
@@ -154,29 +157,27 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
+        var spSubInstr = this.programInfo.declareNodeCount === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
+       
         var mainStart = [Instr.Directive('text'),
-                         Instr.Directive('global', 'main'),
-                         Instr.Label('main'), Instr.Push(Reg.LR)];
-
-        var mainInstrList = _.flatten(SemanticUtil.visitNodeList(node.statList, this));
-
-        var instructionList = [Instr.Mov(Reg.R0, Instr.Const(0)),
-                               Instr.Pop(Reg.PC),
-                               _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+            Instr.Directive('global', 'main'),
+            Instr.Label('main'), Instr.Push(Reg.LR), spSubInstr];
+        
+        var instructionList =
+        [
+            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+         ];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
-        var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
 
-        var spAddInstr = this.spSubNum === 0 ? [] : [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
+        var spAddInstr = [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
+        var mainEnd = [spAddInstr, Instr.Mov(Reg.R0, Instr.Const(0)),
+                     Instr.Pop(Reg.PC),
+                     _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
-        return Instr.buildList(this.sections.header,
-                               mainStart,
-                               spSubInstr,
-                               mainInstrList,
-                               spAddInstr,
-                               instructionList,
-                               this.sections.footer);
+        return Instr.buildList(this.sections.header, mainStart, instructionList, mainEnd, this.sections.footer);
+
     }
    
 
@@ -315,7 +316,13 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-        return [Instr.Ldr(Reg.R0, Instr.Const('\'' + node.ch + '\''))]
+
+        if (node.ch.length > 1) {
+            var ch = node.ch[1];
+        } else {
+            var ch = node.ch;
+        }
+        return [Instr.Mov(Reg.R0, Instr.Const('\'' + ch + '\''))]
 
     }
 
@@ -341,11 +348,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
-        console.log(node.rhs);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
-        this.spSubNum += 4;
+        var spConst = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
 
-        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(4)))];
+        this.spSubCurrent += 4;
+        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, spConst))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
@@ -370,7 +377,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-
+        
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
@@ -382,13 +389,20 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
+                unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s)];
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
+                var character = node.expr.visit(this);
+                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(character)),
+                                    Instr.Str(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(4))];
                 break;
             case 'chr':
+                unOpInstructions = [Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.SP)), Instr.mods.b),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(1))];
                 break;
             case 'len':
                 break;
@@ -448,34 +462,6 @@ export class CodeGenerator implements NodeType.Visitor {
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
         // TO CHECK
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
-
-    }
-
-
-    printNodeLogic(node) : any {
-        var exprInstructions = node.expr.visit(this);
-
-        if (node.expr.type instanceof NodeType.BoolTypeNode) {
-            this.insertPrintBool();
-            return [exprInstructions, Instr.Bl('p_print_bool')]
-        } else if (node.expr.type instanceof NodeType.IntTypeNode) {
-            this.insertPrintInt();
-            return [exprInstructions, Instr.Bl('p_print_int')]
-        } else if (node.expr.type instanceof NodeType.CharTypeNode) {
-            return [exprInstructions, Instr.Bl('putchar')]
-        }
-        else if (node.expr.type instanceof NodeType.ArrayTypeNode
-                    && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
-            this.insertPrintString();
-            return [exprInstructions, Instr.Bl('p_print_string')];
-        } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
-            console.log(exprInstructions);
-            this.insertPrintRef();
-            return [exprInstructions, Instr.Bl('p_print_reference')];
-        }
-        else {
-            console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
-        }
 
     }
 }

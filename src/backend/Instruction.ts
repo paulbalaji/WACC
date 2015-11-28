@@ -184,6 +184,15 @@ export function Cmp(...cmpArgs) {
     return cmp;
 }
 
+export function Rsb(...rsbArgs) {
+    var rsb: any = {};
+    rsb.args = rsbArgs;
+    rsb.command = 'RSB';
+    rsb.toString = function() {
+        return rsb.command + ' ' + rsb.args.join(', ');
+    }
+}
+
 export function Asr(n) {
     var asr: any = {};
     asr.value = Const(n);
@@ -192,6 +201,7 @@ export function Asr(n) {
     }
     return asr;
 }
+
 export var mods = {
 	ne : "NE",
 	eq : "EQ",
@@ -209,7 +219,7 @@ export function Eor(...eorArgs) {
 	var eor: any = {};
 	eor.args = eorArgs;
 	eor.toString = function() {
-		return 'EOR' + eor.ergs.join(', ');
+		return 'EOR ' + eor.args.join(', ');
 	}
 	return eor;
 }

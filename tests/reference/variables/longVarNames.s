@@ -4,12 +4,10 @@
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =5
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, =5
+STR r0, [sp]
+LDR r0, [sp]
 BL exit
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg

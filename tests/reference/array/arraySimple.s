@@ -22,46 +22,46 @@ msg_4:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r0, =8
+MOV r0, #8
 BL malloc
-MOV r4, r0
-LDR r5, =0
-STR r5, [r4, #4]
-LDR r5, =1
-STR r5, [r4]
-STR r4, [sp]
-LDR r4, =42
-ADD r5, sp, #0
-LDR r6, =0
-LDR r5, [r5]
-MOV r0, r6
-MOV r1, r5
-BL p_check_array_bounds
-ADD r5, r5, #4
-ADD r5, r5, r6, LSL #2
-STR r4, [r5]
-ADD r4, sp, #0
-LDR r6, =0
-LDR r4, [r4]
-MOV r0, r6
-MOV r1, r4
+MOV r3, r0
+LDR r0, =0
+STR r0, [r3, #4]
+MOV r0, #1
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
+LDR r0, =42
+PUSH {r0, r4}
+LDR r4, [sp, #8]
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r6, LSL #2
+ADD r4, r4, r0, LSL #2
+MOV r1, r4
+POP {r0, r4}
+STR r0, [r1]
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_array_bounds:
 PUSH {lr}
 CMP r0, #0
 LDRLT r0, =msg_0
 BLLT p_throw_runtime_error
-LDR r1, [r1]
+LDR r1, [r4]
 CMP r0, r1
 LDRCS r0, =msg_1
 BLCS p_throw_runtime_error

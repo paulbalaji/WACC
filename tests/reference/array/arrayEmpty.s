@@ -4,13 +4,13 @@
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r0, =4
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, =0
-STR r5, [r4]
-STR r4, [sp]
+MOV r3, r0
+MOV r0, #0
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg

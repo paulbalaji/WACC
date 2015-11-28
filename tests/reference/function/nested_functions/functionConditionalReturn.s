@@ -15,34 +15,28 @@ msg_2:
 .global main
 f_f:
 PUSH {lr}
-MOV r4, #1
-CMP r4, #0
+MOV r0, #1
+CMP r0, #0
 BEQ L0
-MOV r4, #1
-MOV r0, r4
+MOV r0, #1
 POP {pc}
 B L1
 L0:
-MOV r4, #0
-MOV r0, r4
+MOV r0, #0
 POP {pc}
 L1:
-POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #1
 BL f_f
-MOV r4, r0
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #1
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_bool:
 PUSH {lr}
 CMP r0, #0
