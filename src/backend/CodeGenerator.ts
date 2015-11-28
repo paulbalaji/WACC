@@ -14,19 +14,29 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertDataLabel: any;
     insertStringDataHeader: any;
+
     insertPrintString: any;
+    insertPrintBool: any;
 
     insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertRuntimeError: any;
+    
 
     closingInsertions: any[];
 
+    spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
+    spSubCurrent: number;
     constructor() {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
+
+
+        this.spSubNum = 0;
+        this.spSubCurrent = 0;
+
     }
 
     defineSystemFunctions() {
@@ -46,6 +56,14 @@ export class CodeGenerator implements NodeType.Visitor {
                 var message = '%.*s\\0';
                 var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
+        });
+
+        this.insertPrintBool = _.once(() => {
+            this.closingInsertions.push(function() {
+                var trueLabel = this.insertStringDataHeader("true\\0");
+                var falseLabel = this.insertStringDataHeader("false\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
             });
         });
 
@@ -78,18 +96,20 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        var instructionList =
-               [Instr.Directive('text'),
-                Instr.Directive('global', 'main'),
-                Instr.Label('main'),
-                Instr.Push(Reg.LR),
+        var mainStart = [Instr.Directive('text'),
+                     Instr.Directive('global', 'main'),
+                     Instr.Label('main'), Instr.Push(Reg.LR)];
+            var instructionList =
+            [
                 _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
                 Instr.Mov(Reg.R0, Instr.Const(0)),
                 Instr.Pop(Reg.PC),
                 _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
-        return Instr.buildList(this.sections.header, instructionList, this.sections.footer);
+
+        var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
+        return Instr.buildList(this.sections.header, mainStart, spSubInstr, instructionList, this.sections.footer);
     }
    
 
@@ -169,7 +189,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.insertDataLabel();
         var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(node.actualStrLength, node.str);
         this.sections.header.push(strDataInstructions);
-       
+         
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];
     }
 
@@ -211,8 +231,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         var exprInstructions = node.expr.visit(this);
-        this.insertPrintString();
-        return [exprInstructions, Instr.Bl('p_print_string')];       
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        }
+       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -220,7 +246,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
+        console.log(node.rhs);
+        var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
+        this.spSubNum += 4;
 
+        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(4)))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
@@ -239,6 +269,7 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
 
+
     visitFuncNode(node: NodeType.FuncNode): any {
         return Instr.Push(Reg.R0);
     }
@@ -252,6 +283,24 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {
+        var unOpInstructions;
+
+        switch (node.operator) {
+            case '-':
+                break;
+            case '!':
+                unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
+                break;
+            case 'ord':
+                break;
+            case 'chr':
+                break;
+            case 'len':
+                break;
+        }
+
+        var exprInstructions = node.expr.visit(this);
+        return [exprInstructions, unOpInstructions];
 
     }
 
@@ -277,6 +326,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
+        return [Instr.Mov(Reg.R0, node.bool ? Instr.Const(1) : Instr.Const(0))];
 
     }
 
