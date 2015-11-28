@@ -180,6 +180,15 @@ export function Asr(n) {
     return asr;
 }
 
+export function Eor(...eorArgs) {
+	var eor: any = {};
+	eor.args = eorArgs;
+	eor.toString = function() {
+		return 'EOR' + eor.ergs.join(', ');
+	}
+	return eor;
+}
+
 var nextDataLabel = function() {
 	var l = 0;
 	return function() {
