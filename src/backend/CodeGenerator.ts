@@ -338,7 +338,29 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
+        var instrList = [];
+        var arrayLength = node.exprList.length;
+        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
 
+        // add 4 in front to store the array length
+        var offset = 4;
+
+        var size = offset + arrayLength * elemByteSize;
+        
+        instrList.push(Instr.Mov(Reg.R0, Instr.Const(size)),
+                       Instr.Bl('malloc'),
+                       Instr.Mov(Reg.R3, Reg.R0));
+
+        for (var i = 1; i <= arrayLength; i++) {
+            instrList.push(node.exprList[i].visit(this))
+            instrList.push(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
+        }
+
+        instrList.push(Instr.Mov(Reg.R0, Instr.Const(arrayLength)),
+                       Instr.Str(Reg.R0, Instr.Mem(Reg.R3)),
+                       Instr.Mov(Reg.R0, Reg.R3));
+
+        return instrList;
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
