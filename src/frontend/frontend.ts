@@ -21,5 +21,6 @@ export function semanticCheck(ast) {
         case of failure).
     */
     var semanticVisitor = new SemanticChecker.SemanticVisitor();
-    ast.visit(semanticVisitor);
+    var programInfo = ast.visit(semanticVisitor);
+    return programInfo;
 };
