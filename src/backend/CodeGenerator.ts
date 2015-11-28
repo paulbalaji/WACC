@@ -133,9 +133,9 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertCheckArrayBounds = _.once(() => {
             this.closingInsertions.push(function() {
-                var negMessage = 'ArrayIndexOutOfBoundsError: negative index\n\0';
+                var negMessage = 'ArrayIndexOutOfBoundsError: negative index\\n\\0';
                 var negLabel = this.insertStringDataHeader(negMessage);
-                var largeMessage = 'ArrayIndexOutOfBoundsError: index too large\n\0';
+                var largeMessage = 'ArrayIndexOutOfBoundsError: index too large\\n\\0';
                 var largeLabel = this.insertStringDataHeader(largeMessage);
                 this.sections.footer.push(CodeGenUtil.funcDefs.checkArrayBounds(negLabel, largeLabel));
             });
