@@ -148,20 +148,13 @@ export function Bl(branchLabel) {
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
+	add.command = 'ADD';
     add.toString = function() {
-        return 'ADD ' + add.args.join(', ');
+        return  add.command + ' ' + add.args.join(', ');
     }
 	return add;
 }
 
-export function Adds(...addsArgs) {
-	var adds: any = {};
-	adds.args = addsArgs;
-	adds.toString = function() {
-		return 'ADDS ' + adds.args.join(', ');
-	}
-	return adds;
-}
 
 export function Sub(...subArgs) {
     var sub: any = {};
@@ -209,13 +202,14 @@ export function Asr(n) {
     return asr;
 }
 
-export function Rsbs(...rsbsArgs) {
-	var rsbs: any = {};
-	rsbs.args = rsbsArgs;
-    add.toString = function() {
-        return 'ADD ' + add.args.join(', ');
+export function Rsb(...rsbArgs) {
+	var rsb: any = {};
+	rsb.args = rsbArgs;
+	rsb.command = 'RSB'
+    rsb.toString = function() {
+        return rsb.command + ' ' + rsb.args.join(', ');
     }
-	return add;
+	return rsb;
 }
 
 export var mods = {
@@ -227,6 +221,7 @@ export var mods = {
     lt: "LT",
     le: "LE",
     b: "B",
+    s: "S",
 	none : ""
 }
 
