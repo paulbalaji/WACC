@@ -17,6 +17,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintString: any;
 
     insertOverflowError: any;
+    insertDivideByZeroError: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -42,17 +43,27 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('%.*s\\0');
+                var message = '%.*s\\0';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
             });
         });
 
         this.insertOverflowError = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n');
+                var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
             });
             this.insertRuntimeError();
+        });
+
+        this.insertDivideByZeroError = _.once( () => {
+            this.closingInsertions.push(function() {
+                var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
+                var dataLabel = this.insertStringDataHeader(message);
+                this.sections.footer.push(CodeGenUtil.funcDefs.divideByZeroError(dataLabel));
+            });
         });
 
         this.insertRuntimeError = _.once(() => {
@@ -61,6 +72,8 @@ export class CodeGenerator implements NodeType.Visitor {
             });
             this.insertPrintString();
         });
+
+
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
