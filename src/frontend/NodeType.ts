@@ -216,7 +216,8 @@ export class BinOpExprNode extends TreeNode implements ExprNode {
 export class StrLiterNode extends TreeNode implements ExprNode {
     type: TypeNode; // Filled by semantic visitor
     str:  string;
-
+    actualStrLength:number;
+    
     constructor(str: string) {
         super();
         this.str = str;

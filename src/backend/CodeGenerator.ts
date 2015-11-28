@@ -35,7 +35,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertStringDataHeader = function(str: string) {
             this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str);
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - 1, str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
@@ -93,7 +93,7 @@ export class CodeGenerator implements NodeType.Visitor {
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
         this.insertDataLabel();
-        var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(node.str);
+        var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(node.actualStrLength, node.str);
         this.sections.header.push(strDataInstructions);
        
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];

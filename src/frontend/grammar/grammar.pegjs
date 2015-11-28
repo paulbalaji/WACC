@@ -367,24 +367,24 @@ CharLiter
 /* StrLiter */
 StrLiter
  = '"' chars:Character* '"' {
-  //var errorLocation = new WACCError.ErrorLocation(location());
   var node = new NodeType.StrLiterNode(chars.join(''));
-
+  node.actualStrLength = chars.length;
   node.setErrorLocation(new WACCError.ErrorLocation(location()));
   return node;
  }
 
 Character
-  = '\\' escapedCh:EscapedChar { return escapedCh; } / [^\'"]
+  = '\\' escapedCh:EscapedChar { return escapedCh; }
+  / [^\'"]
 
 EscapedChar
-  = '0' { return '\0'; }
-  / 'b' { return '\b'; }
-  / 't' { return '\t'; }
-  / 'n' { return '\n'; }
-  / 'f' { return '\f'; }
-  / 'r' { return '\r'; }
-  / '"' { return '\"'; }
+  = '0' { return '\\0'; }
+  / 'b' { return '\\b'; }
+  / 't' { return '\\t'; }
+  / 'n' { return '\\n'; }
+  / 'f' { return '\\f'; }
+  / 'r' { return '\\r'; }
+  / '"' { return '\\"'; }
   / "'" { return '\''; }
   / '\\'{ return '\\'; }
 
