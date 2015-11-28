@@ -237,7 +237,7 @@ export class CodeGenerator implements NodeType.Visitor {
             case '-':
                 break;
             case '!':
-                unOpInstructions = [Instr.Eor(Reg.R0, Reg.RO, Instr.Const(1))];
+                unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
                 break;
