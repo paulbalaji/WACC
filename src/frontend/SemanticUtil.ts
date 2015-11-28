@@ -27,8 +27,8 @@ export class SymbolTable {
 	insert(ident:NodeType.IdentNode, infoObj:typeAndNodeTuple):void {
 		this.table[ident.toString()] = infoObj;
 
-        this.byteSizes.push(CodeGenUtil.getByteSizeFromNode(infoObj.node.type) + this.totalByteSize);
-        this.totalByteSize += CodeGenUtil.getByteSizeFromNode(infoObj.node.type);
+        this.byteSizes.push(CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type) + this.totalByteSize);
+        this.totalByteSize += CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type);
 	}
 
 	lookupAll(ident:NodeType.IdentNode):typeAndNodeTuple {
