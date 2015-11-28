@@ -23,15 +23,18 @@ export class CodeGenerator implements NodeType.Visitor {
 
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
-    constructor() {
+
+    programInfo: any; // Containing info about the program, as returned by semantic checker
+
+    constructor(programInfo) {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
 
+        this.programInfo = programInfo;
 
-        this.spSubNum = 0;
-        this.spSubCurrent = 0;
+        this.spSubCurrent = 4;
 
     }
 
@@ -71,20 +74,26 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
+        var spSubInstr = this.programInfo.declareNodeCount === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
+       
         var mainStart = [Instr.Directive('text'),
-                     Instr.Directive('global', 'main'),
-                     Instr.Label('main'), Instr.Push(Reg.LR)];
-            var instructionList =
-            [
-                _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                Instr.Mov(Reg.R0, Instr.Const(0)),
-                Instr.Pop(Reg.PC),
-                _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+            Instr.Directive('global', 'main'),
+            Instr.Label('main'), Instr.Push(Reg.LR), spSubInstr];
+        
+        var instructionList =
+        [
+            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+         ];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
-        var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
-        return Instr.buildList(this.sections.header, mainStart, spSubInstr, instructionList, this.sections.footer);
+
+        var spAddInstr = [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
+        var mainEnd = [spAddInstr, Instr.Mov(Reg.R0, Instr.Const(0)),
+                     Instr.Pop(Reg.PC),
+                     _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+
+        return Instr.buildList(this.sections.header, mainStart, instructionList, mainEnd, this.sections.footer);
     }
    
 
@@ -210,9 +219,10 @@ export class CodeGenerator implements NodeType.Visitor {
     visitDeclareNode(node: NodeType.DeclareNode): any {
         console.log(node.rhs);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
-        this.spSubNum += 4;
+        var spConst = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
 
-        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(4)))];
+        this.spSubCurrent += 4;
+        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, spConst))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
@@ -236,7 +246,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-
+        
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
