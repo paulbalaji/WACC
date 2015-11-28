@@ -100,28 +100,13 @@ export function Mem(memArg) {
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
+    bl.command = 'BL';
+
 	bl.toString = function() {
-		return 'BL ' + bl.branchLabel;
+		return bl.command + ' ' + bl.branchLabel;
 	}
+    
 	return bl;
-}
-
-export function Blvs(branchLabel) {
-	var blvs: any = {};
-	blvs.branchLabel = branchLabel;
-	blvs.toString = function() {
-		return 'BLVS ' + blvs.branchLabel;
-	}
-	return blvs;
-}
-
-export function Blne(branchLabel) {
-    var blne: any = {};
-    blne.branchLabel = branchLabel;
-    blne.toString = function() {
-        return 'BLNE ' + blne.branchLabel;
-    }
-    return blne;
 }
 
 export function Add(...addArgs) {
@@ -190,6 +175,7 @@ export function Asr(n) {
 export var mods = {
 	ne : "NE",
 	eq : "EQ",
+    vs:  "VS",
 	none : ""
 }
 

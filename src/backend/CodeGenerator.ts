@@ -17,7 +17,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintString: any;
 
     insertOverflowError: any;
-    insertDivideByZeroError: any;
+    insertCheckDivideByZero: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -36,7 +36,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertStringDataHeader = function(str: string) {
             this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - 1, str);
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - str.split("\\").length + 1, str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
@@ -58,11 +58,11 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertRuntimeError();
         });
 
-        this.insertDivideByZeroError = _.once( () => {
+        this.insertCheckDivideByZero = _.once( () => {
             this.closingInsertions.push(function() {
                 var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
                 var dataLabel = this.insertStringDataHeader(message);
-                this.sections.footer.push(CodeGenUtil.funcDefs.divideByZeroError(dataLabel));
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
             });
             this.insertRuntimeError();
         });
@@ -99,27 +99,34 @@ export class CodeGenerator implements NodeType.Visitor {
         switch (node.operator) {
             case '+':
                 binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '-':
                 binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
-                                     Instr.Blne('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.ne)];
                 this.insertOverflowError();
                 break;
 
             case '/':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idiv')];
+                this.insertCheckDivideByZero();
                 break;
 
             case '%':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idivmod'),
+                                     Instr.Mov(Reg.R0, Reg.R1)];
+                this.insertCheckDivideByZero();
                 break;
 
             case '>':
