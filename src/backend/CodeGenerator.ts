@@ -44,8 +44,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.sections = { header: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
-
-        this.labelNum = 0;
+        
         this.programInfo = programInfo;
 
         this.spSubCurrent = 4;
