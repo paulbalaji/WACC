@@ -1,9 +1,3 @@
-
-# Output:
-# Hello World!
-
-# Program:
-
 begin
-  print false
+  skip
 end
