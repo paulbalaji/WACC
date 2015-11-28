@@ -14,10 +14,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertDataLabel: any;
     insertStringDataHeader: any;
+
     insertPrintString: any;
+    insertPrintBool: any;
 
     insertOverflowError: any;
     insertRuntimeError: any;
+    
 
     closingInsertions: any[];
 
@@ -44,6 +47,14 @@ export class CodeGenerator implements NodeType.Visitor {
             this.closingInsertions.push(function() {
                 var dataLabel = this.insertStringDataHeader('%.*s\\0');
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
+        });
+
+        this.insertPrintBool = _.once(() => {
+            this.closingInsertions.push(function() {
+                var trueLabel = this.insertStringDataHeader("true\\0");
+                var falseLabel = this.insertStringDataHeader("false\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
             });
         });
 
@@ -190,8 +201,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         var exprInstructions = node.expr.visit(this);
-        this.insertPrintString();
-        return [exprInstructions, Instr.Bl('p_print_string')];       
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        }
+       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -217,6 +234,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitIntLiterNode(node: NodeType.IntLiterNode): any {
         return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
+
 
     visitFuncNode(node: NodeType.FuncNode): any {
         return Instr.Push(Reg.R0);
@@ -256,6 +274,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
+        return [Instr.Mov(Reg.R0, node.bool ? Instr.Const(1) : Instr.Const(0))];
 
     }
 
