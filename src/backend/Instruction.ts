@@ -25,7 +25,6 @@ export function Push(...rs) {
 	push.toString = function() {
 		return 'PUSH ' + '{' + push.pushRegs.join(', ') + '}';
 	}
-
 	return push;
 }
 

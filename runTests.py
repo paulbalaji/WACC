@@ -42,7 +42,6 @@ def compare_files(ours, ref):
 
 
 
-
 def run_invalid_sematics(fname): 
     exit_code = (subprocess.call("./compile " + fname + " silence", shell=True))
     if exit_code != SEMANTICS_ERROR_CODE:
