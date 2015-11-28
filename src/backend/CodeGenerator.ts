@@ -28,6 +28,8 @@ export class CodeGenerator implements NodeType.Visitor {
     closingInsertions: any[];
     printNodeLogic: any;
 
+    labelNum: number;
+
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
@@ -41,6 +43,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.defineSystemFunctions();
         this.closingInsertions = [];
 
+        this.labelNum = 0;
         this.programInfo = programInfo;
 
         this.spSubCurrent = 4;
@@ -153,6 +156,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
+    getNextLabelName() {
+        return 'L' + this.labelNum++;
+    }
+
     visitProgramNode(node: NodeType.ProgramNode): any {
         var byteSize = node.st.getByteSize();
        
@@ -195,13 +202,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '+':
-                binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
+                binOpInstructions = [Instr.modify(Instr.Add(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '-':
-                binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
+                binOpInstructions = [Instr.modify(Instr.Sub(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
@@ -251,16 +258,34 @@ export class CodeGenerator implements NodeType.Visitor {
                 break;
 
             case '==':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.eq),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ne)];
                 break;
 
             case '!=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ne),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.eq)];
                 break;
 
             case '&&':
-                break;
+                var label = this.getNextLabelName();
+                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                                     Instr.Cmp(Reg.R0, Instr.Const(0)),
+                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     Instr.Label(label)];
+                return binOpInstructions;
 
             case '||':
-                break;
+                var label = this.getNextLabelName();
+                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                                     Instr.Cmp(Reg.R0, Instr.Const(1)),
+                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     Instr.Label(label)];
+                return binOpInstructions;
 
         }
 
@@ -307,14 +332,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-
         if (node.ch.length > 1) {
             var ch = node.ch[1];
         } else {
             var ch = node.ch;
         }
         return [Instr.Mov(Reg.R0, Instr.Const('\'' + ch + '\''))]
-
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
@@ -327,8 +350,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         return this.printNodeLogic(node);
-
-       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -381,28 +402,27 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
-                unOpInstructions = [Instr.Rsbs(Reg.R0, Reg.R0, Instr.Const(0))];
+                unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s),
+                                    Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
+                this.insertOverflowError();
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
-                var character = node.expr.visit(this);
-                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(character)),
-                                    Instr.Str(Reg.R0, Instr.Mem(Reg.SP)),
-                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(4))];
+                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const('TODO:'))];
                 break;
             case 'chr':
-                unOpInstructions = [Instr.Strb(Reg.R0, Instr.Mem(Reg.SP)),
-                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(1))];
+                unOpInstructions = [];
                 break;
             case 'len':
+                unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
                 break;
         }
 
         var exprInstructions = node.expr.visit(this);
         return [exprInstructions, unOpInstructions];
-
     }
 
     visitSkipNode(node: NodeType.SkipNode): any {
@@ -454,6 +474,5 @@ export class CodeGenerator implements NodeType.Visitor {
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
         // TO CHECK
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
-
     }
 }

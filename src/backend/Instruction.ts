@@ -121,17 +121,17 @@ export function Str(...strArgs) {
 	return str;
 }
 
-export function Strb(...strbArgs) {
-	var strb: any = {};
-	strb.strbArgs = strbArgs;
+export function B(branchLabel) {
+    var b: any = {};
+    b.branchLabel = branchLabel;
+    b.command = 'B';
 
-	strb.toString = function() {
-		return 'STRB ' + strb.strbArgs.join(', ');
-	}
+    b.toString = function() {
+        return b.command + ' ' + b.branchLabel;
+    }
 
-	return strb;
+    return b;
 }
-
 
 export function Bl(branchLabel) {
 	var bl: any = {};
@@ -148,37 +148,31 @@ export function Bl(branchLabel) {
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
+<<<<<<< HEAD
+	add.command = 'ADD';
     add.toString = function() {
-        return 'ADD ' + add.args.join(', ');
+        return  add.command + ' ' + add.args.join(', ');
+=======
+    add.command = 'ADD';
+    add.toString = function() {
+        return add.command + ' ' + add.args.join(', ');
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
     }
 	return add;
 }
 
-export function Adds(...addsArgs) {
-	var adds: any = {};
-	adds.args = addsArgs;
-	adds.toString = function() {
-		return 'ADDS ' + adds.args.join(', ');
-	}
-	return adds;
-}
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
 export function Sub(...subArgs) {
     var sub: any = {};
     sub.args = subArgs;
+    sub.command = 'SUB';
     sub.toString = function() {
-        return 'SUB ' + sub.args.join(', ');
+        return sub.command + ' ' + sub.args.join(', ');
     }
     return sub;
-}
-
-export function Subs(...subsArgs) {
-    var subs: any = {};
-    subs.args = subsArgs;
-    subs.toString = function() {
-        return 'SUBS ' + subs.args.join(', ');
-    }
-    return subs;
 }
 
 export function Smull(...smullArgs) {
@@ -200,6 +194,15 @@ export function Cmp(...cmpArgs) {
     return cmp;
 }
 
+export function Rsb(...rsbArgs) {
+    var rsb: any = {};
+    rsb.args = rsbArgs;
+    rsb.command = 'RSB';
+    rsb.toString = function() {
+        return rsb.command + ' ' + rsb.args.join(', ');
+    }
+}
+
 export function Asr(n) {
     var asr: any = {};
     asr.value = Const(n);
@@ -209,6 +212,7 @@ export function Asr(n) {
     return asr;
 }
 
+<<<<<<< HEAD
 export function Rsbs(...rsbsArgs) {
 	var rsbs: any = {};
 	rsbs.args = rsbsArgs;
@@ -216,8 +220,21 @@ export function Rsbs(...rsbsArgs) {
         return 'Rsbs ' + rsbs.args.join(', ');
     }
 	return rsbs;
+=======
+<<<<<<< HEAD
+export function Rsb(...rsbArgs) {
+	var rsb: any = {};
+	rsb.args = rsbArgs;
+	rsb.command = 'RSB'
+    rsb.toString = function() {
+        return rsb.command + ' ' + rsb.args.join(', ');
+    }
+	return rsb;
+>>>>>>> 90b4e9a35137ce6f6dbc112b1c63c71881ebf893
 }
 
+=======
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
 export var mods = {
 	ne : "NE",
 	eq : "EQ",
@@ -227,6 +244,7 @@ export var mods = {
     lt: "LT",
     le: "LE",
     b: "B",
+    s: "S",
 	none : ""
 }
 

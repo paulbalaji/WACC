@@ -1,4 +1,3 @@
 begin
-	int x = 6;
-	bool b = false
+	int x = 5
 end
