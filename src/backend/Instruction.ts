@@ -121,6 +121,18 @@ export function Str(...strArgs) {
 	return str;
 }
 
+export function B(branchLabel) {
+    var b: any = {};
+    b.branchLabel = branchLabel;
+    b.command = 'B';
+
+    b.toString = function() {
+        return b.command + ' ' + b.branchLabel;
+    }
+
+    return b;
+}
+
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
@@ -136,37 +148,21 @@ export function Bl(branchLabel) {
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
+    add.command = 'ADD';
     add.toString = function() {
-        return 'ADD ' + add.args.join(', ');
+        return add.command + ' ' + add.args.join(', ');
     }
 	return add;
-}
-
-export function Adds(...addsArgs) {
-	var adds: any = {};
-	adds.args = addsArgs;
-	adds.toString = function() {
-		return 'ADDS ' + adds.args.join(', ');
-	}
-	return adds;
 }
 
 export function Sub(...subArgs) {
     var sub: any = {};
     sub.args = subArgs;
+    sub.command = 'SUB';
     sub.toString = function() {
-        return 'SUB ' + sub.args.join(', ');
+        return sub.command + ' ' + sub.args.join(', ');
     }
     return sub;
-}
-
-export function Subs(...subsArgs) {
-    var subs: any = {};
-    subs.args = subsArgs;
-    subs.toString = function() {
-        return 'SUBS ' + subs.args.join(', ');
-    }
-    return subs;
 }
 
 export function Smull(...smullArgs) {
@@ -205,6 +201,7 @@ export var mods = {
     lt: "LT",
     le: "LE",
     b: "B",
+    s: "S",
 	none : ""
 }
 

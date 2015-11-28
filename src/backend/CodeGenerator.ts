@@ -27,6 +27,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
     closingInsertions: any[];
 
+    labelNum: number;
+
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
@@ -36,6 +38,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.defineSystemFunctions();
         this.closingInsertions = [];
 
+        this.labelNum = 0;
 
         this.spSubNum = 0;
         this.spSubCurrent = 0;
@@ -146,6 +149,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
+    getNextLabelName() {
+        return 'L' + this.labelNum++;
+    }
+
     visitProgramNode(node: NodeType.ProgramNode): any {
         var mainStart = [Instr.Directive('text'),
                          Instr.Directive('global', 'main'),
@@ -178,13 +185,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '+':
-                binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
+                binOpInstructions = [Instr.modify(Instr.Add(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '-':
-                binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
+                binOpInstructions = [Instr.modify(Instr.Sub(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
@@ -234,16 +241,34 @@ export class CodeGenerator implements NodeType.Visitor {
                 break;
 
             case '==':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.eq),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ne)];
                 break;
 
             case '!=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ne),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.eq)];
                 break;
 
             case '&&':
-                break;
+                var label = this.getNextLabelName();
+                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                                     Instr.Cmp(Reg.R0, Instr.Const(0)),
+                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     Instr.Label(label)];
+                return binOpInstructions;
 
             case '||':
-                break;
+                var label = this.getNextLabelName();
+                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                                     Instr.Cmp(Reg.R0, Instr.Const(1)),
+                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     Instr.Label(label)];
+                return binOpInstructions;
 
         }
 
