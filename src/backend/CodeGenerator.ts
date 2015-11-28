@@ -316,14 +316,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-
         if (node.ch.length > 1) {
             var ch = node.ch[1];
         } else {
             var ch = node.ch;
         }
         return [Instr.Mov(Reg.R0, Instr.Const('\'' + ch + '\''))]
-
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
@@ -336,8 +334,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         return this.printNodeLogic(node);
-
-       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -410,7 +406,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var exprInstructions = node.expr.visit(this);
         return [exprInstructions, unOpInstructions];
-
     }
 
     visitSkipNode(node: NodeType.SkipNode): any {
@@ -462,6 +457,5 @@ export class CodeGenerator implements NodeType.Visitor {
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
         // TO CHECK
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
-
     }
 }
