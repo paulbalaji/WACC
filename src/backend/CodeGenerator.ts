@@ -411,7 +411,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFreeNode(node: NodeType.FreeNode): any {
-
+        return [node.expr.visit(this), Instr.Bl('free')];
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {

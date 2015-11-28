@@ -1,5 +1,6 @@
 begin
     int[] a = [1];
-    int[][] b = [a];
-    print b[0][0]
+    int[] b = [2];
+    int[][] c = [a, b];
+    free c
 end
