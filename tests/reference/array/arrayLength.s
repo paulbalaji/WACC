@@ -13,29 +13,28 @@ msg_1:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r0, =20
+MOV r0, #20
 BL malloc
-MOV r4, r0
-LDR r5, =43
-STR r5, [r4, #4]
-LDR r5, =2
-STR r5, [r4, #8]
-LDR r5, =18
-STR r5, [r4, #12]
-LDR r5, =1
-STR r5, [r4, #16]
-LDR r5, =4
-STR r5, [r4]
-STR r4, [sp]
-LDR r4, [sp]
-LDR r4, [r4]
-MOV r0, r4
+MOV r3, r0
+LDR r0, =43
+STR r0, [r3, #4]
+LDR r0, =2
+STR r0, [r3, #8]
+LDR r0, =18
+STR r0, [r3, #12]
+LDR r0, =1
+STR r0, [r3, #16]
+MOV r0, #4
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
+LDR r0, [sp]
+LDR r0, [r0]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_int:
 PUSH {lr}
 MOV r1, r0

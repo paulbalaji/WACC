@@ -22,41 +22,50 @@ msg_4:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =10
-LDR r5, =1
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
+LDR r0, =10
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-LDR r5, =2
-LDR r6, =15
-SMULL r5, r6, r5, r6
-CMP r6, r5, ASR #31
+PUSH {r0}
+LDR r0, =2
+PUSH {r0}
+LDR r0, =15
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-ADDS r4, r4, r5
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-LDR r4, [sp]
-LDR r5, =40
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =40
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L0
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
 BL p_print_ln
 B L1
 L0:
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
 L1:
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_throw_overflow_error:
 LDR r0, =msg_2
 BL p_throw_runtime_error

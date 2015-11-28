@@ -19,29 +19,27 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
-LDR r0, =16
+MOV r0, #16
 BL malloc
-MOV r4, r0
-LDR r5, =1
-STR r5, [r4, #4]
-LDR r5, =2
-STR r5, [r4, #8]
-LDR r5, =3
-STR r5, [r4, #12]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+MOV r3, r0
+LDR r0, =1
+STR r0, [r3, #4]
+LDR r0, =2
+STR r0, [r3, #8]
+LDR r0, =3
+STR r0, [r3, #12]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_reference
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

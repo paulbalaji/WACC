@@ -17,16 +17,19 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertPrintString: any;
     insertPrintBool: any;
+    insertPrintInt: any;
+    insertPrintRef: any;
+    insertPrintLn: any;
 
     insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertRuntimeError: any;
-    
 
     closingInsertions: any[];
 
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
+
     constructor() {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
@@ -67,6 +70,27 @@ export class CodeGenerator implements NodeType.Visitor {
             });
         });
 
+        this.insertPrintInt = _.once(() => {
+            this.closingInsertions.push(function() {
+                var intFormatLabel = this.insertStringDataHeader("%d\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
+            });
+        });
+
+        this.insertPrintRef = _.once(() => {
+            this.closingInsertions.push(function() {
+                var refFormatLabel = this.insertStringDataHeader('%p\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+            });
+        });
+
+        this.insertPrintLn = _.once(() => {
+            this.closingInsertions.push(function() {
+                var terminatorLabel = this.insertStringDataHeader('\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
+            });
+        });
+
         this.insertOverflowError = _.once(() => {
             this.closingInsertions.push(function() {
                 var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
@@ -93,23 +117,59 @@ export class CodeGenerator implements NodeType.Visitor {
         });
 
 
+        this.printNodeLogic = function(node) {
+            var exprInstructions = node.expr.visit(this);
+
+            if (node.expr.type instanceof NodeType.BoolTypeNode) {
+                this.insertPrintBool();
+                return [exprInstructions, Instr.Bl('p_print_bool')]
+            } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+                this.insertPrintInt();
+                return [exprInstructions, Instr.Bl('p_print_int')]
+            } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+                return [exprInstructions, Instr.Bl('putchar')]
+            } else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                        && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+                this.insertPrintString();
+                return [exprInstructions, Instr.Bl('p_print_string')];
+            } else if (node.expr.type instanceof NodeType.NullTypeNode
+                        || node.expr.type instanceof NodeType.PairTypeNode) {
+                console.log(exprInstructions);
+                this.insertPrintRef();
+                return [exprInstructions, Instr.Bl('p_print_reference')];
+            } else {
+                //please don't forget to remove this Jan
+                console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+            }
+
+        }
+
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         var mainStart = [Instr.Directive('text'),
-                     Instr.Directive('global', 'main'),
-                     Instr.Label('main'), Instr.Push(Reg.LR)];
-            var instructionList =
-            [
-                _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                Instr.Mov(Reg.R0, Instr.Const(0)),
-                Instr.Pop(Reg.PC),
-                _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+                         Instr.Directive('global', 'main'),
+                         Instr.Label('main'), Instr.Push(Reg.LR)];
+
+        var mainInstrList = _.flatten(SemanticUtil.visitNodeList(node.statList, this));
+
+        var instructionList = [Instr.Mov(Reg.R0, Instr.Const(0)),
+                               Instr.Pop(Reg.PC),
+                               _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
         var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
-        return Instr.buildList(this.sections.header, mainStart, spSubInstr, instructionList, this.sections.footer);
+
+        var spAddInstr = this.spSubNum === 0 ? [] : [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
+
+        return Instr.buildList(this.sections.header,
+                               mainStart,
+                               spSubInstr,
+                               mainInstrList,
+                               spAddInstr,
+                               instructionList,
+                               this.sections.footer);
     }
    
 
@@ -150,15 +210,27 @@ export class CodeGenerator implements NodeType.Visitor {
                 break;
 
             case '>':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.gt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le)];
                 break;
 
             case '<':
-                break;
-
-            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.lt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ge)];
                 break;
 
             case '>=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ge),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.lt)];
+                break;
+
+            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.le),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.gt)];
                 break;
 
             case '==':
@@ -218,7 +290,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-        return '\'' + node.ch + '\'';
+        return [Instr.Ldr(Reg.R0, Instr.Const('\'' + node.ch + '\''))]
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
@@ -230,18 +302,15 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        var exprInstructions = node.expr.visit(this);
-        if (node.expr.type instanceof NodeType.BoolTypeNode) {
-            this.insertPrintBool();
-            return [exprInstructions, Instr.Bl('p_print_bool')]
-        } else {
-            this.insertPrintString();
-            return [exprInstructions, Instr.Bl('p_print_string')];
-        }
+        return this.printNodeLogic(node);
+
        
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
+        var printInstrs = this.printNodeLogic(node);
+        this.insertPrintLn();
+        return [printInstrs, Instr.Bl('p_print_ln')]
 
     }
 
@@ -358,7 +427,36 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
+        // TO CHECK
+        return [Instr.Mov(Reg.R0, Instr.Const(0))];
 
     }
 
+
+    printNodeLogic(node) : any {
+        var exprInstructions = node.expr.visit(this);
+
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+            this.insertPrintInt();
+            return [exprInstructions, Instr.Bl('p_print_int')]
+        } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+            return [exprInstructions, Instr.Bl('putchar')]
+        }
+        else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                    && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
+            console.log(exprInstructions);
+            this.insertPrintRef();
+            return [exprInstructions, Instr.Bl('p_print_reference')];
+        }
+        else {
+            console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+        }
+
+    }
 }

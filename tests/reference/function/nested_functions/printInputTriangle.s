@@ -27,78 +27,81 @@ msg_6:
 .global main
 f_f:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, =0
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L0
 B L1
 L0:
 SUB sp, sp, #8
-LDR r4, [sp, #12]
-STR r4, [sp, #4]
-B L2
-L3:
-LDR r4, =msg_0
-MOV r0, r4
-BL p_print_string
-LDR r4, [sp, #4]
-LDR r5, =1
-SUBS r4, r4, r5
-BLVS p_throw_overflow_error
-STR r4, [sp, #4]
+LDR r0, [sp, #12]
+STR r0, [sp, #4]
+B L3
 L2:
-LDR r4, [sp, #4]
-LDR r5, =0
-CMP r4, r5
-MOVGT r4, #1
-MOVLE r4, #0
-CMP r4, #1
-BEQ L3
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_0
+BL p_print_string
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+L3:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGT r0, #1
+MOVLE r0, #0
+CMP r0, #1
+BEQ L2
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
-LDR r4, [sp, #12]
-LDR r5, =1
-SUBS r4, r4, r5
+LDR r0, [sp, #12]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp, #-4]!
+STR r0, [sp, #-4]!
 BL f_f
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
+STR r0, [sp]
 ADD sp, sp, #8
 L1:
-LDR r4, =0
-MOV r0, r4
-POP {pc}
+LDR r0, =0
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #8
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
 BL p_print_ln
-LDR r4, =0
-STR r4, [sp, #4]
-ADD r4, sp, #4
-MOV r0, r4
+LDR r0, =0
+STR r0, [sp, #4]
+ADD r0, sp, #4
 BL p_read_int
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_f
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
+STR r0, [sp]
 ADD sp, sp, #8
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

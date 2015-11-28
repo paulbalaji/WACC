@@ -18,55 +18,49 @@ msg_3:
 .global main
 f_inc:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, =1
-ADDS r4, r4, r5
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
-POP {pc}
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =0
-STR r4, [sp]
-LDR r4, [sp]
-STR r4, [sp, #-4]!
-BL f_inc
-ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
-BL p_print_int
-BL p_print_ln
-LDR r4, [sp]
-STR r4, [sp, #-4]!
-BL f_inc
-ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-STR r4, [sp, #-4]!
-BL f_inc
-ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-STR r4, [sp, #-4]!
-BL f_inc
-ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
-BL p_print_int
-BL p_print_ln
-ADD sp, sp, #4
 LDR r0, =0
+STR r0, [sp]
+LDR r0, [sp]
+STR r0, [sp, #-4]!
+BL f_inc
+ADD sp, sp, #4
+STR r0, [sp]
+LDR r0, [sp]
+BL p_print_int
+BL p_print_ln
+LDR r0, [sp]
+STR r0, [sp, #-4]!
+BL f_inc
+ADD sp, sp, #4
+STR r0, [sp]
+LDR r0, [sp]
+STR r0, [sp, #-4]!
+BL f_inc
+ADD sp, sp, #4
+STR r0, [sp]
+LDR r0, [sp]
+STR r0, [sp, #-4]!
+BL f_inc
+ADD sp, sp, #4
+STR r0, [sp]
+LDR r0, [sp]
+BL p_print_int
+BL p_print_ln
+ADD sp, sp, #4
+MOV r0, #0
 POP {pc}
-.ltorg
 p_throw_overflow_error:
 LDR r0, =msg_0
 BL p_throw_runtime_error

@@ -19,23 +19,24 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #12
-LDR r4, =42
-STR r4, [sp, #8]
-LDR r4, =30
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-LDR r5, [sp, #4]
-ADDS r4, r4, r5
+LDR r0, =42
+STR r0, [sp, #8]
+LDR r0, =30
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #12
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_throw_overflow_error:
 LDR r0, =msg_0
 BL p_throw_runtime_error

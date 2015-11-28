@@ -19,30 +19,29 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #2
-MOV r4, #1
-STRB r4, [sp, #1]
-MOV r4, #0
-STRB r4, [sp]
-LDRSB r4, [sp, #1]
-LDRSB r5, [sp]
-ORR r4, r4, r5
-CMP r4, #0
+MOV r0, #1
+STRB r0, [sp, #1]
+MOV r0, #0
+STRB r0, [sp]
+LDRSB r0, [sp, #1]
+CMP r0, #1
+BEQ L2
+LDRSB r0, [sp]
+L2:
+CMP r0, #0
 BEQ L0
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
 BL p_print_ln
 B L1
 L0:
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
 L1:
 ADD sp, sp, #2
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

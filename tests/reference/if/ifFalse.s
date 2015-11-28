@@ -18,23 +18,20 @@ msg_3:
 .global main
 main:
 PUSH {lr}
-MOV r4, #0
-CMP r4, #0
+MOV r0, #0
+CMP r0, #0
 BEQ L0
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
 BL p_print_ln
 B L1
 L0:
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
 L1:
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

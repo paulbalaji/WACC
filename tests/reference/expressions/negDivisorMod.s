@@ -19,24 +19,23 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #8
-LDR r4, =5
-STR r4, [sp, #4]
-LDR r4, =-3
-STR r4, [sp]
-LDR r4, [sp, #4]
-LDR r5, [sp]
-MOV r0, r4
-MOV r1, r5
+LDR r0, =5
+STR r0, [sp, #4]
+LDR r0, =-3
+STR r0, [sp]
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idivmod
-MOV r4, r1
-MOV r0, r4
+MOV r0, r1
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #8
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_divide_by_zero:
 PUSH {lr}
 CMP r1, #0

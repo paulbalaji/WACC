@@ -90,10 +90,22 @@ export function Mov(dst, src) {
 
 export function Mem(...memArgs) {
 	var mem: any = {};
-	mem.memArgs = memArgs;
+    
+    mem.memArgs = memArgs
+
+    // var lastElem = mem.memArgs[mem.memArgs.length - 1];
+    // if (lastElem instanceof Const) {
+    //     if (lastElem.n === 0) {
+    //         mem.memArgs = mem.memArgs.slice(0, -1);
+    //     } else {
+    //     	;
+    //     }
+    // }
+
     mem.toString = function() {
         return '[' + mem.memArgs.join(', ') + ']';
     }
+
 	return mem;
 }
 
@@ -179,7 +191,7 @@ export function Smull(...smullArgs) {
     return smull;
 }
 
-export function Cmp(mod, ...cmpArgs) {
+export function Cmp(...cmpArgs) {
     var cmp: any = {};
     cmp.args = cmpArgs;
     cmp.toString = function() {
@@ -210,6 +222,11 @@ export var mods = {
 	ne : "NE",
 	eq : "EQ",
     vs:  "VS",
+    gt: "GT",
+    ge: "GE",
+    lt: "LT",
+    le: "LE",
+    b: "B",
 	none : ""
 }
 

@@ -19,46 +19,46 @@ msg_3:
 f_getPair:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r0, =8
+LDR r0, =10
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, =10
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, =15
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, =15
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp]
+LDR r0, [sp]
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #8
 BL f_getPair
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #4]
-MOV r0, r4
+STR r0, [sp, #4]
+LDR r0, [sp, #4]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #8
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_null_pointer:
 PUSH {lr}
 CMP r0, #0
