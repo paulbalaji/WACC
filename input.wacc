@@ -1,6 +1,0 @@
-begin
-	
-	while false do
-		exit 3
-	done
-end

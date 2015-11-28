@@ -343,8 +343,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
         var instrList = [];
-        var arrayLength = node.exprList.length;
-        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
+        var arrayLength = node.exprList ? node.exprList.length : 0;
+        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
 
         // add 4 in front to store the array length
         var offset = 4;
@@ -355,9 +355,17 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Bl('malloc'),
                        Instr.Mov(Reg.R3, Reg.R0));
 
-        for (var i = 1; i <= arrayLength; i++) {
-            instrList.push(node.exprList[i].visit(this))
-            instrList.push(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
+        if (elemByteSize === 4) {
+            for (var i = 1; i <= arrayLength; i++) {
+                instrList.push(node.exprList[i - 1].visit(this),
+                               Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
+            }
+        } else {
+            for (var i = 0; i < arrayLength; i++) {
+                instrList.push(node.exprList[i].visit(this),
+                               Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(offset + i))),
+                                            Instr.mods.b));
+            }
         }
 
         instrList.push(Instr.Mov(Reg.R0, Instr.Const(arrayLength)),
