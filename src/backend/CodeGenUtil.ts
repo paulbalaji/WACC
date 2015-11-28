@@ -14,8 +14,19 @@ export var funcDefs = {
 				Instr.Bl('fflush'),
 				Instr.Pop(Reg.PC)];
 	},
+	printBool: function(trueLabel, falseLabel) {
+		return [Instr.Label('p_print_bool'),
+				Instr.Push(Reg.LR),
+				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(trueLabel)), Instr.mods.ne),
+				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(falseLabel)), Instr.mods.eq),
+				Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
+				Instr.Bl("printf"),
+				Instr.Mov(Reg.R0, Instr.Const(0)),
+				Instr.Bl('fflush'),
+				Instr.Pop(Reg.PC)];
 
-	overflowError: function(overflowErrorlLabel) {
+	},
+		overflowError: function(overflowErrorlLabel) {
         return [Instr.Label('p_throw_overflow_error'),
         		Instr.Ldr(Reg.R0, Instr.Liter(overflowErrorlLabel)),
             	Instr.Bl('p_throw_runtime_error')];

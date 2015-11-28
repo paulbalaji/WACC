@@ -1,5 +1,9 @@
 var _ = require('underscore');
 
+export function modify (instr, mod) {
+	instr.command += mod;
+	return instr;
+}
 export function Directive(name, ...args) {
 	var dir: any = {};
 	dir.name = name;
@@ -64,8 +68,9 @@ export function Ldr(dst, src) {
     var ldr: any = {};
     ldr.dst = dst;
     ldr.src = src;
+	ldr.command = "LDR"
     ldr.toString = function() {
-        return 'LDR ' + [dst, src].join(', ');
+        return  ldr.command + ' ' + [dst, src].join(', ');
     }
     return ldr;
 }
@@ -74,9 +79,12 @@ export function Mov(dst, src) {
 	var mov: any = {};
 	mov.dst = dst;
 	mov.src = src;
+	mov.command = 'MOV';
+
 	mov.toString = function() {
-		return 'MOV ' + [dst, src].join(', ');
+		return  mov.command + ' ' + [dst, src].join(', ');
 	}
+
 	return mov;
 }
 
@@ -162,7 +170,7 @@ export function Smull(...smullArgs) {
     return smull;
 }
 
-export function Cmp(...cmpArgs) {
+export function Cmp(mod, ...cmpArgs) {
     var cmp: any = {};
     cmp.args = cmpArgs;
     cmp.toString = function() {
@@ -178,6 +186,11 @@ export function Asr(n) {
         return 'ASR ' + asr.value;
     }
     return asr;
+}
+export var mods = {
+	ne : "NE",
+	eq : "EQ",
+	none : ""
 }
 
 var nextDataLabel = function() {
