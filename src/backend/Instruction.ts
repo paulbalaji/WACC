@@ -4,6 +4,11 @@ export function modify (instr, mod) {
 	instr.command += mod;
 	return instr;
 }
+
+function isConst(obj) {
+	return obj._const;
+}
+
 export function Directive(name, ...args) {
 	var dir: any = {};
 	dir.name = name;
@@ -38,6 +43,7 @@ export function Pop(...rs) {
 export function Const(n) {
 	var cst: any = {};
 	cst.n = n;
+	cst._const = true; // Signals that this is of type const
 	cst.toString = function() {
 		return '#' + n;
 	}
@@ -69,6 +75,8 @@ export function Ldr(dst, src) {
     ldr.dst = dst;
     ldr.src = src;
 	ldr.command = "LDR"
+
+
     ldr.toString = function() {
         return  ldr.command + ' ' + [dst, src].join(', ');
     }
@@ -111,6 +119,11 @@ export function Mem(...memArgs) {
 
 export function Str(...strArgs) {
 	var str: any = {};
+	var lastArg = _.last(strArgs);
+	if (isConst(lastArg) && lastArg.n === 0) { // If last arg is a Const #0, then remove it as its unnesccessary
+		strArgs = _.initial(strArgs); // Remove the last arg
+	}
+	
 	str.strArgs = strArgs;
 	str.command = 'STR';
 
