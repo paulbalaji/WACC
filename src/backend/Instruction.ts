@@ -148,13 +148,23 @@ export function Bl(branchLabel) {
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
+<<<<<<< HEAD
+	add.command = 'ADD';
+    add.toString = function() {
+        return  add.command + ' ' + add.args.join(', ');
+=======
     add.command = 'ADD';
     add.toString = function() {
         return add.command + ' ' + add.args.join(', ');
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
     }
 	return add;
 }
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
 export function Sub(...subArgs) {
     var sub: any = {};
     sub.args = subArgs;
@@ -202,6 +212,19 @@ export function Asr(n) {
     return asr;
 }
 
+<<<<<<< HEAD
+export function Rsb(...rsbArgs) {
+	var rsb: any = {};
+	rsb.args = rsbArgs;
+	rsb.command = 'RSB'
+    rsb.toString = function() {
+        return rsb.command + ' ' + rsb.args.join(', ');
+    }
+	return rsb;
+}
+
+=======
+>>>>>>> 2b875dae35e1c259bf67ad5863c594e153f40637
 export var mods = {
 	ne : "NE",
 	eq : "EQ",

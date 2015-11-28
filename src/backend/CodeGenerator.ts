@@ -385,22 +385,22 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
-                unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s)];
+                unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s),
+                                    Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
+                this.insertOverflowError();
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
-                var character = node.expr.visit(this);
-                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(character)),
-                                    Instr.Str(Reg.R0, Instr.Mem(Reg.SP)),
-                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(4))];
+                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const('TODO:'))];
                 break;
             case 'chr':
-                unOpInstructions = [Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.SP)), Instr.mods.b),
-                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(1))];
+                unOpInstructions = [];
                 break;
             case 'len':
+                unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
                 break;
         }
 
