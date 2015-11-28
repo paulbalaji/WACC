@@ -180,8 +180,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
-
-        var spAddInstr = byteSize === 0 ? [] : [];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
                      Instr.Pop(Reg.PC),
                      _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
@@ -323,6 +321,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): any {
+        this.currentST = node.st;
+        var instrs = SemanticUtil.visitNodeList(node.statList, this);
+        this.currentST = node.st.parent;
+
+        return this.scopedInstructions(node.st.totalByteSize, instrs);
 
     }
 
@@ -399,6 +402,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
+        return [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))];
         
     }
 

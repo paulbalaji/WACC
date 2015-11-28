@@ -5,7 +5,10 @@ var _ = require('underscore');
 interface typeAndNodeTuple {
 	type:any;
 	node:any;
+    offset: any;
 }
+
+
 
 export class SymbolTable {
 	table: any;
@@ -25,9 +28,10 @@ export class SymbolTable {
 	}
 
 	insert(ident:NodeType.IdentNode, infoObj:typeAndNodeTuple):void {
-		this.table[ident.toString()] = infoObj;
+        infoObj.offset = CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type) + this.totalByteSize ;
+        this.table[ident.toString()] = infoObj;
 
-        this.byteSizes.push(CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type) + this.totalByteSize);
+        this.byteSizes.push(infoObj.offset);
         this.totalByteSize += CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type);
 	}
 
@@ -36,7 +40,13 @@ export class SymbolTable {
 		return result === null && this.parent ? this.parent.lookupAll(ident) : result;
 	}
 
-	lookup(ident:NodeType.IdentNode):typeAndNodeTuple {
+    lookUpOffset(ident: NodeType.IdentNode): number {
+        var result =  this.lookup(ident);
+
+        return result === null ? this.parent.lookUpOffset(ident) + this.totalByteSize : this.totalByteSize - result.offset;
+
+    }
+    lookup(ident: NodeType.IdentNode):typeAndNodeTuple {
 		var result = this.table[ident.toString()];
         return result ? result : null;
 	}

@@ -1,6 +1,8 @@
 begin
-    int x = 5;
-    bool b = false;
-    int x2 = 10;
-    bool a = true
+	int x = 5;
+	begin 
+		int x = 6;
+		print x
+	end
+
 end
