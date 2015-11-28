@@ -1,3 +1,5 @@
 begin
-    bool[] x = [true, false, true]
+    int[] a = [1];
+    int[] b = [2];
+    int[][] x = [a, b]
 end

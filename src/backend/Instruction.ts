@@ -68,7 +68,7 @@ export function Ldr(dst, src) {
     var ldr: any = {};
     ldr.dst = dst;
     ldr.src = src;
-	ldr.command = "LDR"
+    ldr.command = "LDR";
     ldr.toString = function() {
         return  ldr.command + ' ' + [dst, src].join(', ');
     }
