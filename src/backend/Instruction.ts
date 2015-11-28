@@ -226,6 +226,7 @@ export var mods = {
     le: "LE",
     b: "B",
     s: "S",
+    sb: "SB",
 	none : ""
 }
 

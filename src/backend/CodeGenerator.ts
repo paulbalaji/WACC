@@ -61,6 +61,16 @@ export class CodeGenerator implements NodeType.Visitor {
         })();
     }
 
+    pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
+        this.currentST.stackOffset++;
+        return Instr.Push.apply(this, pushArgs);
+    }
+
+    popWithDecrement(...popArgs) { // Decrements currentST stack offset and returns the push instruction
+        this.currentST.stackOffset--;
+        return Instr.Pop.apply(this, popArgs);
+    }
+
     enterNewScope(st) {
         this.currentST = st;
     }
@@ -204,8 +214,8 @@ export class CodeGenerator implements NodeType.Visitor {
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-                     Instr.Pop(Reg.PC),
-                     _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+            Instr.Pop(Reg.PC),
+            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         return Instr.buildList(this.sections.header, mainStart, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
 
@@ -229,7 +239,6 @@ export class CodeGenerator implements NodeType.Visitor {
         var binOpInstructions;
 
         var lhsInstructions = node.leftOperand.visit(this);
-        var rhsInstructions = node.rightOperand.visit(this);
 
         switch (node.operator) {
             case '+':
@@ -302,6 +311,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             case '&&':
                 var label = this.getNextLabelName();
+                var rhsInstructions = node.rightOperand.visit(this);
                 binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(0)),
                                      Instr.modify(Instr.B(label), Instr.mods.eq),
@@ -311,6 +321,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             case '||':
                 var label = this.getNextLabelName();
+                var rhsInstructions = node.rightOperand.visit(this);
                 binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(1)),
                                      Instr.modify(Instr.B(label), Instr.mods.eq),
@@ -320,10 +331,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
         }
 
-        var rest = [Instr.Push(Reg.R0),
-                    rhsInstructions,
+        var rest = [this.pushWithIncrement(Reg.R0),
+                    node.rightOperand.visit(this),
                     Instr.Mov(Reg.R1, Reg.R0),
-                    Instr.Pop(Reg.R0),
+                    this.popWithDecrement(Reg.R0),
                     binOpInstructions];
         
         return [lhsInstructions, rest];
@@ -502,7 +513,8 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-        return [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))];
+        var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+        return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))]; 
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
@@ -549,7 +561,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitIfNode(node: NodeType.IfNode): any {
         var exprInstructions = node.predicateExpr.visit(this);
 
-            falseInstructions = SemanticUtil.visitNodeList(node.falseStatList, this);
+        var parentST = this.currentST;
 
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
@@ -561,8 +573,9 @@ export class CodeGenerator implements NodeType.Visitor {
         
         this.currentST = node.falseSt;
         var falseInstructions = this.scopedInstructions(node.falseSt.totalByteSize, SemanticUtil.visitNodeList(node.falseStatList, this));
-        return [exprInstructions, cmpInstructions, trueInstructions, Instr.B(afterLabel), Instr.Label(falseLabel), falseInstructions, Instr.Label(afterLabel)];
     
+        this.currentST = parentST;
+        return [exprInstructions, cmpInstructions, trueInstructions, Instr.B(afterLabel), Instr.Label(falseLabel), falseInstructions, Instr.Label(afterLabel)];
     }
 
     visitArrayTypeNode(node: NodeType.ArrayTypeNode): any {
@@ -575,7 +588,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
         return [Instr.Mov(Reg.R0, node.bool ? Instr.Const(1) : Instr.Const(0))];
-
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
