@@ -212,10 +212,10 @@ export function Asr(n) {
 export function Rsbs(...rsbsArgs) {
 	var rsbs: any = {};
 	rsbs.args = rsbsArgs;
-    add.toString = function() {
-        return 'ADD ' + add.args.join(', ');
+    rsbs.toString = function() {
+        return 'Rsbs ' + rsbs.args.join(', ');
     }
-	return add;
+	return rsbs;
 }
 
 export var mods = {

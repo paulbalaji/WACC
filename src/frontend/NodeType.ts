@@ -1,6 +1,8 @@
 ///<reference path="../node.d.ts"/>
 
 import Error = require('./WACCError');
+import SemanticUtil = require('./SemanticUtil');
+
 export interface Visitable {
     visit(v:Visitor):any;
 }
@@ -78,6 +80,8 @@ export class ProgramNode extends TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
 
+    st: SemanticUtil.SymbolTable;
+
     constructor(functionList:[FuncNode], statList:[StatNode]) {
         super();
         this.functionList = functionList;
@@ -94,6 +98,9 @@ export class FuncNode extends TreeNode {
     ident:     IdentNode;
     paramList: [ParamNode];
     statList:  [StatNode];
+
+    st: SemanticUtil.SymbolTable;
+
     constructor(type : TypeNode, ident : IdentNode, paramList : [ParamNode], statList: [StatNode]) {
         super();
         this.type = type;
@@ -249,6 +256,8 @@ export class AssignNode extends TreeNode implements StatNode {
 export class BeginEndBlockNode extends TreeNode implements StatNode {
     statList: [StatNode];
 
+    st: SemanticUtil.SymbolTable;
+
     constructor(statList: [StatNode]) {
         super();
         this.statList = statList;
@@ -275,6 +284,8 @@ export class ReturnNode extends TreeNode implements StatNode {
 export class WhileNode extends TreeNode implements StatNode {
     predicateExpr: ExprNode;
     loopBody:      [StatNode];
+
+    st: SemanticUtil.SymbolTable;
 
     constructor(predicateExpr: ExprNode, loopBody: [StatNode]) {
         super();
@@ -351,6 +362,9 @@ export class IfNode extends TreeNode implements StatNode {
     predicateExpr: ExprNode;
     trueStatList:  [StatNode];
     falseStatList: [StatNode];
+
+    trueSt: SemanticUtil.SymbolTable;
+    falseSt: SemanticUtil.SymbolTable;
 
     constructor(predicateExpr: ExprNode,
                 trueStatList:  [StatNode],

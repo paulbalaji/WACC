@@ -1,0 +1,4 @@
+begin
+	int x = 6;
+	bool b = false
+end

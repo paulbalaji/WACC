@@ -38,6 +38,7 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
+        node.st = this.currentST;
         /* 
             Partially visit all the functionNodes inserting their idents into the symbol table,
             and returning the rest of the visit as callback functions.
@@ -79,6 +80,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         */
         return () => {
             this.enterNewScope();
+            node.st = this.currentST;
             SemanticUtil.visitNodeList(node.paramList, this);
             SemanticUtil.visitNodeList(node.statList, this);
             this.switchToParentScope();
@@ -126,6 +128,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): void {
         this.enterNewScope();
+        node.st = this.currentST;
         SemanticUtil.visitNodeList(node.statList, this);
         this.switchToParentScope();
     }
@@ -140,6 +143,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         this.enterNewScope();
+        node.st = this.currentST;
         SemanticUtil.visitNodeList(node.loopBody, this);
         this.switchToParentScope();
     }
@@ -406,11 +410,13 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // scope for the true branch
         this.enterNewScope();
+        node.trueSt = this.currentST;
         SemanticUtil.visitNodeList(node.trueStatList, this);
         this.switchToParentScope();
 
         // same parent but different scope for the false branch
         this.enterNewScope();
+        node.falseSt = this.currentST;
         SemanticUtil.visitNodeList(node.falseStatList, this);
         this.switchToParentScope();
     }
