@@ -17,6 +17,9 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertPrintString: any;
     insertPrintBool: any;
+    insertPrintInt: any;
+    insertPrintRef: any;
+    insertPrintLn: any;
 
     insertOverflowError: any;
     insertCheckDivideByZero: any;
@@ -67,6 +70,27 @@ export class CodeGenerator implements NodeType.Visitor {
             });
         });
 
+        this.insertPrintInt = _.once(() => {
+            this.closingInsertions.push(function() {
+                var intFormatLabel = this.insertStringDataHeader("%d\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
+            });
+        });
+
+        this.insertPrintRef = _.once(() => {
+            this.closingInsertions.push(function() {
+                var refFormatLabel = this.insertStringDataHeader('%p\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+            });
+        });
+
+        this.insertPrintLn = _.once(() => {
+            this.closingInsertions.push(function() {
+                var terminatorLabel = this.insertStringDataHeader('\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
+            });
+        });
+
         this.insertOverflowError = _.once(() => {
             this.closingInsertions.push(function() {
                 var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
@@ -92,6 +116,33 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertPrintString();
         });
 
+
+        this.printNodeLogic = function(node) {
+            var exprInstructions = node.expr.visit(this);
+
+            if (node.expr.type instanceof NodeType.BoolTypeNode) {
+                this.insertPrintBool();
+                return [exprInstructions, Instr.Bl('p_print_bool')]
+            } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+                this.insertPrintInt();
+                return [exprInstructions, Instr.Bl('p_print_int')]
+            } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+                return [exprInstructions, Instr.Bl('putchar')]
+            }
+            else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                        && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+                this.insertPrintString();
+                return [exprInstructions, Instr.Bl('p_print_string')];
+            } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
+                console.log(exprInstructions);
+                this.insertPrintRef();
+                return [exprInstructions, Instr.Bl('p_print_reference')];
+            }
+            else {
+                console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+            }
+
+        }
 
     }
 
@@ -232,6 +283,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
+        return [Instr.Ldr(Reg.R0, Instr.Const('\'' + node.ch + '\''))]
 
     }
 
@@ -244,18 +296,15 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        var exprInstructions = node.expr.visit(this);
-        if (node.expr.type instanceof NodeType.BoolTypeNode) {
-            this.insertPrintBool();
-            return [exprInstructions, Instr.Bl('p_print_bool')]
-        } else {
-            this.insertPrintString();
-            return [exprInstructions, Instr.Bl('p_print_string')];
-        }
+        return this.printNodeLogic(node);
+
        
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
+        var printInstrs = this.printNodeLogic(node);
+        this.insertPrintLn();
+        return [printInstrs, Instr.Bl('p_print_ln')]
 
     }
 
@@ -365,7 +414,36 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
+        // TO CHECK
+        return [Instr.Mov(Reg.R0, Instr.Const(0))];
 
     }
 
+
+    printNodeLogic(node) : any {
+        var exprInstructions = node.expr.visit(this);
+
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+            this.insertPrintInt();
+            return [exprInstructions, Instr.Bl('p_print_int')]
+        } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+            return [exprInstructions, Instr.Bl('putchar')]
+        }
+        else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                    && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
+            console.log(exprInstructions);
+            this.insertPrintRef();
+            return [exprInstructions, Instr.Bl('p_print_reference')];
+        }
+        else {
+            console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+        }
+
+    }
 }
