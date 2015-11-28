@@ -10,7 +10,7 @@ var printFooter = [
 	Instr.Pop(Reg.PC)
 ]
 
-export function getByteSizeFromNode(typeNode) {
+export function getByteSizeFromTypeNode(typeNode) {
     return typeNode.constructor.name === ('BoolTypeNode' || 'CharTypeNode') ? 1 : 4;
 }
 
