@@ -180,8 +180,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
-
-        var spAddInstr = byteSize === 0 ? [] : [];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
                      Instr.Pop(Reg.PC),
                      _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
@@ -323,6 +321,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): any {
+        this.currentST = node.st;
+        var instrs = SemanticUtil.visitNodeList(node.statList, this);
+        this.currentST = node.st.parent;
+
+        return this.scopedInstructions(node.st.totalByteSize, instrs);
 
     }
 
@@ -335,7 +338,29 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
+        var instrList = [];
+        var arrayLength = node.exprList.length;
+        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
 
+        // add 4 in front to store the array length
+        var offset = 4;
+
+        var size = offset + arrayLength * elemByteSize;
+        
+        instrList.push(Instr.Mov(Reg.R0, Instr.Const(size)),
+                       Instr.Bl('malloc'),
+                       Instr.Mov(Reg.R3, Reg.R0));
+
+        for (var i = 1; i <= arrayLength; i++) {
+            instrList.push(node.exprList[i].visit(this))
+            instrList.push(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(i * elemByteSize))));
+        }
+
+        instrList.push(Instr.Mov(Reg.R0, Instr.Const(arrayLength)),
+                       Instr.Str(Reg.R0, Instr.Mem(Reg.R3)),
+                       Instr.Mov(Reg.R0, Reg.R3));
+
+        return instrList;
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
@@ -399,6 +424,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
+        return [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))];
         
     }
 

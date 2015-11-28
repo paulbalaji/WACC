@@ -71,7 +71,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         // Insert function ident into the function lookup table.
-        this.functionST.insert(node.ident, {type: node.type, node: node});
+        this.functionST.insert(node.ident, {type: node.type, node: node, offset: null});
         node.ident.type = node.type;
 
         /*
@@ -186,7 +186,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitParamNode(node: NodeType.ParamNode): void {
         node.type.visit(this);
-        this.currentST.insert(node.ident, { type: node.type, node: node });
+        this.currentST.insert(node.ident, { type: node.type, node: node, offset:null });
         node.ident.visit(this);
     }
 
@@ -238,7 +238,7 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          , node.rhs.errorLocation);
         }
 
-        this.currentST.insert(node.ident, {type: node.type, node: node});
+        this.currentST.insert(node.ident, {type: node.type, node: node, offset : 0});
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): void {
