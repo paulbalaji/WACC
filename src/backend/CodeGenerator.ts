@@ -333,6 +333,9 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitWhileNode(node: NodeType.WhileNode): any {
+        var expr = node.predicateExpr.visit(this);
+        
+        var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
 
     }
 
