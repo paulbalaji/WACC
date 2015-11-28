@@ -207,9 +207,19 @@ export function Asr(n) {
     return asr;
 }
 
+export function Lsl(n) {
+    var lsl: any = {};
+    lsl.value = Const(n);
+    lsl.toString = function() {
+        return 'LSL ' + lsl.value;
+    }
+    return lsl;
+}
+
 export var mods = {
 	ne : "NE",
 	eq : "EQ",
+    cs: "CS",
     vs:  "VS",
     gt: "GT",
     ge: "GE",

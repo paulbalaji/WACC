@@ -23,6 +23,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertOverflowError: any;
     insertCheckDivideByZero: any;
+    insertCheckArrayBounds: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -128,6 +129,17 @@ export class CodeGenerator implements NodeType.Visitor {
                 var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
                 var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
+            });
+            this.insertRuntimeError();
+        });
+
+        this.insertCheckArrayBounds = _.once(() => {
+            this.closingInsertions.push(function() {
+                var negMessage = 'ArrayIndexOutOfBoundsError: negative index\n\0';
+                var negLabel = this.insertStringDataHeader(negMessage);
+                var largeMessage = 'ArrayIndexOutOfBoundsError: index too large\n\0';
+                var largeLabel = this.insertStringDataHeader(largeMessage);
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkArrayBounds(negLabel, largeLabel));
             });
             this.insertRuntimeError();
         });
@@ -413,7 +425,34 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
+        // int[] x = a[0]
+        var instrList = [];
+        instrList.push(node.ident.visit(this));
 
+        if (!node.exprList) {
+            // if asking for the entire array, just return what you get from visiting the ident
+            return instrList;
+        }
+
+        // console.log(node.constructor.name);
+        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
+
+        instrList.push(Instr.Push(Reg.R4),
+                       Instr.Mov(Reg.R4, Reg.R0));
+
+        for (var i = 0; i < node.exprList.length; i++) {
+            this.insertCheckArrayBounds();
+            instrList.push(node.exprList[i].visit(this),
+                           Instr.Bl('p_check_array_bounds'),
+                           Instr.Add(Reg.R4, Reg.R4, Instr.Liter(elemByteSize)),
+                           Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)),
+                           Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)));
+        }
+
+        instrList.push(Instr.Mov(Reg.R0, Reg.R4),
+                       Instr.Pop(Reg.R4));
+
+        return instrList;
     }
 
     visitCallNode(node: NodeType.CallNode): any {
@@ -435,7 +474,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         return [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))];
-        
     }
 
     visitReadNode(node: NodeType.ReadNode): any {

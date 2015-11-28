@@ -10,32 +10,36 @@ SYNTAX_ERROR_CODE = 100
 SUCCESS_CODE = 0
 
 def compare_files(ours, ref):
-    fp_ours = open(ours, "r")
-    
-    ours_lines = filter(lambda l : not l.isspace(), fp_ours.readlines())
-    ours_lines = map(lambda l: l.strip(), ours_lines)
-    fp_ours.close()
-    fp_ref = open(ref, "r")
-    ref_lines = filter(lambda l : not l.isspace(), fp_ref.readlines())
-    ref_lines = map(lambda l: l.strip(), ref_lines)
+    try:
+        fp_ours = open(ours, "r")
+        
+        ours_lines = filter(lambda l : not l.isspace(), fp_ours.readlines())
+        ours_lines = map(lambda l: l.strip(), ours_lines)
+        fp_ours.close()
+        fp_ref = open(ref, "r")
+        ref_lines = filter(lambda l : not l.isspace(), fp_ref.readlines())
+        ref_lines = map(lambda l: l.strip(), ref_lines)
 
-    fp_ref.close()
-    correct = True
-    for i, l in enumerate(ref_lines):
-        if i >= len(ours_lines):
-            # print "Fail in: " + ref 
-            # print "Not enough lines in ours"
-            # print "Rest of ref:" + str(ref_lines[i:])
-            correct = False
-            break
-        if l != ours_lines[i]:
-             # print "Fail in: " + ref 
-             # print "    Ours: " + ours_lines[i]
-             # print "    Ref : " + l
-             correct =  False
-    if not correct:
-        print "Incorrect " + ref
-    return correct
+        fp_ref.close()
+        correct = True
+        for i, l in enumerate(ref_lines):
+            if i >= len(ours_lines):
+                # print "Fail in: " + ref 
+                # print "Not enough lines in ours"
+                # print "Rest of ref:" + str(ref_lines[i:])
+                correct = False
+                break
+            if l != ours_lines[i]:
+                 # print "Fail in: " + ref 
+                 # print "    Ours: " + ours_lines[i]
+                 # print "    Ref : " + l
+                 correct =  False
+        if not correct:
+            print "Incorrect " + ref
+        return correct
+    except:
+        return False
+
 
 
 
