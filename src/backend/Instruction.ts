@@ -201,6 +201,8 @@ export var mods = {
 	eq : "EQ",
     vs:  "VS",
     gt: "GT",
+    ge: "GE",
+    lt: "LT",
     le: "LE",
     b: "B",
 	none : ""

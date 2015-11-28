@@ -128,17 +128,17 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('p_print_int')]
             } else if (node.expr.type instanceof NodeType.CharTypeNode) {
                 return [exprInstructions, Instr.Bl('putchar')]
-            }
-            else if (node.expr.type instanceof NodeType.ArrayTypeNode
+            } else if (node.expr.type instanceof NodeType.ArrayTypeNode
                         && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
                 this.insertPrintString();
                 return [exprInstructions, Instr.Bl('p_print_string')];
-            } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
+            } else if (node.expr.type instanceof NodeType.NullTypeNode
+                        || node.expr.type instanceof NodeType.PairTypeNode) {
                 console.log(exprInstructions);
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
-            }
-            else {
+            } else {
+                //please don't forget to remove this Jan
                 console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
             }
 
@@ -210,20 +210,27 @@ export class CodeGenerator implements NodeType.Visitor {
                 break;
 
             case '>':
-                var magicNumber = this.spSubNum - this.spSubCurrent--;
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
                                      Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.gt),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le),
-                                     Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(magicNumber))), Instr.mods.b)];
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le)];
                 break;
 
             case '<':
-                break;
-
-            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.lt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ge)];
                 break;
 
             case '>=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ge),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.lt)];
+                break;
+
+            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.le),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.gt)];
                 break;
 
             case '==':
