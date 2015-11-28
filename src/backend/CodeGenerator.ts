@@ -24,6 +24,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertCheckArrayBounds: any;
+    insertFreePair: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -142,6 +143,15 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertRuntimeError();
         });
 
+        this.insertFreePair = _.once(() => {
+            this.closingInsertions.push(function() {
+                var message = 'NullReferenceError: dereference a null reference\\n\\0';
+                var dataLabel = this.insertStringDataHeader(message);
+                this.sections.footer.push(CodeGenUtil.funcDefs.freePair(dataLabel));
+            });
+            this.insertRuntimeError();
+        });
+
         this.insertRuntimeError = _.once(() => {
             this.closingInsertions.push(function() {
                 this.sections.footer.push(CodeGenUtil.funcDefs.runtimeError());
@@ -218,6 +228,9 @@ export class CodeGenerator implements NodeType.Visitor {
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
         var binOpInstructions;
 
+        var lhsInstructions = node.leftOperand.visit(this);
+        var rhsInstructions = node.rightOperand.visit(this);
+
         switch (node.operator) {
             case '+':
                 binOpInstructions = [Instr.modify(Instr.Add(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
@@ -289,27 +302,26 @@ export class CodeGenerator implements NodeType.Visitor {
 
             case '&&':
                 var label = this.getNextLabelName();
-                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(0)),
                                      Instr.modify(Instr.B(label), Instr.mods.eq),
-                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     rhsInstructions,
                                      Instr.Label(label)];
                 return binOpInstructions;
 
             case '||':
                 var label = this.getNextLabelName();
-                binOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(1)),
+                binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(1)),
                                      Instr.modify(Instr.B(label), Instr.mods.eq),
-                                     Instr.Mov(Reg.R0, Instr.Const(0)),
+                                     rhsInstructions,
                                      Instr.Label(label)];
                 return binOpInstructions;
 
         }
 
-        var lhsInstructions = node.leftOperand.visit(this);
         var rest = [Instr.Push(Reg.R0),
-                    node.rightOperand.visit(this),
+                    rhsInstructions,
                     Instr.Mov(Reg.R1, Reg.R0),
                     Instr.Pop(Reg.R0),
                     binOpInstructions];
@@ -339,7 +351,6 @@ export class CodeGenerator implements NodeType.Visitor {
         this.currentST = node.st.parent;
 
         return this.scopedInstructions(node.st.totalByteSize, instrs);
-
     }
 
     visitWhileNode(node: NodeType.WhileNode): any {
@@ -355,8 +366,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Label(exprLabel),
                 expr,
                 Instr.Cmp(Reg.R0, Instr.Const(1)),
-                Instr.modify(Instr.B(bodyLabel), Instr.mods.eq)
-        ]
+                Instr.modify(Instr.B(bodyLabel), Instr.mods.eq)];
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode): any {
@@ -411,7 +421,9 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFreeNode(node: NodeType.FreeNode): any {
-        return [node.expr.visit(this), Instr.Bl('free')];
+        var instrList = [node.expr.visit(this)];
+        var freeText = node.expr instanceof NodeType.PairTypeNode ? 'free' : 'p_free_pair';
+        return [node.expr.visit(this), Instr.Bl(freeText)];
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
