@@ -81,6 +81,19 @@ export var funcDefs = {
         		Instr.Pop(Reg.PC)];
     },
 
+    checkArrayBounds: function(negIndexLabel, largeIndexLabel) {
+        return [Instr.Label('p_check_array_bounds'),
+	            Instr.Push(Reg.LR),
+	            Instr.Cmp(Reg.R0, Instr.Const(0)),
+	            Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(negIndexLabel)), Instr.mods.lt),
+	            Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.lt),
+	            Instr.Ldr(Reg.R1, Instr.Mem(Reg.R4)),
+	            Instr.Cmp(Reg.R0, Reg.R1),
+	            Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(largeIndexLabel)), Instr.mods.cs),
+	            Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.cs),
+	            Instr.Pop(Reg.PC)];
+    },
+
 	runtimeError: function() {
         return [Instr.Label('p_throw_runtime_error'),
         		Instr.Bl('p_print_string'),

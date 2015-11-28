@@ -11,6 +11,8 @@ src/frontend/grammar/grammar.ts
 credentials.py
 *.pyc
 
+input.wacc
+
 #ignore temp files
 *~
 
