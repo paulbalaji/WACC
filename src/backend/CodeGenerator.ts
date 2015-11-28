@@ -342,6 +342,14 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
+        if (!(node.lhs instanceof NodeType.IdentNode)) {
+            console.log("WARNING: UNIMPLEMENTED LHS OF ASSIGN NODE.");
+            return []
+        }
+        var rhsIns = node.rhs.visit(this);
+        var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
+        return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode> node.lhs))))]; 
+
 
     }
 
