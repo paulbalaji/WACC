@@ -1,23 +1,7 @@
-<<<<<<< HEAD
 begin
-	if true then
-		int x = 2
-	else
-		exit 2
-	fi
+	int a=13;	
+  if a==13 then a=1 else 
+  	a=0
+  fi;
+  println a
 end
-=======
-# simple while loop
-
-# Output:
-# #empty#
-
-# Program:
-
-begin
-  while false do
-  	skip
-  done
-
-end
->>>>>>> fb65cf1ffd94d7b4d3d241bd66f7d514bed628ff
