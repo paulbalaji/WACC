@@ -244,6 +244,24 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {
+        var unOpInstructions;
+
+        switch (node.operator) {
+            case '-':
+                break;
+            case '!':
+                unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
+                break;
+            case 'ord':
+                break;
+            case 'chr':
+                break;
+            case 'len':
+                break;
+        }
+
+        var exprInstructions = node.expr.visit(this);
+        return [exprInstructions, unOpInstructions];
 
     }
 
