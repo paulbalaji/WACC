@@ -80,13 +80,25 @@ export function Mov(dst, src) {
 	return mov;
 }
 
-export function Mem(memArg) {
+export function Mem(...memArgs) {
 	var mem: any = {};
-	mem.memArg = memArg;
+	mem.memArgs = memArgs;
     mem.toString = function() {
-        return '[' + memArg + ']';
+        return '[' + mem.memArgs.join(', ') + ']';
     }
 	return mem;
+}
+
+export function Str(...strArgs) {
+	var str: any = {};
+	str.strArgs = strArgs;
+	str.command = 'STR';
+
+	str.toString = function() {
+		return str.command + ' ' + str.strArgs.join(', ');
+	}
+
+	return str;
 }
 
 export function Bl(branchLabel) {

@@ -28,5 +28,6 @@ export var R13 = RegN(13);
 export var R14 = RegN(14);
 export var R15 = RegN(15);
 
+export var SP = Reg('sp');
 export var PC = Reg('pc');
 export var LR = Reg('lr')
