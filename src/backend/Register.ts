@@ -1,6 +1,9 @@
 function Reg(regName) {
 	var reg:any = {};
 	reg.name = regName;
+    reg.toString = function() {
+        return reg.name;
+    }
 	return reg;
 }
 
@@ -25,5 +28,6 @@ export var R13 = RegN(13);
 export var R14 = RegN(14);
 export var R15 = RegN(15);
 
-export var PC = Reg('PC');
-export var LR = Reg('LR')
+export var SP = Reg('sp');
+export var PC = Reg('pc');
+export var LR = Reg('lr')

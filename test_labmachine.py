@@ -46,7 +46,7 @@ def connect_and_execute(f):
 def main(argv):
     with open(TEMP_FNAME, 'w') as f:
         f.write(subprocess.check_output(["./compile", argv[0]]))
-   connect_and_execute(TEMP_FNAME)
+    connect_and_execute(TEMP_FNAME)
 
 
 
