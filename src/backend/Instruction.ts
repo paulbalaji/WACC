@@ -213,6 +213,15 @@ export function Asr(n) {
 }
 
 <<<<<<< HEAD
+export function Rsbs(...rsbsArgs) {
+	var rsbs: any = {};
+	rsbs.args = rsbsArgs;
+    rsbs.toString = function() {
+        return 'Rsbs ' + rsbs.args.join(', ');
+    }
+	return rsbs;
+=======
+<<<<<<< HEAD
 export function Rsb(...rsbArgs) {
 	var rsb: any = {};
 	rsb.args = rsbArgs;
@@ -221,6 +230,7 @@ export function Rsb(...rsbArgs) {
         return rsb.command + ' ' + rsb.args.join(', ');
     }
 	return rsb;
+>>>>>>> 90b4e9a35137ce6f6dbc112b1c63c71881ebf893
 }
 
 =======

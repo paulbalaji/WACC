@@ -1,4 +1,5 @@
 import NodeType = require('./NodeType');
+import CodeGenUtil = require('../backend/CodeGenUtil');
 var _ = require('underscore');
 
 interface typeAndNodeTuple {
@@ -11,6 +12,9 @@ export class SymbolTable {
 	parent: SymbolTable;
     name: string;
 
+    byteSizes: [number];
+    totalByteSize: number
+
 	constructor(parent:SymbolTable) {
         // initialise table
 		this.table = {};
@@ -19,6 +23,9 @@ export class SymbolTable {
 
 	insert(ident:NodeType.IdentNode, infoObj:typeAndNodeTuple):void {
 		this.table[ident.toString()] = infoObj;
+
+        this.byteSizes.push(CodeGenUtil.getByteSizeFromNode(infoObj.node.type));
+        this.totalByteSize += CodeGenUtil.getByteSizeFromNode(infoObj.node.type);
 	}
 
 	lookupAll(ident:NodeType.IdentNode):typeAndNodeTuple {
@@ -30,6 +37,21 @@ export class SymbolTable {
 		var result = this.table[ident.toString()];
         return result ? result : null;
 	}
+
+    getByteSize() {
+        var sum = (xs) => _.reduce(xs, (acc, n) => acc + n);
+
+        var counts =  _.countBy(this.table, (tup) => {
+            return tup.type.constructor.name;
+        });
+        
+        // Bools and Chars require 1 byte and everything else 4 bytes
+        var byteCount = sum(
+            _.map(Object.keys(counts), (typeName)  => (typeName === 'BoolTypeNode' || typeName === 'CharTypeNode') 
+                            ? counts[typeName] : counts[typeName] * 4));
+        
+        return byteCount;
+    }
 
     traverseUp(visitFunc) {
         for (var ident in this.table) {

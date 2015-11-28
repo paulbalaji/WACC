@@ -33,7 +33,9 @@ export class CodeGenerator implements NodeType.Visitor {
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
-    programInfo: any; // Containing info about the program, as returned by semantic checker
+    programInfo: any; // Contains info about the program, as returned by semantic checker
+
+    stackMap: any; // Maps ident strings to corresponding stack locations
 
     constructor(programInfo) {
         this.nextReg = 4;
@@ -45,6 +47,8 @@ export class CodeGenerator implements NodeType.Visitor {
         this.programInfo = programInfo;
 
         this.spSubCurrent = 4;
+
+        this.stackMap = {};
 
     }
 
@@ -157,29 +161,41 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
-        var spSubInstr = this.programInfo.declareNodeCount === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
+        var byteSize = node.st.getByteSize();
        
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main'),
-            Instr.Label('main'), Instr.Push(Reg.LR), spSubInstr];
+            Instr.Label('main')];
         
-        var instructionList =
-        [
+        var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-         ];
+        ];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
 
-        var spAddInstr = [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.programInfo.declareNodeCount * 4))];
-        var mainEnd = [spAddInstr, Instr.Mov(Reg.R0, Instr.Const(0)),
+        var spAddInstr = byteSize === 0 ? [] : [];
+        var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
                      Instr.Pop(Reg.PC),
                      _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
-        return Instr.buildList(this.sections.header, mainStart, instructionList, mainEnd, this.sections.footer);
+        return Instr.buildList(this.sections.header, mainStart, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
 
     }
    
+    scopedInstructions(byteSize, instructions) {
+        /* Given the byteSize for the current scope,
+           generate instructions for manipulating Reg.SP appopriately. */
+       
+        if (byteSize === 0) {
+            return instructions;
+        } else {
+            return [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(byteSize)),
+                instructions,
+                Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
+
+        }
+    }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
         var binOpInstructions;
@@ -345,10 +361,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
-        var spConst = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
+        var spOffset = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
 
         this.spSubCurrent += 4;
-        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, spConst))];
+        this.stackMap[node.ident.toString()] = spOffset;
+        return [rhsInstructions, Instr.Str(Reg.R0, Instr.Mem(Reg.SP, spOffset))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
