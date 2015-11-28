@@ -14,10 +14,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertDataLabel: any;
     insertStringDataHeader: any;
+
     insertPrintString: any;
+    insertPrintBool: any;
 
     insertOverflowError: any;
+    insertCheckDivideByZero: any;
     insertRuntimeError: any;
+    
 
     closingInsertions: any[];
 
@@ -42,22 +46,41 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertStringDataHeader = function(str: string) {
             this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - 1, str);
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - str.split("\\").length + 1, str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
 
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('%.*s\\0');
+                var message = '%.*s\\0';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
+        });
+
+        this.insertPrintBool = _.once(() => {
+            this.closingInsertions.push(function() {
+                var trueLabel = this.insertStringDataHeader("true\\0");
+                var falseLabel = this.insertStringDataHeader("false\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
             });
         });
 
         this.insertOverflowError = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n');
+                var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
+            });
+            this.insertRuntimeError();
+        });
+
+        this.insertCheckDivideByZero = _.once( () => {
+            this.closingInsertions.push(function() {
+                var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
+                var dataLabel = this.insertStringDataHeader(message);
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
             });
             this.insertRuntimeError();
         });
@@ -68,6 +91,8 @@ export class CodeGenerator implements NodeType.Visitor {
             });
             this.insertPrintString();
         });
+
+
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -94,27 +119,34 @@ export class CodeGenerator implements NodeType.Visitor {
         switch (node.operator) {
             case '+':
                 binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '-':
                 binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
-                                     Instr.Blne('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.ne)];
                 this.insertOverflowError();
                 break;
 
             case '/':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idiv')];
+                this.insertCheckDivideByZero();
                 break;
 
             case '%':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idivmod'),
+                                     Instr.Mov(Reg.R0, Reg.R1)];
+                this.insertCheckDivideByZero();
                 break;
 
             case '>':
@@ -199,8 +231,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintNode(node: NodeType.PrintNode): any {
         var exprInstructions = node.expr.visit(this);
-        this.insertPrintString();
-        return [exprInstructions, Instr.Bl('p_print_string')];       
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        }
+       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
@@ -230,6 +268,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitIntLiterNode(node: NodeType.IntLiterNode): any {
         return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
+
 
     visitFuncNode(node: NodeType.FuncNode): any {
         return Instr.Push(Reg.R0);
@@ -287,6 +326,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
+        return [Instr.Mov(Reg.R0, node.bool ? Instr.Const(1) : Instr.Const(0))];
 
     }
 
