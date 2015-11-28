@@ -100,8 +100,9 @@ export class CodeGenerator implements NodeType.Visitor {
                          Instr.Directive('global', 'main'),
                          Instr.Label('main'), Instr.Push(Reg.LR)];
 
-        var instructionList = [_.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                               Instr.Mov(Reg.R0, Instr.Const(0)),
+        var mainInstrList = _.flatten(SemanticUtil.visitNodeList(node.statList, this));
+
+        var instructionList = [Instr.Mov(Reg.R0, Instr.Const(0)),
                                Instr.Pop(Reg.PC),
                                _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
@@ -109,7 +110,15 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
 
-        return Instr.buildList(this.sections.header, mainStart, spSubInstr, instructionList, this.sections.footer);
+        var spAddInstr = this.spSubNum === 0 ? [] : [Instr.Add(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
+
+        return Instr.buildList(this.sections.header,
+                               mainStart,
+                               spSubInstr,
+                               mainInstrList,
+                               spAddInstr,
+                               instructionList,
+                               this.sections.footer);
     }
    
 
