@@ -1,6 +1,0 @@
-begin
-    int x = 5;
-    bool b = false;
-    int x2 = 10;
-    bool a = true
-end
