@@ -26,6 +26,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertRuntimeError: any;
 
     closingInsertions: any[];
+    printNodeLogic: any;
 
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
@@ -290,7 +291,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-        return [Instr.Ldr(Reg.R0, Instr.Const('\'' + node.ch + '\''))]
+        if (node.ch.length > 1) {
+            var ch = node.ch[1];
+        } else {
+            var ch = node.ch;
+        }
+        return [Instr.Mov(Reg.R0, Instr.Const('\'' + ch + '\''))]
 
     }
 
@@ -423,34 +429,6 @@ export class CodeGenerator implements NodeType.Visitor {
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
         // TO CHECK
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
-
-    }
-
-
-    printNodeLogic(node) : any {
-        var exprInstructions = node.expr.visit(this);
-
-        if (node.expr.type instanceof NodeType.BoolTypeNode) {
-            this.insertPrintBool();
-            return [exprInstructions, Instr.Bl('p_print_bool')]
-        } else if (node.expr.type instanceof NodeType.IntTypeNode) {
-            this.insertPrintInt();
-            return [exprInstructions, Instr.Bl('p_print_int')]
-        } else if (node.expr.type instanceof NodeType.CharTypeNode) {
-            return [exprInstructions, Instr.Bl('putchar')]
-        }
-        else if (node.expr.type instanceof NodeType.ArrayTypeNode
-                    && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
-            this.insertPrintString();
-            return [exprInstructions, Instr.Bl('p_print_string')];
-        } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
-            console.log(exprInstructions);
-            this.insertPrintRef();
-            return [exprInstructions, Instr.Bl('p_print_reference')];
-        }
-        else {
-            console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
-        }
 
     }
 }
