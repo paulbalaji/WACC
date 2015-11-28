@@ -422,7 +422,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitFreeNode(node: NodeType.FreeNode): any {
         var instrList = [node.expr.visit(this)];
-        var freeText = node.expr instanceof NodeType.PairTypeNode ? 'free' : 'p_free_pair';
+        var freeText = 'free';
+
+        if (node.expr instanceof NodeType.PairTypeNode) {
+            freeText = 'p_free_pair';
+            this.insertFreePair();
+        }
+
         return [node.expr.visit(this), Instr.Bl(freeText)];
     }
 
