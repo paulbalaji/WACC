@@ -15,57 +15,47 @@ msg_2:
 .global main
 f_neg:
 PUSH {lr}
-LDRSB r4, [sp, #4]
-EOR r4, r4, #1
-MOV r0, r4
-POP {pc}
+LDRSB r0, [sp, #4]
+EOR r0, r0, #1
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #1
-MOV r4, #1
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+MOV r0, #1
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
-LDRSB r4, [sp]
-STRB r4, [sp, #-1]!
+LDRSB r0, [sp]
+STRB r0, [sp, #-1]!
 BL f_neg
 ADD sp, sp, #1
-MOV r4, r0
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
-LDRSB r4, [sp]
-STRB r4, [sp, #-1]!
+LDRSB r0, [sp]
+STRB r0, [sp, #-1]!
 BL f_neg
 ADD sp, sp, #1
-MOV r4, r0
-STRB r4, [sp]
-LDRSB r4, [sp]
-STRB r4, [sp, #-1]!
+STRB r0, [sp]
+LDRSB r0, [sp]
+STRB r0, [sp, #-1]!
 BL f_neg
 ADD sp, sp, #1
-MOV r4, r0
-STRB r4, [sp]
-LDRSB r4, [sp]
-STRB r4, [sp, #-1]!
+STRB r0, [sp]
+LDRSB r0, [sp]
+STRB r0, [sp, #-1]!
 BL f_neg
 ADD sp, sp, #1
-MOV r4, r0
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #1
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_bool:
 PUSH {lr}
 CMP r0, #0

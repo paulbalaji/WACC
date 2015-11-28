@@ -12,25 +12,20 @@ msg_1:
 .global main
 f_f:
 PUSH {lr}
-LDR r4, =0
-MOV r0, r4
-POP {pc}
+LDR r0, =0
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_int:
 PUSH {lr}
 MOV r1, r0

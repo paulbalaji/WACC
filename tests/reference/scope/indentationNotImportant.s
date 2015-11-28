@@ -3,12 +3,11 @@
 .global main
 main:
 PUSH {lr}
-B L0
-L1:
+B L1
 L0:
-MOV r4, #0
-CMP r4, #1
-BEQ L1
-LDR r0, =0
+L1:
+MOV r0, #0
+CMP r0, #1
+BEQ L0
+MOV r0, #0
 POP {pc}
-.ltorg

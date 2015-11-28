@@ -28,55 +28,52 @@ msg_6:
 main:
 PUSH {lr}
 SUB sp, sp, #9
-LDR r0, =8
+LDR r0, =10
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, =10
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #'a'
+PUSH {r0}
+MOV r0, #1
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-MOV r5, #'a'
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STRB r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #5]
-LDR r4, [sp, #5]
-MOV r0, r4
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #5]
+LDR r0, [sp, #5]
 BL p_print_reference
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
-LDR r4, [sp, #5]
-MOV r0, r4
+LDR r0, [sp, #5]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp, #1]
-LDR r4, [sp, #1]
-MOV r0, r4
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp, #1]
+LDR r0, [sp, #1]
 BL p_print_int
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
-LDR r4, [sp, #5]
-MOV r0, r4
+LDR r0, [sp, #5]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDRSB r4, [r4]
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+LDR r0, [r0, #4]
+LDRSB r0, [r0]
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL putchar
-MOV r4, #')'
-MOV r0, r4
+MOV r0, #')'
 BL putchar
 BL p_print_ln
 ADD sp, sp, #9
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_reference:
 PUSH {lr}
 MOV r1, r0

@@ -33,343 +33,340 @@ msg_8:
 .global main
 f_q:
 PUSH {lr}
-LDR r4, =14
-MOV r0, r4
-POP {pc}
+LDR r0, =14
 POP {pc}
 .ltorg
 f_power:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =1
-STR r4, [sp]
-B L0
-L1:
-LDR r4, [sp]
-LDR r5, [sp, #8]
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
-BLNE p_throw_overflow_error
-STR r4, [sp]
-LDR r4, [sp, #12]
-LDR r5, =1
-SUBS r4, r4, r5
-BLVS p_throw_overflow_error
-STR r4, [sp, #12]
+LDR r0, =1
+STR r0, [sp]
+B L1
 L0:
-LDR r4, [sp, #12]
-LDR r5, =0
-CMP r4, r5
-MOVGT r4, #1
-MOVLE r4, #0
-CMP r4, #1
-BEQ L1
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
+BLNE p_throw_overflow_error
+STR r0, [sp]
+LDR r0, [sp, #12]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #12]
+L1:
+LDR r0, [sp, #12]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGT r0, #1
+MOVLE r0, #0
+CMP r0, #1
+BEQ L0
+LDR r0, [sp]
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_f:
 PUSH {lr}
 SUB sp, sp, #8
 BL f_q
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
-LDR r4, =2
-STR r4, [sp, #-4]!
+STR r0, [sp, #4]
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
+LDR r0, =2
+STR r0, [sp, #-4]!
 BL f_power
 ADD sp, sp, #8
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 ADD sp, sp, #8
-POP {pc}
 POP {pc}
 .ltorg
 f_intToFixedPoint:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp]
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_fixedPointToIntRoundDown:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp]
-MOV r0, r4
-MOV r1, r5
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_fixedPointToIntRoundNear:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, =0
-CMP r4, r5
-MOVGE r4, #1
-MOVLT r4, #0
-CMP r4, #0
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGE r0, #1
+MOVLT r0, #0
+CMP r0, #0
 BEQ L2
-LDR r4, [sp, #8]
-LDR r5, [sp]
-LDR r6, =2
-MOV r0, r5
-MOV r1, r6
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =2
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r5, r0
-ADDS r4, r4, r5
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-LDR r5, [sp]
-MOV r0, r4
-MOV r1, r5
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
 ADD sp, sp, #4
 POP {pc}
 B L3
 L2:
-LDR r4, [sp, #8]
-LDR r5, [sp]
-LDR r6, =2
-MOV r0, r5
-MOV r1, r6
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =2
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r5, r0
-SUBS r4, r4, r5
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-LDR r5, [sp]
-MOV r0, r4
-MOV r1, r5
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
 ADD sp, sp, #4
 POP {pc}
 L3:
-POP {pc}
 .ltorg
 f_add:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, [sp, #8]
-ADDS r4, r4, r5
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
-POP {pc}
 POP {pc}
 .ltorg
 f_subtract:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, [sp, #8]
-SUBS r4, r4, r5
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
-POP {pc}
 POP {pc}
 .ltorg
 f_addByInt:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp, #12]
-LDR r6, [sp]
-SMULL r5, r6, r5, r6
-CMP r6, r5, ASR #31
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #16]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-ADDS r4, r4, r5
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_subtractByInt:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp, #12]
-LDR r6, [sp]
-SMULL r5, r6, r5, r6
-CMP r6, r5, ASR #31
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #16]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-SUBS r4, r4, r5
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_multiply:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp, #12]
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #16]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-LDR r5, [sp]
-MOV r0, r4
-MOV r1, r5
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_multiplyByInt:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, [sp, #8]
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-MOV r0, r4
-POP {pc}
 POP {pc}
 .ltorg
 f_divide:
 PUSH {lr}
 SUB sp, sp, #4
 BL f_f
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #8]
-LDR r5, [sp]
-SMULL r4, r5, r4, r5
-CMP r5, r4, ASR #31
+STR r0, [sp]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #4]
+MOV r1, r0
+POP {r0}
+SMULL r0, r1, r0, r1
+CMP r1, r0, ASR #31
 BLNE p_throw_overflow_error
-LDR r5, [sp, #12]
-MOV r0, r4
-MOV r1, r5
+PUSH {r0}
+LDR r0, [sp, #16]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_divideByInt:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, [sp, #8]
-MOV r0, r4
-MOV r1, r5
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-MOV r0, r4
-POP {pc}
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #16
-LDR r4, =10
-STR r4, [sp, #12]
-LDR r4, =3
-STR r4, [sp, #8]
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =10
+STR r0, [sp, #12]
+LDR r0, =3
+STR r0, [sp, #8]
+LDR r0, =msg_0
 BL p_print_string
-LDR r4, [sp, #12]
-MOV r0, r4
+LDR r0, [sp, #12]
 BL p_print_int
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_print_int
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_print_int
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
-LDR r4, [sp, #12]
-STR r4, [sp, #-4]!
+LDR r0, [sp, #12]
+STR r0, [sp, #-4]!
 BL f_intToFixedPoint
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #8]
-STR r4, [sp, #-4]!
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #8]
+STR r0, [sp, #-4]!
 BL f_divideByInt
 ADD sp, sp, #8
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #8]
-STR r4, [sp, #-4]!
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #8]
+STR r0, [sp, #-4]!
 BL f_multiplyByInt
 ADD sp, sp, #8
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+STR r0, [sp, #4]
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_fixedPointToIntRoundNear
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #16
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_throw_overflow_error:
 LDR r0, =msg_4
 BL p_throw_runtime_error

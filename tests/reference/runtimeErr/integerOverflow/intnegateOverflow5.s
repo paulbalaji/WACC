@@ -19,25 +19,25 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =2000000000
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, =2000000000
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
-LDR r4, [sp]
-LDR r5, =2000000000
-ADDS r4, r4, r5
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =2000000000
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_int:
 PUSH {lr}
 MOV r1, r0

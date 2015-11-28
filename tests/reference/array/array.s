@@ -37,120 +37,131 @@ msg_9:
 main:
 PUSH {lr}
 SUB sp, sp, #8
-LDR r0, =44
+MOV r0, #44
 BL malloc
-MOV r4, r0
-LDR r5, =0
-STR r5, [r4, #4]
-LDR r5, =0
-STR r5, [r4, #8]
-LDR r5, =0
-STR r5, [r4, #12]
-LDR r5, =0
-STR r5, [r4, #16]
-LDR r5, =0
-STR r5, [r4, #20]
-LDR r5, =0
-STR r5, [r4, #24]
-LDR r5, =0
-STR r5, [r4, #28]
-LDR r5, =0
-STR r5, [r4, #32]
-LDR r5, =0
-STR r5, [r4, #36]
-LDR r5, =0
-STR r5, [r4, #40]
-LDR r5, =10
-STR r5, [r4]
-STR r4, [sp, #4]
-LDR r4, =0
-STR r4, [sp]
-B L0
-L1:
-LDR r4, [sp]
-ADD r5, sp, #4
-LDR r6, [sp]
-LDR r5, [r5]
-MOV r0, r6
-MOV r1, r5
-BL p_check_array_bounds
-ADD r5, r5, #4
-ADD r5, r5, r6, LSL #2
-STR r4, [r5]
-LDR r4, [sp]
-LDR r6, =1
-ADDS r4, r4, r6
-BLVS p_throw_overflow_error
-STR r4, [sp]
+MOV r3, r0
+LDR r0, =0
+STR r0, [r3, #4]
+LDR r0, =0
+STR r0, [r3, #8]
+LDR r0, =0
+STR r0, [r3, #12]
+LDR r0, =0
+STR r0, [r3, #16]
+LDR r0, =0
+STR r0, [r3, #20]
+LDR r0, =0
+STR r0, [r3, #24]
+LDR r0, =0
+STR r0, [r3, #28]
+LDR r0, =0
+STR r0, [r3, #32]
+LDR r0, =0
+STR r0, [r3, #36]
+LDR r0, =0
+STR r0, [r3, #40]
+MOV r0, #10
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #4]
+LDR r0, =0
+STR r0, [sp]
+B L1
 L0:
-LDR r4, [sp]
-LDR r6, =10
-CMP r4, r6
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #1
-BEQ L1
-LDR r4, [sp, #4]
-MOV r0, r4
-BL p_print_reference
-LDR r4, =msg_0
-MOV r0, r4
-BL p_print_string
-LDR r4, =0
-STR r4, [sp]
-B L2
-L3:
-ADD r4, sp, #4
-LDR r6, [sp]
-LDR r4, [r4]
-MOV r0, r6
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r0, r4}
+LDR r4, [sp, #12]
+LDR r0, [sp, #8]
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r6, LSL #2
+ADD r4, r4, r0, LSL #2
+MOV r1, r4
+POP {r0, r4}
+STR r0, [r1]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp]
+L1:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =10
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L0
+LDR r0, [sp, #4]
+BL p_print_reference
+LDR r0, =msg_0
+BL p_print_string
+LDR r0, =0
+STR r0, [sp]
+B L3
+L2:
+LDR r0, [sp, #4]
+PUSH {r4}
+MOV r4, r0
+LDR r0, [sp, #4]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_int
-LDR r4, [sp]
-LDR r6, =9
-CMP r4, r6
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #0
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =9
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #0
 BEQ L4
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 B L5
 L4:
 L5:
-LDR r4, [sp]
-LDR r6, =1
-ADDS r4, r4, r6
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-L2:
-LDR r4, [sp]
-LDR r6, =10
-CMP r4, r6
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #1
-BEQ L3
-LDR r4, =msg_2
-MOV r0, r4
+STR r0, [sp]
+L3:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =10
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L2
+LDR r0, =msg_2
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #8
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_array_bounds:
 PUSH {lr}
 CMP r0, #0
 LDRLT r0, =msg_3
 BLLT p_throw_runtime_error
-LDR r1, [r1]
+LDR r1, [r4]
 CMP r0, r1
 LDRCS r0, =msg_4
 BLCS p_throw_runtime_error

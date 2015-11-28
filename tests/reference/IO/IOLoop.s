@@ -34,48 +34,43 @@ msg_8:
 main:
 PUSH {lr}
 SUB sp, sp, #5
-MOV r4, #'Y'
-STRB r4, [sp, #4]
-LDR r4, =0
-STR r4, [sp]
-B L0
-L1:
-LDR r4, =msg_0
-MOV r0, r4
+MOV r0, #'Y'
+STRB r0, [sp, #4]
+LDR r0, =0
+STR r0, [sp]
+B L1
+L0:
+LDR r0, =msg_0
 BL p_print_string
-ADD r4, sp, #0
-MOV r0, r4
+ADD r0, sp, #0
 BL p_read_int
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
 BL p_print_ln
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
 BL p_print_ln
-ADD r4, sp, #4
-MOV r0, r4
+ADD r0, sp, #4
 BL p_read_char
-L0:
-LDRSB r4, [sp, #4]
-MOV r5, #'N'
-CMP r4, r5
-MOVNE r4, #1
-MOVEQ r4, #0
-CMP r4, #1
-BEQ L1
+L1:
+LDRSB r0, [sp, #4]
+PUSH {r0}
+MOV r0, #'N'
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVNE r0, #1
+MOVEQ r0, #0
+CMP r0, #1
+BEQ L0
 ADD sp, sp, #5
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

@@ -18,16 +18,13 @@ msg_3:
 .global main
 main:
 PUSH {lr}
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
-LDR r4, =189
-MOV r0, r4
+LDR r0, =189
 BL p_print_int
 BL p_print_ln
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

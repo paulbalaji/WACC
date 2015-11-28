@@ -3,9 +3,7 @@
 .global main
 main:
 PUSH {lr}
-LDR r4, =-1
-MOV r0, r4
+LDR r0, =-1
 BL exit
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg

@@ -13,18 +13,26 @@ msg_1:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =0
-STR r4, [sp]
-LDR r4, =1
-LDR r5, [sp]
-MOV r0, r5
+MOV r0, #0
+STR r0, [sp]
+LDR r0, =1
+PUSH {r0}
+LDR r0, [sp, #4]
 BL p_check_null_pointer
-LDR r5, [r5]
-STR r4, [r5]
+ADD r0, r0, #0
+PUSH {r0}
+LDR r0, [r0]
+BL free
+MOV r0, #4
+BL malloc
+POP {r1}
+STR r0, [r1]
+MOV r1, r0
+POP {r0}
+STR r0, [r1]
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_null_pointer:
 PUSH {lr}
 CMP r0, #0

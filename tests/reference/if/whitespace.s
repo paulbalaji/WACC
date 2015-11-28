@@ -13,30 +13,31 @@ msg_1:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =13
-STR r4, [sp]
-LDR r4, [sp]
-LDR r5, =13
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+LDR r0, =13
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =13
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L0
-LDR r4, =1
-STR r4, [sp]
+LDR r0, =1
+STR r0, [sp]
 B L1
 L0:
-LDR r4, =0
-STR r4, [sp]
+LDR r0, =0
+STR r0, [sp]
 L1:
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_int:
 PUSH {lr}
 MOV r1, r0

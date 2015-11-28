@@ -13,83 +13,109 @@ msg_1:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =1
-LDR r5, =2
-LDR r6, =3
-LDR r7, =4
-LDR r8, =5
-LDR r9, =6
-LDR r10, =7
-PUSH {r10}
-LDR r10, =8
-PUSH {r10}
-LDR r10, =9
-PUSH {r10}
-LDR r10, =10
-PUSH {r10}
-LDR r10, =11
-PUSH {r10}
-LDR r10, =12
-PUSH {r10}
-LDR r10, =13
-PUSH {r10}
-LDR r10, =14
-PUSH {r10}
-LDR r10, =15
-PUSH {r10}
-LDR r10, =16
-PUSH {r10}
-LDR r10, =17
-POP {r11}
-ADDS r10, r11, r10
+LDR r0, =1
+PUSH {r0}
+LDR r0, =2
+PUSH {r0}
+LDR r0, =3
+PUSH {r0}
+LDR r0, =4
+PUSH {r0}
+LDR r0, =5
+PUSH {r0}
+LDR r0, =6
+PUSH {r0}
+LDR r0, =7
+PUSH {r0}
+LDR r0, =8
+PUSH {r0}
+LDR r0, =9
+PUSH {r0}
+LDR r0, =10
+PUSH {r0}
+LDR r0, =11
+PUSH {r0}
+LDR r0, =12
+PUSH {r0}
+LDR r0, =13
+PUSH {r0}
+LDR r0, =14
+PUSH {r0}
+LDR r0, =15
+PUSH {r0}
+LDR r0, =16
+PUSH {r0}
+LDR r0, =17
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-POP {r11}
-ADDS r10, r11, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r9, r9, r10
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r8, r8, r9
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r7, r7, r8
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r6, r6, r7
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r5, r5, r6
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-ADDS r4, r4, r5
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp]
 BL exit
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_throw_overflow_error:
 LDR r0, =msg_0
 BL p_throw_runtime_error
