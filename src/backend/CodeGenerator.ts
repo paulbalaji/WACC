@@ -559,13 +559,13 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-        var exprInstructions = node.predicateExpr.visit(this);
 
-        var parentST = this.currentST;
 
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
+        var exprInstructions = node.predicateExpr.visit(this);
+        var parentST = this.currentST;
 
         var cmpInstructions = [Instr.Cmp(Reg.R0, Instr.Const(0)), Instr.modify(Instr.B(falseLabel), Instr.mods.eq)];
         this.currentST = node.trueSt;
