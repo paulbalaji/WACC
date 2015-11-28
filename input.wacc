@@ -1,0 +1,7 @@
+begin
+	if true then
+		int x = 2
+	else
+		exit 2
+	fi
+end
