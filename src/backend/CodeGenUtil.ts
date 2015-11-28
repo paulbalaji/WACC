@@ -94,6 +94,23 @@ export var funcDefs = {
 	            Instr.Pop(Reg.PC)];
     },
 
+    freePair: function(errorLabel) {
+        return [Instr.Label('p_free_pair'),
+        		Instr.Push(Reg.LR),
+        		Instr.Cmp(Reg.R0, Instr.Const(0)),
+        		Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(errorLabel)), Instr.mods.eq),
+        		Instr.modify(Instr.B('p_throw_runtime_error'), Instr.mods.eq),
+        		Instr.Push(Reg.R0),
+        		Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+        		Instr.B('free'),
+	            Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP)),
+				Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4))),
+                Instr.B('free'),
+                Instr.Pop(Reg.R0),
+				Instr.B('free'),
+                Instr.Pop(Reg.PC)];
+    },
+
 	runtimeError: function() {
         return [Instr.Label('p_throw_runtime_error'),
         		Instr.Bl('p_print_string'),

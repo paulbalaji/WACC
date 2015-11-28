@@ -1,7 +1,17 @@
+# Simple conditional statement with boolen expression test
+
+# Output:
+# correct
+
+# Program:
+
 begin
-	int a=13;	
-  if a==13 then a=1 else 
-  	a=0
-  fi;
-  println a
+  bool b = true;
+  bool c = false;	
+  if b && c 
+  then 
+    println "incorrect"
+  else 
+    println "correct"
+  fi
 end
