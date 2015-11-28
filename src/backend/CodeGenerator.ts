@@ -80,14 +80,67 @@ export class CodeGenerator implements NodeType.Visitor {
    
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
+        var binOpInstructions;
+
+        switch (node.operator) {
+            case '+':
+                binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
+                                     Instr.Blvs('p_throw_overflow_error')];
+                this.insertOverflowError();
+                break;
+
+            case '-':
+                binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
+                                     Instr.Blvs('p_throw_overflow_error')];
+                this.insertOverflowError();
+                break;
+
+            case '*':
+                binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
+                                     Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
+                                     Instr.Blne('p_throw_overflow_error')];
+                this.insertOverflowError();
+                break;
+
+            case '/':
+                break;
+
+            case '%':
+                break;
+
+            case '>':
+                break;
+
+            case '<':
+                break;
+
+            case '<=':
+                break;
+
+            case '>=':
+                break;
+
+            case '==':
+                break;
+
+            case '!=':
+                break;
+
+            case '&&':
+                break;
+
+            case '||':
+                break;
+
+        }
+
         var lhsInstructions = node.leftOperand.visit(this);
         var rest = [Instr.Push(Reg.R0),
                     node.rightOperand.visit(this),
                     Instr.Mov(Reg.R1, Reg.R0),
                     Instr.Pop(Reg.R0),
-                    Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
-                    Instr.Blvs('p_throw_overflow_error')];
-        this.insertOverflowError();
+                    binOpInstructions];
+        
         return [lhsInstructions, rest];
     }
  

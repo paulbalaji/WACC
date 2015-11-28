@@ -107,6 +107,15 @@ export function Blvs(branchLabel) {
 	return blvs;
 }
 
+export function Blne(branchLabel) {
+    var blne: any = {};
+    blne.branchLabel = branchLabel;
+    blne.toString = function() {
+        return 'BLNE ' + blne.branchLabel;
+    }
+    return blne;
+}
+
 export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
@@ -123,6 +132,52 @@ export function Adds(...addsArgs) {
 		return 'ADDS ' + adds.args.join(', ');
 	}
 	return adds;
+}
+
+export function Sub(...subArgs) {
+    var sub: any = {};
+    sub.args = subArgs;
+    sub.toString = function() {
+        return 'SUB ' + sub.args.join(', ');
+    }
+    return sub;
+}
+
+export function Subs(...subsArgs) {
+    var subs: any = {};
+    subs.args = subsArgs;
+    subs.toString = function() {
+        return 'SUBS ' + subs.args.join(', ');
+    }
+    return subs;
+}
+
+export function Smull(...smullArgs) {
+    var smull: any = {};
+    smull.args = smullArgs;
+    smull.toString = function() {
+        console.log("blah blah blah");
+        return 'SMULL ' + smull.args.join(', ');
+    }
+    return smull;
+}
+
+export function Cmp(...cmpArgs) {
+    var cmp: any = {};
+    cmp.args = cmpArgs;
+    cmp.toString = function() {
+        return 'CMP ' + cmp.args.join(', ');
+    }
+    return cmp;
+}
+
+export function Asr(n) {
+    var asr: any = {};
+    asr.value = Const(n);
+    asr.toString = function() {
+        return 'ASR ' + asr.value;
+    }
+    return asr;
 }
 
 var nextDataLabel = function() {
