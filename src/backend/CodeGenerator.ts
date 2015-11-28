@@ -21,12 +21,12 @@ export class CodeGenerator implements NodeType.Visitor {
     insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertRuntimeError: any;
-    
 
     closingInsertions: any[];
 
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
+
     constructor() {
         this.nextReg = 4;
         this.sections = { header: [], footer: [] };
@@ -97,18 +97,18 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         var mainStart = [Instr.Directive('text'),
-                     Instr.Directive('global', 'main'),
-                     Instr.Label('main'), Instr.Push(Reg.LR)];
-            var instructionList =
-            [
-                _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-                Instr.Mov(Reg.R0, Instr.Const(0)),
-                Instr.Pop(Reg.PC),
-                _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+                         Instr.Directive('global', 'main'),
+                         Instr.Label('main'), Instr.Push(Reg.LR)];
+
+        var instructionList = [_.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+                               Instr.Mov(Reg.R0, Instr.Const(0)),
+                               Instr.Pop(Reg.PC),
+                               _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
 
         var spSubInstr = this.spSubNum === 0 ? [] : [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(this.spSubNum))];
+
         return Instr.buildList(this.sections.header, mainStart, spSubInstr, instructionList, this.sections.footer);
     }
    
@@ -150,6 +150,11 @@ export class CodeGenerator implements NodeType.Visitor {
                 break;
 
             case '>':
+                var magicNumber = this.spSubNum - this.spSubCurrent--;
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.gt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le),
+                                     Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(magicNumber))), Instr.mods.b)];
                 break;
 
             case '<':
