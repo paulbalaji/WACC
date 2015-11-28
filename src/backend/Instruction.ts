@@ -203,10 +203,10 @@ var nextDataLabel = function() {
 	return str;
 }*/
 
-export function genStrDataBlock(str) {
+export function genStrDataBlock(len: number, str: string) {
 	var label = nextDataLabel();
 	return {label: label, instructions: [Label(label),
-			Directive('word', str.length),
+			Directive('word', len),
 			Directive('ascii', '"' + str + '"')]}
 		;
 }
