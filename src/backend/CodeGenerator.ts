@@ -323,7 +323,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
-        console.log("hi" + node.rhs);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
         var spConst = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
 
