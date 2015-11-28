@@ -46,278 +46,290 @@ msg_12:
 f_createNewNode:
 PUSH {lr}
 SUB sp, sp, #8
-LDR r0, =8
+LDR r0, [sp, #16]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, [sp, #16]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, [sp, #24]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, [sp, #20]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #4]
-LDR r0, =8
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #4]
+LDR r0, [sp, #12]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, [sp, #12]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, [sp, #8]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, [sp, #4]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp]
+LDR r0, [sp]
 ADD sp, sp, #8
-POP {pc}
 POP {pc}
 .ltorg
 f_insert:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, =0
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+LDR r0, [sp, #4]
+PUSH {r0}
+MOV r0, #0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L0
-LDR r4, =0
-STR r4, [sp, #-4]!
-LDR r4, =0
-STR r4, [sp, #-4]!
-LDR r4, [sp, #16]
-STR r4, [sp, #-4]!
+MOV r0, #0
+STR r0, [sp, #-4]!
+MOV r0, #0
+STR r0, [sp, #-4]!
+LDR r0, [sp, #16]
+STR r0, [sp, #-4]!
 BL f_createNewNode
 ADD sp, sp, #12
-MOV r4, r0
-STR r4, [sp, #4]
+STR r0, [sp, #4]
 B L1
 L0:
 SUB sp, sp, #12
-LDR r4, [sp, #16]
-MOV r0, r4
+LDR r0, [sp, #16]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp, #8]
-LDR r4, [sp, #16]
-MOV r0, r4
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp, #8]
+LDR r0, [sp, #16]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp, #4]
-LDR r4, =0
-STR r4, [sp]
-LDR r4, [sp, #20]
-LDR r5, [sp, #4]
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #0
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp, #4]
+MOV r0, #0
+STR r0, [sp]
+LDR r0, [sp, #20]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #0
 BEQ L2
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp, #20]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp, #20]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_insert
 ADD sp, sp, #8
-MOV r4, r0
-LDR r5, [sp, #8]
-MOV r0, r5
+PUSH {r0}
+LDR r0, [sp, #12]
 BL p_check_null_pointer
-LDR r5, [r5]
-STR r4, [r5]
+ADD r0, r0, #0
+PUSH {r0}
+LDR r0, [r0]
+BL free
+MOV r0, #4
+BL malloc
+POP {r1}
+STR r0, [r1]
+MOV r1, r0
+POP {r0}
+STR r0, [r1]
 B L3
 L2:
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp, #20]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp, #20]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_insert
 ADD sp, sp, #8
-MOV r4, r0
-LDR r5, [sp, #8]
-MOV r0, r5
+PUSH {r0}
+LDR r0, [sp, #12]
 BL p_check_null_pointer
-LDR r5, [r5, #4]
-STR r4, [r5]
+ADD r0, r0, #4
+PUSH {r0}
+LDR r0, [r0]
+BL free
+MOV r0, #4
+BL malloc
+POP {r1}
+STR r0, [r1]
+MOV r1, r0
+POP {r0}
+STR r0, [r1]
 L3:
 ADD sp, sp, #12
 L1:
-LDR r4, [sp, #4]
-MOV r0, r4
-POP {pc}
+LDR r0, [sp, #4]
 POP {pc}
 .ltorg
 f_printTree:
 PUSH {lr}
-LDR r4, [sp, #4]
-LDR r5, =0
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+LDR r0, [sp, #4]
+PUSH {r0}
+MOV r0, #0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L4
-LDR r4, =0
-MOV r0, r4
+LDR r0, =0
 POP {pc}
 B L5
 L4:
 SUB sp, sp, #12
-LDR r4, [sp, #16]
-MOV r0, r4
+LDR r0, [sp, #16]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp, #8]
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp, #8]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp, #4]
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp, #4]
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_printTree
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, [sp, #16]
-MOV r0, r4
+STR r0, [sp]
+LDR r0, [sp, #16]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
-MOV r4, #' '
-MOV r0, r4
+MOV r0, #' '
 BL putchar
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp, #4]
-LDR r4, [sp, #4]
-STR r4, [sp, #-4]!
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp, #4]
+LDR r0, [sp, #4]
+STR r0, [sp, #-4]!
 BL f_printTree
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp]
-LDR r4, =0
-MOV r0, r4
+STR r0, [sp]
+LDR r0, =0
 ADD sp, sp, #12
 POP {pc}
 ADD sp, sp, #12
 L5:
-POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #12
-LDR r4, =0
-STR r4, [sp, #8]
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =0
+STR r0, [sp, #8]
+LDR r0, =msg_0
 BL p_print_string
-ADD r4, sp, #8
-MOV r0, r4
+ADD r0, sp, #8
 BL p_read_int
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_print_int
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
 BL p_print_ln
-LDR r4, =0
-STR r4, [sp, #4]
-LDR r4, =0
-STR r4, [sp]
-B L6
-L7:
+LDR r0, =0
+STR r0, [sp, #4]
+MOV r0, #0
+STR r0, [sp]
+B L7
+L6:
 SUB sp, sp, #4
-LDR r4, =0
-STR r4, [sp]
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =0
+STR r0, [sp]
+LDR r0, =msg_3
 BL p_print_string
-LDR r4, [sp, #8]
-LDR r5, =1
-ADDS r4, r4, r5
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-MOV r0, r4
 BL p_print_int
-LDR r4, =msg_4
-MOV r0, r4
+LDR r0, =msg_4
 BL p_print_string
-ADD r4, sp, #0
-MOV r0, r4
+ADD r0, sp, #0
 BL p_read_int
-LDR r4, [sp]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #8]
-STR r4, [sp, #-4]!
+LDR r0, [sp]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #8]
+STR r0, [sp, #-4]!
 BL f_insert
 ADD sp, sp, #8
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-LDR r5, =1
-ADDS r4, r4, r5
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp, #8]
+STR r0, [sp, #8]
 ADD sp, sp, #4
-L6:
-LDR r4, [sp, #4]
-LDR r5, [sp, #8]
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #1
-BEQ L7
-LDR r4, =msg_5
-MOV r0, r4
+L7:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L6
+LDR r0, =msg_5
 BL p_print_string
-LDR r4, [sp]
-STR r4, [sp, #-4]!
+LDR r0, [sp]
+STR r0, [sp, #-4]!
 BL f_printTree
 ADD sp, sp, #4
-MOV r4, r0
-STR r4, [sp, #4]
-LDR r4, =msg_6
-MOV r0, r4
+STR r0, [sp, #4]
+LDR r0, =msg_6
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #12
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_null_pointer:
 PUSH {lr}
 CMP r0, #0

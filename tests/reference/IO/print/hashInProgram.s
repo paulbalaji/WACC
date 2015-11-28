@@ -19,23 +19,19 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =0
-STR r4, [sp]
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =0
+STR r0, [sp]
+LDR r0, =msg_0
 BL p_print_string
-MOV r4, #'#'
-MOV r0, r4
+MOV r0, #'#'
 BL putchar
 BL p_print_ln
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

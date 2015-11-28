@@ -48,103 +48,87 @@ msg_13:
 .global main
 f_doSomething:
 PUSH {lr}
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [sp, #4]
 BL p_print_int
 BL p_print_ln
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
-LDRSB r4, [sp, #8]
-MOV r0, r4
+LDRSB r0, [sp, #8]
 BL p_print_bool
 BL p_print_ln
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
-LDRSB r4, [sp, #9]
-MOV r0, r4
+LDRSB r0, [sp, #9]
 BL putchar
 BL p_print_ln
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
-LDR r4, [sp, #10]
-MOV r0, r4
+LDR r0, [sp, #10]
 BL p_print_string
 BL p_print_ln
-LDR r4, =msg_4
-MOV r0, r4
+LDR r0, =msg_4
 BL p_print_string
-LDR r4, [sp, #14]
-MOV r0, r4
+LDR r0, [sp, #14]
 BL p_print_reference
 BL p_print_ln
-LDR r4, =msg_5
-MOV r0, r4
+LDR r0, =msg_5
 BL p_print_string
-LDR r4, [sp, #18]
-MOV r0, r4
+LDR r0, [sp, #18]
 BL p_print_reference
 BL p_print_ln
-MOV r4, #'g'
-MOV r0, r4
-POP {pc}
+MOV r0, #'g'
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #9
-LDR r0, =6
+MOV r0, #6
 BL malloc
-MOV r4, r0
-MOV r5, #0
-STRB r5, [r4, #4]
-MOV r5, #1
-STRB r5, [r4, #5]
-LDR r5, =2
-STR r5, [r4]
-STR r4, [sp, #5]
-LDR r0, =12
+MOV r3, r0
+MOV r0, #0
+STRB r0, [r3, #4]
+MOV r0, #1
+STRB r0, [r3, #5]
+MOV r0, #2
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #5]
+MOV r0, #12
 BL malloc
-MOV r4, r0
-LDR r5, =1
-STR r5, [r4, #4]
-LDR r5, =2
-STR r5, [r4, #8]
-LDR r5, =2
-STR r5, [r4]
-STR r4, [sp, #1]
-LDR r4, [sp, #1]
-STR r4, [sp, #-4]!
-LDR r4, [sp, #9]
-STR r4, [sp, #-4]!
-LDR r4, =msg_6
-STR r4, [sp, #-4]!
-MOV r4, #'u'
-STRB r4, [sp, #-1]!
-MOV r4, #1
-STRB r4, [sp, #-1]!
-LDR r4, =42
-STR r4, [sp, #-4]!
+MOV r3, r0
+LDR r0, =1
+STR r0, [r3, #4]
+LDR r0, =2
+STR r0, [r3, #8]
+MOV r0, #2
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #1]
+LDR r0, [sp, #1]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #9]
+STR r0, [sp, #-4]!
+LDR r0, =msg_6
+STR r0, [sp, #-4]!
+MOV r0, #'u'
+STRB r0, [sp, #-1]!
+MOV r0, #1
+STRB r0, [sp, #-1]!
+LDR r0, =42
+STR r0, [sp, #-4]!
 BL f_doSomething
 ADD sp, sp, #18
-MOV r4, r0
-STRB r4, [sp]
-LDR r4, =msg_7
-MOV r0, r4
+STRB r0, [sp]
+LDR r0, =msg_7
 BL p_print_string
-LDRSB r4, [sp]
-MOV r0, r4
+LDRSB r0, [sp]
 BL putchar
 BL p_print_ln
 ADD sp, sp, #9
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

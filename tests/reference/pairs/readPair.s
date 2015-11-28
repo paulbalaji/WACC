@@ -37,82 +37,95 @@ msg_9:
 main:
 PUSH {lr}
 SUB sp, sp, #9
-LDR r0, =8
+MOV r0, #0
+PUSH {r0}
+MOV r0, #1
 BL malloc
-MOV r4, r0
-MOV r5, #0
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+LDR r0, =0
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STRB r5, [r0]
-STR r0, [r4]
-LDR r5, =0
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #5]
-LDR r4, =msg_0
-MOV r0, r4
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #5]
+LDR r0, =msg_0
 BL p_print_string
-MOV r4, #'0'
-STRB r4, [sp, #4]
-ADD r4, sp, #4
-MOV r0, r4
+MOV r0, #'0'
+STRB r0, [sp, #4]
+ADD r0, sp, #4
 BL p_read_char
-LDRSB r4, [sp, #4]
-LDR r5, [sp, #5]
-MOV r0, r5
+LDRSB r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #9]
 BL p_check_null_pointer
-LDR r5, [r5]
-STRB r4, [r5]
-LDR r4, =msg_1
-MOV r0, r4
+ADD r0, r0, #0
+PUSH {r0}
+LDR r0, [r0]
+BL free
+MOV r0, #1
+BL malloc
+POP {r1}
+STR r0, [r1]
+MOV r1, r0
+POP {r0}
+STRB r0, [r1]
+LDR r0, =msg_1
 BL p_print_string
-LDR r4, =0
-STR r4, [sp]
-ADD r4, sp, #0
-MOV r0, r4
+LDR r0, =0
+STR r0, [sp]
+ADD r0, sp, #0
 BL p_read_int
-LDR r4, [sp]
-LDR r5, [sp, #5]
-MOV r0, r5
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #9]
 BL p_check_null_pointer
-LDR r5, [r5, #4]
-STR r4, [r5]
-MOV r4, #0
-STRB r4, [sp, #4]
-LDR r4, =-1
-STR r4, [sp]
-LDR r4, =msg_2
-MOV r0, r4
+ADD r0, r0, #4
+PUSH {r0}
+LDR r0, [r0]
+BL free
+MOV r0, #4
+BL malloc
+POP {r1}
+STR r0, [r1]
+MOV r1, r0
+POP {r0}
+STR r0, [r1]
+MOV r0, #0
+STRB r0, [sp, #4]
+LDR r0, =-1
+STR r0, [sp]
+LDR r0, =msg_2
 BL p_print_string
-LDR r4, [sp, #5]
-MOV r0, r4
+LDR r0, [sp, #5]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDRSB r4, [r4]
-STRB r4, [sp, #4]
-LDRSB r4, [sp, #4]
-MOV r0, r4
+LDR r0, [r0]
+LDRSB r0, [r0]
+STRB r0, [sp, #4]
+LDRSB r0, [sp, #4]
 BL putchar
 BL p_print_ln
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
-LDR r4, [sp, #5]
-MOV r0, r4
+LDR r0, [sp, #5]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #9
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

@@ -19,22 +19,20 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =10
-LDR r5, =0
-MOV r0, r4
-MOV r1, r5
+LDR r0, =10
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
 BL p_check_divide_by_zero
 BL __aeabi_idiv
-MOV r4, r0
-STR r4, [sp]
-LDR r4, =msg_0
-MOV r0, r4
+STR r0, [sp]
+LDR r0, =msg_0
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_divide_by_zero:
 PUSH {lr}
 CMP r1, #0

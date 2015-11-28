@@ -40,118 +40,116 @@ msg_10:
 f_printLine:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =0
-STR r4, [sp]
-B L0
-L1:
-LDR r4, =msg_0
-MOV r0, r4
-BL p_print_string
-LDR r4, [sp]
-LDR r5, =1
-ADDS r4, r4, r5
-BLVS p_throw_overflow_error
-STR r4, [sp]
+LDR r0, =0
+STR r0, [sp]
+B L1
 L0:
-LDR r4, [sp]
-LDR r5, [sp, #8]
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #1
-BEQ L1
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_0
+BL p_print_string
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp]
+L1:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L0
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
-MOV r4, #1
-MOV r0, r4
+MOV r0, #1
 ADD sp, sp, #4
-POP {pc}
 POP {pc}
 .ltorg
 f_printMap:
 PUSH {lr}
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
-LDR r4, [sp, #4]
-LDR r5, =100
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #0
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =100
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #0
 BEQ L2
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
 B L3
 L2:
 L3:
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [sp, #4]
 BL p_print_int
-LDR r4, =msg_4
-MOV r0, r4
+LDR r0, =msg_4
 BL p_print_string
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [sp, #4]
 BL putchar
-LDR r4, =msg_5
-MOV r0, r4
+LDR r0, =msg_5
 BL p_print_string
 BL p_print_ln
-MOV r4, #1
-MOV r0, r4
-POP {pc}
+MOV r0, #1
 POP {pc}
 .ltorg
 main:
 PUSH {lr}
 SUB sp, sp, #5
-LDR r4, =msg_6
-MOV r0, r4
+LDR r0, =msg_6
 BL p_print_string
 BL p_print_ln
-LDR r4, =13
-STR r4, [sp, #-4]!
+LDR r0, =13
+STR r0, [sp, #-4]!
 BL f_printLine
 ADD sp, sp, #4
-MOV r4, r0
-STRB r4, [sp, #4]
-MOV r4, #' '
-STR r4, [sp]
-B L4
-L5:
-LDR r4, [sp]
-STR r4, [sp, #-4]!
+STRB r0, [sp, #4]
+MOV r0, #' '
+STR r0, [sp]
+B L5
+L4:
+LDR r0, [sp]
+STR r0, [sp, #-4]!
 BL f_printMap
 ADD sp, sp, #4
-MOV r4, r0
-STRB r4, [sp, #4]
-LDR r4, [sp]
-LDR r5, =1
-ADDS r4, r4, r5
+STRB r0, [sp, #4]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r4, [sp]
-L4:
-LDR r4, [sp]
-LDR r5, =127
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #1
-BEQ L5
-LDR r4, =13
-STR r4, [sp, #-4]!
+STR r0, [sp]
+L5:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =127
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L4
+LDR r0, =13
+STR r0, [sp, #-4]!
 BL f_printLine
 ADD sp, sp, #4
-MOV r4, r0
-STRB r4, [sp, #4]
+STRB r0, [sp, #4]
 ADD sp, sp, #5
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

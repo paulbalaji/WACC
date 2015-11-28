@@ -73,536 +73,526 @@ msg_21:
 main:
 PUSH {lr}
 SUB sp, sp, #8
-LDR r4, =msg_0
-STR r4, [sp, #4]
-LDR r4, =5
-STR r4, [sp]
+LDR r0, =msg_0
+STR r0, [sp, #4]
+LDR r0, =5
+STR r0, [sp]
 SUB sp, sp, #1
-MOV r4, #'x'
-STRB r4, [sp]
+MOV r0, #'x'
+STRB r0, [sp]
 SUB sp, sp, #1
-MOV r4, #1
-STRB r4, [sp]
+MOV r0, #1
+STRB r0, [sp]
 SUB sp, sp, #4
-LDR r4, =msg_1
-STR r4, [sp]
+LDR r0, =msg_1
+STR r0, [sp]
 SUB sp, sp, #16
-LDR r0, =16
+MOV r0, #16
 BL malloc
-MOV r4, r0
-LDR r5, =1
-STR r5, [r4, #4]
-LDR r5, =2
-STR r5, [r4, #8]
-LDR r5, =3
-STR r5, [r4, #12]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp, #12]
+MOV r3, r0
+LDR r0, =1
+STR r0, [r3, #4]
+LDR r0, =2
+STR r0, [r3, #8]
+LDR r0, =3
+STR r0, [r3, #12]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #12]
 SUB sp, sp, #4
-LDR r0, =7
+MOV r0, #7
 BL malloc
-MOV r4, r0
-MOV r5, #'x'
-STRB r5, [r4, #4]
-MOV r5, #'y'
-STRB r5, [r4, #5]
-MOV r5, #'z'
-STRB r5, [r4, #6]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp]
+MOV r3, r0
+MOV r0, #'x'
+STRB r0, [r3, #4]
+MOV r0, #'y'
+STRB r0, [r3, #5]
+MOV r0, #'z'
+STRB r0, [r3, #6]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
 SUB sp, sp, #4
-LDR r0, =7
+MOV r0, #7
 BL malloc
-MOV r4, r0
-MOV r5, #1
-STRB r5, [r4, #4]
-MOV r5, #0
-STRB r5, [r4, #5]
-MOV r5, #1
-STRB r5, [r4, #6]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp]
+MOV r3, r0
+MOV r0, #1
+STRB r0, [r3, #4]
+MOV r0, #0
+STRB r0, [r3, #5]
+MOV r0, #1
+STRB r0, [r3, #6]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp]
 SUB sp, sp, #16
-LDR r0, =16
+MOV r0, #16
 BL malloc
-MOV r4, r0
-LDR r5, =msg_2
-STR r5, [r4, #4]
-LDR r5, =msg_3
-STR r5, [r4, #8]
-LDR r5, =msg_4
-STR r5, [r4, #12]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp, #12]
+MOV r3, r0
+LDR r0, =msg_2
+STR r0, [r3, #4]
+LDR r0, =msg_3
+STR r0, [r3, #8]
+LDR r0, =msg_4
+STR r0, [r3, #12]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #12]
 SUB sp, sp, #12
-LDR r0, =8
+LDR r0, =1
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, =1
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, =2
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, =2
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #8]
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #8]
 SUB sp, sp, #24
-LDR r0, =8
+MOV r0, #'a'
+PUSH {r0}
+MOV r0, #1
 BL malloc
-MOV r4, r0
-MOV r5, #'a'
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+MOV r0, #1
+PUSH {r0}
+MOV r0, #1
 BL malloc
-STRB r5, [r0]
-STR r0, [r4]
-MOV r5, #1
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STRB r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #20]
-LDR r0, =8
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #20]
+MOV r0, #'b'
+PUSH {r0}
+MOV r0, #1
 BL malloc
-MOV r4, r0
-MOV r5, #'b'
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+MOV r0, #0
+PUSH {r0}
+MOV r0, #1
 BL malloc
-STRB r5, [r0]
-STR r0, [r4]
-MOV r5, #0
-LDR r0, =1
+POP {r1}
+STRB r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STRB r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #16]
-LDR r0, =12
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #16]
+MOV r0, #12
 BL malloc
-MOV r4, r0
-LDR r5, [sp, #20]
-STR r5, [r4, #4]
-LDR r5, [sp, #16]
-STR r5, [r4, #8]
-LDR r5, =2
-STR r5, [r4]
-STR r4, [sp, #12]
+MOV r3, r0
+LDR r0, [sp, #20]
+STR r0, [r3, #4]
+LDR r0, [sp, #16]
+STR r0, [r3, #8]
+MOV r0, #2
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #12]
 SUB sp, sp, #20
-LDR r0, =16
+MOV r0, #16
 BL malloc
-MOV r4, r0
-LDR r5, =1
-STR r5, [r4, #4]
-LDR r5, =2
-STR r5, [r4, #8]
-LDR r5, =3
-STR r5, [r4, #12]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp, #16]
-LDR r0, =7
+MOV r3, r0
+LDR r0, =1
+STR r0, [r3, #4]
+LDR r0, =2
+STR r0, [r3, #8]
+LDR r0, =3
+STR r0, [r3, #12]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #16]
+MOV r0, #7
 BL malloc
-MOV r4, r0
-MOV r5, #'a'
-STRB r5, [r4, #4]
-MOV r5, #'b'
-STRB r5, [r4, #5]
-MOV r5, #'c'
-STRB r5, [r4, #6]
-LDR r5, =3
-STR r5, [r4]
-STR r4, [sp, #12]
-LDR r0, =8
+MOV r3, r0
+MOV r0, #'a'
+STRB r0, [r3, #4]
+MOV r0, #'b'
+STRB r0, [r3, #5]
+MOV r0, #'c'
+STRB r0, [r3, #6]
+MOV r0, #3
+STR r0, [r3]
+MOV r0, r3
+STR r0, [sp, #12]
+LDR r0, [sp, #16]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-MOV r4, r0
-LDR r5, [sp, #16]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+LDR r0, [sp, #16]
+PUSH {r0}
+MOV r0, #4
 BL malloc
-STR r5, [r0]
-STR r0, [r4]
-LDR r5, [sp, #12]
-LDR r0, =4
+POP {r1}
+STR r1, [r0]
+PUSH {r0}
+MOV r0, #8
 BL malloc
-STR r5, [r0]
-STR r0, [r4, #4]
-STR r4, [sp, #8]
-LDR r4, [sp, #8]
-MOV r0, r4
+POP {r1, r2}
+STR r2, [r0]
+STR r1, [r0, #4]
+STR r0, [sp, #8]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, =msg_5
-MOV r0, r4
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, =msg_5
 BL p_print_string
-ADD r4, sp, #4
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #4]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_int
-LDR r4, [sp, #106]
-MOV r0, r4
+LDR r0, [sp, #106]
 BL p_print_string
-ADD r4, sp, #4
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #4]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_int
-LDR r4, [sp, #106]
-MOV r0, r4
+LDR r0, [sp, #106]
 BL p_print_string
-ADD r4, sp, #4
-LDR r5, =2
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #4]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =2
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_int
-LDR r4, =msg_6
-MOV r0, r4
+LDR r0, =msg_6
 BL p_print_string
-ADD r4, sp, #0
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL putchar
-LDR r4, [sp, #106]
-MOV r0, r4
+LDR r0, [sp, #106]
 BL p_print_string
-ADD r4, sp, #0
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL putchar
-LDR r4, [sp, #106]
-MOV r0, r4
+LDR r0, [sp, #106]
 BL p_print_string
-ADD r4, sp, #0
-LDR r5, =2
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =2
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL putchar
-LDR r4, =msg_7
-MOV r0, r4
+LDR r0, =msg_7
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #20
-ADD r4, sp, #12
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp, #8]
-LDR r4, [sp, #8]
 MOV r0, r4
+POP {r4}
+STR r0, [sp, #8]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDRSB r4, [r4]
-STRB r4, [sp, #7]
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [r0]
+LDRSB r0, [r0]
+STRB r0, [sp, #7]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDRSB r4, [r4]
-STRB r4, [sp, #6]
-ADD r4, sp, #12
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [r0, #4]
+LDRSB r0, [r0]
+STRB r0, [sp, #6]
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp, #2]
-LDR r4, [sp, #2]
 MOV r0, r4
+POP {r4}
+STR r0, [sp, #2]
+LDR r0, [sp, #2]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDRSB r4, [r4]
-STRB r4, [sp, #1]
-LDR r4, [sp, #2]
-MOV r0, r4
+LDR r0, [r0]
+LDRSB r0, [r0]
+STRB r0, [sp, #1]
+LDR r0, [sp, #2]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDRSB r4, [r4]
-STRB r4, [sp]
-LDR r4, =msg_8
-MOV r0, r4
+LDR r0, [r0, #4]
+LDRSB r0, [r0]
+STRB r0, [sp]
+LDR r0, =msg_8
 BL p_print_string
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_print_reference
-LDR r4, =msg_9
-MOV r0, r4
+LDR r0, =msg_9
 BL p_print_string
-LDRSB r4, [sp, #7]
-MOV r0, r4
+LDRSB r0, [sp, #7]
 BL putchar
-LDR r4, [sp, #86]
-MOV r0, r4
+LDR r0, [sp, #86]
 BL p_print_string
-LDRSB r4, [sp, #6]
-MOV r0, r4
+LDRSB r0, [sp, #6]
 BL p_print_bool
-LDR r4, =msg_10
-MOV r0, r4
+LDR r0, =msg_10
 BL p_print_string
-LDR r4, [sp, #2]
-MOV r0, r4
+LDR r0, [sp, #2]
 BL p_print_reference
-LDR r4, =msg_11
-MOV r0, r4
+LDR r0, =msg_11
 BL p_print_string
-LDRSB r4, [sp, #1]
-MOV r0, r4
+LDRSB r0, [sp, #1]
 BL putchar
-LDR r4, [sp, #86]
-MOV r0, r4
+LDR r0, [sp, #86]
 BL p_print_string
-LDRSB r4, [sp]
-MOV r0, r4
+LDRSB r0, [sp]
 BL p_print_bool
-LDR r4, =msg_12
-MOV r0, r4
+LDR r0, =msg_12
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #24
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4]
-LDR r4, [r4]
-STR r4, [sp, #4]
-LDR r4, [sp, #8]
-MOV r0, r4
+LDR r0, [r0]
+LDR r0, [r0]
+STR r0, [sp, #4]
+LDR r0, [sp, #8]
 BL p_check_null_pointer
-LDR r4, [r4, #4]
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [r0, #4]
+LDR r0, [r0]
+STR r0, [sp]
+LDR r0, [sp, #4]
 BL p_print_int
-LDR r4, [sp, #62]
-MOV r0, r4
+LDR r0, [sp, #62]
 BL p_print_string
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #12
-ADD r4, sp, #12
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp, #8]
-ADD r4, sp, #12
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #8]
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp, #4]
-ADD r4, sp, #12
-LDR r5, =2
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #4]
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =2
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp, #8]
 MOV r0, r4
+POP {r4}
+STR r0, [sp]
+LDR r0, [sp, #8]
 BL p_print_string
-LDR r4, [sp, #50]
-MOV r0, r4
+LDR r0, [sp, #50]
 BL p_print_string
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [sp, #4]
 BL p_print_string
-LDR r4, [sp, #50]
-MOV r0, r4
+LDR r0, [sp, #50]
 BL p_print_string
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #16
-ADD r4, sp, #0
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_bool
-LDR r4, [sp, #34]
-MOV r0, r4
+LDR r0, [sp, #34]
 BL p_print_string
-ADD r4, sp, #0
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_bool
-LDR r4, [sp, #34]
-MOV r0, r4
+LDR r0, [sp, #34]
 BL p_print_string
-ADD r4, sp, #0
-LDR r5, =2
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =2
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5
+ADD r4, r4, r0
 LDRSB r4, [r4]
 MOV r0, r4
+POP {r4}
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #4
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #4
-ADD r4, sp, #12
-LDR r5, =0
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =0
 BL p_check_array_bounds
 ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
+ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
-STR r4, [sp, #8]
-ADD r4, sp, #12
-LDR r5, =1
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
-BL p_check_array_bounds
-ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
-LDR r4, [r4]
-STR r4, [sp, #4]
-ADD r4, sp, #12
-LDR r5, =2
-LDR r4, [r4]
-MOV r0, r5
-MOV r1, r4
-BL p_check_array_bounds
-ADD r4, r4, #4
-ADD r4, r4, r5, LSL #2
-LDR r4, [r4]
-STR r4, [sp]
-LDR r4, [sp, #8]
 MOV r0, r4
+POP {r4}
+STR r0, [sp, #8]
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =1
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #4]
+LDR r0, [sp, #12]
+PUSH {r4}
+MOV r4, r0
+LDR r0, =2
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
+STR r0, [sp]
+LDR r0, [sp, #8]
 BL p_print_int
-LDR r4, [sp, #26]
-MOV r0, r4
+LDR r0, [sp, #26]
 BL p_print_string
-LDR r4, [sp, #4]
-MOV r0, r4
+LDR r0, [sp, #4]
 BL p_print_int
-LDR r4, [sp, #26]
-MOV r0, r4
+LDR r0, [sp, #26]
 BL p_print_string
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #16
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #4
-LDRSB r4, [sp]
-MOV r0, r4
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #1
-LDRSB r4, [sp]
-MOV r0, r4
+LDRSB r0, [sp]
 BL putchar
 BL p_print_ln
 ADD sp, sp, #1
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #8
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_check_null_pointer:
 PUSH {lr}
 CMP r0, #0
@@ -624,7 +614,7 @@ PUSH {lr}
 CMP r0, #0
 LDRLT r0, =msg_15
 BLLT p_throw_runtime_error
-LDR r1, [r1]
+LDR r1, [r4]
 CMP r0, r1
 LDRCS r0, =msg_16
 BLCS p_throw_runtime_error

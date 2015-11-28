@@ -90,10 +90,22 @@ export function Mov(dst, src) {
 
 export function Mem(...memArgs) {
 	var mem: any = {};
-	mem.memArgs = memArgs;
+    
+    mem.memArgs = memArgs
+
+    // var lastElem = mem.memArgs[mem.memArgs.length - 1];
+    // if (lastElem instanceof Const) {
+    //     if (lastElem.n === 0) {
+    //         mem.memArgs = mem.memArgs.slice(0, -1);
+    //     } else {
+    //     	;
+    //     }
+    // }
+
     mem.toString = function() {
         return '[' + mem.memArgs.join(', ') + ']';
     }
+
 	return mem;
 }
 
@@ -109,31 +121,28 @@ export function Str(...strArgs) {
 	return str;
 }
 
+export function Strb(...strbArgs) {
+	var strb: any = {};
+	strb.strbArgs = strbArgs;
+
+	strb.toString = function() {
+		return 'STRB ' + strb.strbArgs.join(', ');
+	}
+
+	return strb;
+}
+
+
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
+    bl.command = 'BL';
+
 	bl.toString = function() {
-		return 'BL ' + bl.branchLabel;
+		return bl.command + ' ' + bl.branchLabel;
 	}
+    
 	return bl;
-}
-
-export function Blvs(branchLabel) {
-	var blvs: any = {};
-	blvs.branchLabel = branchLabel;
-	blvs.toString = function() {
-		return 'BLVS ' + blvs.branchLabel;
-	}
-	return blvs;
-}
-
-export function Blne(branchLabel) {
-    var blne: any = {};
-    blne.branchLabel = branchLabel;
-    blne.toString = function() {
-        return 'BLNE ' + blne.branchLabel;
-    }
-    return blne;
 }
 
 export function Add(...addArgs) {
@@ -182,7 +191,7 @@ export function Smull(...smullArgs) {
     return smull;
 }
 
-export function Cmp(mod, ...cmpArgs) {
+export function Cmp(...cmpArgs) {
     var cmp: any = {};
     cmp.args = cmpArgs;
     cmp.toString = function() {
@@ -199,9 +208,25 @@ export function Asr(n) {
     }
     return asr;
 }
+
+export function Rsbs(...rsbsArgs) {
+	var rsbs: any = {};
+	rsbs.args = rsbsArgs;
+    add.toString = function() {
+        return 'ADD ' + add.args.join(', ');
+    }
+	return add;
+}
+
 export var mods = {
 	ne : "NE",
 	eq : "EQ",
+    vs:  "VS",
+    gt: "GT",
+    ge: "GE",
+    lt: "LT",
+    le: "LE",
+    b: "B",
 	none : ""
 }
 
@@ -209,7 +234,7 @@ export function Eor(...eorArgs) {
 	var eor: any = {};
 	eor.args = eorArgs;
 	eor.toString = function() {
-		return 'EOR' + eor.ergs.join(', ');
+		return 'EOR ' + eor.args.join(', ');
 	}
 	return eor;
 }

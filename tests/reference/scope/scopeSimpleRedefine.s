@@ -19,24 +19,21 @@ msg_3:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =12
-STR r4, [sp]
+LDR r0, =12
+STR r0, [sp]
 SUB sp, sp, #1
-MOV r4, #1
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+MOV r0, #1
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #1
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, [sp]
 BL p_print_int
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_bool:
 PUSH {lr}
 CMP r0, #0

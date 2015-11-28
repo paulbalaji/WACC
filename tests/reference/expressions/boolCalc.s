@@ -16,22 +16,22 @@ msg_2:
 main:
 PUSH {lr}
 SUB sp, sp, #3
-MOV r4, #1
-STRB r4, [sp, #2]
-MOV r4, #0
-STRB r4, [sp, #1]
-LDRSB r4, [sp, #2]
-LDRSB r5, [sp, #1]
-AND r4, r4, r5
-STRB r4, [sp]
-LDRSB r4, [sp]
-MOV r0, r4
+MOV r0, #1
+STRB r0, [sp, #2]
+MOV r0, #0
+STRB r0, [sp, #1]
+LDRSB r0, [sp, #2]
+CMP r0, #0
+BEQ L0
+LDRSB r0, [sp, #1]
+L0:
+STRB r0, [sp]
+LDRSB r0, [sp]
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #3
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_bool:
 PUSH {lr}
 CMP r0, #0

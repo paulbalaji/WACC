@@ -31,86 +31,94 @@ msg_7:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =13
-STR r4, [sp]
-LDR r4, [sp]
-LDR r5, =13
-CMP r4, r5
-MOVEQ r4, #1
-MOVNE r4, #0
-CMP r4, #0
+LDR r0, =13
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =13
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
 BEQ L0
-LDR r4, [sp]
-LDR r5, =5
-CMP r4, r5
-MOVGT r4, #1
-MOVLE r4, #0
-CMP r4, #0
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =5
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGT r0, #1
+MOVLE r0, #0
+CMP r0, #0
 BEQ L2
-LDR r4, [sp]
-LDR r5, =10
-CMP r4, r5
-MOVLT r4, #1
-MOVGE r4, #0
-CMP r4, #0
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =10
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #0
 BEQ L4
-LDR r4, =msg_0
-MOV r0, r4
+LDR r0, =msg_0
 BL p_print_string
 BL p_print_ln
 B L5
 L4:
-LDR r4, [sp]
-LDR r5, =12
-CMP r4, r5
-MOVGT r4, #1
-MOVLE r4, #0
-CMP r4, #0
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =12
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGT r0, #1
+MOVLE r0, #0
+CMP r0, #0
 BEQ L6
-LDR r4, [sp]
-LDR r5, =13
-CMP r4, r5
-MOVGT r4, #1
-MOVLE r4, #0
-CMP r4, #0
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =13
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGT r0, #1
+MOVLE r0, #0
+CMP r0, #0
 BEQ L8
-LDR r4, =msg_1
-MOV r0, r4
+LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
 B L9
 L8:
-LDR r4, =msg_2
-MOV r0, r4
+LDR r0, =msg_2
 BL p_print_string
 BL p_print_ln
 L9:
 B L7
 L6:
-LDR r4, =msg_3
-MOV r0, r4
+LDR r0, =msg_3
 BL p_print_string
 BL p_print_ln
 L7:
 L5:
 B L3
 L2:
-LDR r4, =msg_4
-MOV r0, r4
+LDR r0, =msg_4
 BL p_print_string
 BL p_print_ln
 L3:
 B L1
 L0:
-LDR r4, =msg_5
-MOV r0, r4
+LDR r0, =msg_5
 BL p_print_string
 BL p_print_ln
 L1:
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]

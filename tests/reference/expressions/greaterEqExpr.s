@@ -16,42 +16,47 @@ msg_2:
 main:
 PUSH {lr}
 SUB sp, sp, #16
-LDR r4, =2
-STR r4, [sp, #12]
-LDR r4, =6
-STR r4, [sp, #8]
-LDR r4, =4
-STR r4, [sp, #4]
-LDR r4, =4
-STR r4, [sp]
-LDR r4, [sp, #12]
-LDR r5, [sp, #8]
-CMP r4, r5
-MOVGE r4, #1
-MOVLT r4, #0
-MOV r0, r4
+LDR r0, =2
+STR r0, [sp, #12]
+LDR r0, =6
+STR r0, [sp, #8]
+LDR r0, =4
+STR r0, [sp, #4]
+LDR r0, =4
+STR r0, [sp]
+LDR r0, [sp, #12]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGE r0, #1
+MOVLT r0, #0
 BL p_print_bool
 BL p_print_ln
-LDR r4, [sp, #8]
-LDR r5, [sp, #4]
-CMP r4, r5
-MOVGE r4, #1
-MOVLT r4, #0
-MOV r0, r4
+LDR r0, [sp, #8]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGE r0, #1
+MOVLT r0, #0
 BL p_print_bool
 BL p_print_ln
-LDR r4, [sp, #4]
-LDR r5, [sp, #4]
-CMP r4, r5
-MOVGE r4, #1
-MOVLT r4, #0
-MOV r0, r4
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #8]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVGE r0, #1
+MOVLT r0, #0
 BL p_print_bool
 BL p_print_ln
 ADD sp, sp, #16
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_bool:
 PUSH {lr}
 CMP r0, #0

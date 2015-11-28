@@ -1,4 +1,9 @@
 begin
+<<<<<<< HEAD
 	int x = 5;
 	int y = 6
 end
+=======
+    print 1 <= 2
+end
+>>>>>>> 8240ba14b9be6806ea051e1aca38d97c1c66574e

@@ -25,36 +25,32 @@ msg_5:
 main:
 PUSH {lr}
 SUB sp, sp, #4
-LDR r4, =msg_0
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, =msg_0
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
-MOV r4, #'H'
-ADD r5, sp, #0
-LDR r6, =0
-LDR r5, [r5]
-MOV r0, r6
-MOV r1, r5
+MOV r0, #'H'
+PUSH {r0, r4}
+LDR r4, [sp, #8]
+LDR r0, =0
 BL p_check_array_bounds
-ADD r5, r5, #4
-ADD r5, r5, r6
-STRB r4, [r5]
-LDR r4, [sp]
-MOV r0, r4
+ADD r4, r4, #4
+ADD r4, r4, r0
+MOV r1, r4
+POP {r0, r4}
+STRB r0, [r1]
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
-LDR r4, =msg_1
-STR r4, [sp]
-LDR r4, [sp]
-MOV r0, r4
+LDR r0, =msg_1
+STR r0, [sp]
+LDR r0, [sp]
 BL p_print_string
 BL p_print_ln
 ADD sp, sp, #4
-LDR r0, =0
+MOV r0, #0
 POP {pc}
-.ltorg
 p_print_string:
 PUSH {lr}
 LDR r1, [r0]
@@ -78,7 +74,7 @@ PUSH {lr}
 CMP r0, #0
 LDRLT r0, =msg_4
 BLLT p_throw_runtime_error
-LDR r1, [r1]
+LDR r1, [r4]
 CMP r0, r1
 LDRCS r0, =msg_5
 BLCS p_throw_runtime_error

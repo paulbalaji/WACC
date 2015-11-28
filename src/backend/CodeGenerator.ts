@@ -14,9 +14,15 @@ export class CodeGenerator implements NodeType.Visitor {
 
     insertDataLabel: any;
     insertStringDataHeader: any;
+
     insertPrintString: any;
+    insertPrintBool: any;
+    insertPrintInt: any;
+    insertPrintRef: any;
+    insertPrintLn: any;
 
     insertOverflowError: any;
+    insertCheckDivideByZero: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -45,22 +51,62 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertStringDataHeader = function(str: string) {
             this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - 1, str);
+            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - str.split("\\").length + 1, str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
 
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('%.*s\\0');
+                var message = '%.*s\\0';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
+            });
+        });
+
+        this.insertPrintBool = _.once(() => {
+            this.closingInsertions.push(function() {
+                var trueLabel = this.insertStringDataHeader("true\\0");
+                var falseLabel = this.insertStringDataHeader("false\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
+            });
+        });
+
+        this.insertPrintInt = _.once(() => {
+            this.closingInsertions.push(function() {
+                var intFormatLabel = this.insertStringDataHeader("%d\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
+            });
+        });
+
+        this.insertPrintRef = _.once(() => {
+            this.closingInsertions.push(function() {
+                var refFormatLabel = this.insertStringDataHeader('%p\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+            });
+        });
+
+        this.insertPrintLn = _.once(() => {
+            this.closingInsertions.push(function() {
+                var terminatorLabel = this.insertStringDataHeader('\\0');
+                this.sections.footer.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
             });
         });
 
         this.insertOverflowError = _.once(() => {
             this.closingInsertions.push(function() {
-                var dataLabel = this.insertStringDataHeader('OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n');
+                var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
+                var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
+            });
+            this.insertRuntimeError();
+        });
+
+        this.insertCheckDivideByZero = _.once( () => {
+            this.closingInsertions.push(function() {
+                var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
+                var dataLabel = this.insertStringDataHeader(message);
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
             });
             this.insertRuntimeError();
         });
@@ -71,6 +117,35 @@ export class CodeGenerator implements NodeType.Visitor {
             });
             this.insertPrintString();
         });
+
+
+        this.printNodeLogic = function(node) {
+            var exprInstructions = node.expr.visit(this);
+
+            if (node.expr.type instanceof NodeType.BoolTypeNode) {
+                this.insertPrintBool();
+                return [exprInstructions, Instr.Bl('p_print_bool')]
+            } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+                this.insertPrintInt();
+                return [exprInstructions, Instr.Bl('p_print_int')]
+            } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+                return [exprInstructions, Instr.Bl('putchar')]
+            } else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                        && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+                this.insertPrintString();
+                return [exprInstructions, Instr.Bl('p_print_string')];
+            } else if (node.expr.type instanceof NodeType.NullTypeNode
+                        || node.expr.type instanceof NodeType.PairTypeNode) {
+                console.log(exprInstructions);
+                this.insertPrintRef();
+                return [exprInstructions, Instr.Bl('p_print_reference')];
+            } else {
+                //please don't forget to remove this Jan
+                console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+            }
+
+        }
+
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -94,6 +169,7 @@ export class CodeGenerator implements NodeType.Visitor {
                      _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
         return Instr.buildList(this.sections.header, mainStart, instructionList, mainEnd, this.sections.footer);
+
     }
    
 
@@ -103,39 +179,58 @@ export class CodeGenerator implements NodeType.Visitor {
         switch (node.operator) {
             case '+':
                 binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '-':
                 binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
-                                     Instr.Blvs('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
                 this.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
-                                     Instr.Blne('p_throw_overflow_error')];
+                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.ne)];
                 this.insertOverflowError();
                 break;
 
             case '/':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idiv')];
+                this.insertCheckDivideByZero();
                 break;
 
             case '%':
+                binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
+                                     Instr.Bl('__aeabi_idivmod'),
+                                     Instr.Mov(Reg.R0, Reg.R1)];
+                this.insertCheckDivideByZero();
                 break;
 
             case '>':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.gt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le)];
                 break;
 
             case '<':
-                break;
-
-            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.lt),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ge)];
                 break;
 
             case '>=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ge),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.lt)];
+                break;
+
+            case '<=':
+                binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.le),
+                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.gt)];
                 break;
 
             case '==':
@@ -195,7 +290,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-
+        return [Instr.Ldr(Reg.R0, Instr.Const('\'' + node.ch + '\''))]
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
@@ -207,17 +302,20 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        var exprInstructions = node.expr.visit(this);
-        this.insertPrintString();
-        return [exprInstructions, Instr.Bl('p_print_string')];       
+        return this.printNodeLogic(node);
+
+       
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
+        var printInstrs = this.printNodeLogic(node);
+        this.insertPrintLn();
+        return [printInstrs, Instr.Bl('p_print_ln')]
 
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
-        console.log(node.rhs);
+        console.log("hi" + node.rhs);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
         var spConst = Instr.Const((this.programInfo.declareNodeCount * 4) - this.spSubCurrent);
 
@@ -241,6 +339,7 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
 
+
     visitFuncNode(node: NodeType.FuncNode): any {
         return Instr.Push(Reg.R0);
     }
@@ -258,13 +357,20 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
+                unOpInstructions = [Instr.Rsbs(Reg.R0, Reg.R0, Instr.Const(0))];
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
+                var character = node.expr.visit(this);
+                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(character)),
+                                    Instr.Str(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(4))];
                 break;
             case 'chr':
+                unOpInstructions = [Instr.Strb(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(1))];
                 break;
             case 'len':
                 break;
@@ -297,6 +403,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
+        return [Instr.Mov(Reg.R0, node.bool ? Instr.Const(1) : Instr.Const(0))];
 
     }
 
@@ -321,7 +428,36 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
+        // TO CHECK
+        return [Instr.Mov(Reg.R0, Instr.Const(0))];
 
     }
 
+
+    printNodeLogic(node) : any {
+        var exprInstructions = node.expr.visit(this);
+
+        if (node.expr.type instanceof NodeType.BoolTypeNode) {
+            this.insertPrintBool();
+            return [exprInstructions, Instr.Bl('p_print_bool')]
+        } else if (node.expr.type instanceof NodeType.IntTypeNode) {
+            this.insertPrintInt();
+            return [exprInstructions, Instr.Bl('p_print_int')]
+        } else if (node.expr.type instanceof NodeType.CharTypeNode) {
+            return [exprInstructions, Instr.Bl('putchar')]
+        }
+        else if (node.expr.type instanceof NodeType.ArrayTypeNode
+                    && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+            this.insertPrintString();
+            return [exprInstructions, Instr.Bl('p_print_string')];
+        } else if (node.expr.type instanceof NodeType.NullTypeNode || node.expr.type instanceof NodeType.PairTypeNode) {
+            console.log(exprInstructions);
+            this.insertPrintRef();
+            return [exprInstructions, Instr.Bl('p_print_reference')];
+        }
+        else {
+            console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
+        }
+
+    }
 }
