@@ -51,13 +51,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.stackMap = {};
 
-        this.getNextLabelName = function() {
+        this.getNextLabelName = (function() {
             var labelNum = 0;
             return function() {
-                return 'L' + this.labelNum++;
+                return 'L' + labelNum++;
             }
 
-        }
+        })()
 
     }
 
@@ -333,9 +333,21 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitWhileNode(node: NodeType.WhileNode): any {
-        var expr = node.predicateExpr.visit(this);
-        
+        this.currentST = node.st;
         var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
+        this.currentST = node.st.parent;
+        var bodyLabel = this.getNextLabelName();
+        var expr = node.predicateExpr.visit(this);
+        var exprLabel = this.getNextLabelName();
+        return [Instr.B(exprLabel),
+                Instr.Label(bodyLabel),
+                body,
+                Instr.Label(exprLabel),
+                expr,
+                Instr.Cmp(Reg.R0, Instr.Const(1)),
+                Instr.modify(Instr.B(bodyLabel), Instr.mods.eq)
+        ]
+
 
     }
 
