@@ -1,5 +1,6 @@
 import Instr = require('./Instruction');
 import Reg = require('./Register');
+import NodeType = require('../frontend/NodeType');
 
 var printFooter = [	
 	Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
@@ -8,6 +9,11 @@ var printFooter = [
 	Instr.Bl('fflush'),
 	Instr.Pop(Reg.PC)
 ]
+
+export function getByteSizeFromNode(typeNode) {
+    return typeNode.constructor.name === ('BoolTypeNode' || 'CharTypeNode') ? 1 : 4;
+}
+
 export var funcDefs = {
 	printString: function(stringFormatLabel) {
 		return [Instr.Label('p_print_string'),
@@ -28,6 +34,7 @@ export var funcDefs = {
 			printFooter];
 
 	},
+
 	printInt: function(intFormatLabel) {
 		return [Instr.Label('p_print_int'),
 				Instr.Push(Reg.LR),
@@ -35,6 +42,7 @@ export var funcDefs = {
 				Instr.Ldr(Reg.R0, Instr.Liter(intFormatLabel)),
 				printFooter];
 	},
+
 	printRef: function(refFormatLabel) {
 		return [Instr.Label('p_print_reference'),
 				Instr.Push(Reg.LR),
@@ -43,6 +51,7 @@ export var funcDefs = {
 				Instr.Ldr(Reg.R0, Instr.Liter(refFormatLabel)),
 				printFooter];
 	},
+
 	printLn: function(terminatorLabel) {
 		return [Instr.Label('p_print_ln'),
 				Instr.Push(Reg.LR),
