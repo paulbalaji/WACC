@@ -28,8 +28,6 @@ export class CodeGenerator implements NodeType.Visitor {
     closingInsertions: any[];
     printNodeLogic: any;
 
-    labelNum: number;
-
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
@@ -38,6 +36,8 @@ export class CodeGenerator implements NodeType.Visitor {
     stackMap: any; // Maps ident strings to corresponding stack locations
 
     currentST: SemanticUtil.SymbolTable;
+
+    getNextLabelName: any; 
 
     constructor(programInfo) {
         this.nextReg = 4;
@@ -51,6 +51,14 @@ export class CodeGenerator implements NodeType.Visitor {
         this.spSubCurrent = 4;
 
         this.stackMap = {};
+
+        this.getNextLabelName = function() {
+            var labelNum = 0;
+            return function() {
+                return 'L' + this.labelNum++;
+            }
+
+        }
 
     }
 
@@ -160,10 +168,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
         }
 
-    }
-
-    getNextLabelName() {
-        return 'L' + this.labelNum++;
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -388,7 +392,6 @@ export class CodeGenerator implements NodeType.Visitor {
         var printInstrs = this.printNodeLogic(node);
         this.insertPrintLn();
         return [printInstrs, Instr.Bl('p_print_ln')]
-
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {

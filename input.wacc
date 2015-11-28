@@ -1,7 +1,6 @@
 begin
-	int x = 5;
-	begin 
-		int x = 6;
-		print x
-	end
+	
+	while false do
+		exit 3
+	done
 end

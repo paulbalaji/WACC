@@ -98,21 +98,13 @@ export function Mov(dst, src) {
 
 export function Mem(...memArgs) {
 	var mem: any = {};
+	
 	var lastArg = _.last(memArgs);
 	if (isConst(lastArg) && lastArg.n === 0) { // If last arg is a Const #0, then remove it as its unnesccessary
 		memArgs = _.initial(memArgs); // Remove the last arg
 	}
+
     mem.memArgs = memArgs
-
-    // var lastElem = mem.memArgs[mem.memArgs.length - 1];
-    // if (lastElem instanceof Const) {
-    //     if (lastElem.n === 0) {
-    //         mem.memArgs = mem.memArgs.slice(0, -1);
-    //     } else {
-    //     	;
-    //     }
-    // }
-
     mem.toString = function() {
         return '[' + mem.memArgs.join(', ') + ']';
     }
