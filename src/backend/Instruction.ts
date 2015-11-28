@@ -109,6 +109,18 @@ export function Str(...strArgs) {
 	return str;
 }
 
+export function Strb(...strbArgs) {
+	var strb: any = {};
+	strb.strbArgs = strbArgs;
+
+	strb.toString = function() {
+		return 'STRB ' + strb.strbArgs.join(', ');
+	}
+
+	return strb;
+}
+
+
 export function Bl(branchLabel) {
 	var bl: any = {};
 	bl.branchLabel = branchLabel;
@@ -184,6 +196,16 @@ export function Asr(n) {
     }
     return asr;
 }
+
+export function Rsbs(...rsbsArgs) {
+	var rsbs: any = {};
+	rsbs.args = rsbsArgs;
+    add.toString = function() {
+        return 'ADD ' + add.args.join(', ');
+    }
+	return add;
+}
+
 export var mods = {
 	ne : "NE",
 	eq : "EQ",

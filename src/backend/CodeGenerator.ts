@@ -218,7 +218,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-
+        return '\'' + node.ch + '\'';
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
@@ -246,7 +246,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
-        console.log(node.rhs);
+        console.log("hi" + node.rhs);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
         this.spSubNum += 4;
 
@@ -287,13 +287,20 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
+                unOpInstructions = [Instr.Rsbs(Reg.R0, Reg.R0, Instr.Const(0))];
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
+                var character = node.expr.visit(this);
+                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const(character)),
+                                    Instr.Str(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(4))];
                 break;
             case 'chr':
+                unOpInstructions = [Instr.Strb(Reg.R0, Instr.Mem(Reg.SP)),
+                                    Instr.Add(Reg.SP, Reg.SP, Instr.Const(1))];
                 break;
             case 'len':
                 break;
