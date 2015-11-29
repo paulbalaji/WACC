@@ -249,10 +249,13 @@ CompareExpr
   }
 
 PlusMinusExpr
-  = head:FactorExpr tail:(__ PlusMinusOp __ FactorExpr)* { 
+  = head:DivideExpr tail:(__ PlusMinusOp __ DivideExpr)* { 
     return buildBinaryExpTree(head, tail)
   }
-
+DivideExpr
+  = head: FactorExpr tail:(__ SLASH __ FactorExpr)* {
+    return buildBinaryExpTree(head, tail);
+  }
 FactorExpr
   = head:BaseExpr tail:(__ FactorOp __ BaseExpr)* { 
     return buildBinaryExpTree(head, tail)
@@ -286,7 +289,6 @@ EqualsOp
 
 FactorOp
   = STAR
-  / SLASH
   / MODULO
 
 /* UnaryOp */

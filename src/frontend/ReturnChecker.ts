@@ -32,6 +32,7 @@ export class ReturnVisitor implements NodeType.Visitor {
                                          +'Actual: '    + node.returnExpr.type    + '.'
                                          , node.returnExpr.errorLocation);
         }
+
         return true;
     }
 

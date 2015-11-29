@@ -81,7 +81,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         return () => {
             this.enterNewScope();
             node.st = this.currentST;
-            SemanticUtil.visitNodeList(node.paramList, this);
+            _.forEach(node.paramList, (paramNode, paramNum) =>{ paramNode.ident.paramNum = paramNum; paramNode.visit(this);});
             SemanticUtil.visitNodeList(node.statList, this);
             this.switchToParentScope();
         };
@@ -186,7 +186,7 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitParamNode(node: NodeType.ParamNode): void {
         node.type.visit(this);
-        this.currentST.insert(node.ident, { type: node.type, node: node, offset:null });
+        this.currentST.insert(node.ident, { type: node.type, node: node, offset: null });
         node.ident.visit(this);
     }
 
@@ -338,6 +338,7 @@ export class SemanticVisitor implements NodeType.Visitor {
             throw new Error.SyntaxError('Int literal "'+ node.num + '" is smaller than min int.'
                                          , node.errorLocation);
         }
+
     }
 
     visitIdentNode(node: NodeType.IdentNode): void {
