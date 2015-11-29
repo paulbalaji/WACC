@@ -610,8 +610,16 @@ export class CodeGenerator implements NodeType.Visitor {
         for (var i = argListSize - 1; i >= 0; i--) {
             var size = CodeGenUtil.getByteSizeFromTypeNode(node.argList[i].type);
             argByteSize += size;
-            instrList.push(node.argList[i].visit(this),
-                           Instr.Str(Reg.R0, Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
+            instrList.push(node.argList[i].visit(this));
+            
+            if (size === 4) {
+                instrList.push(Instr.Str(Reg.R0,
+                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
+            } else {
+                instrList.push(Instr.modify(Instr.Str(Reg.R0,
+                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)), Instr.mods.b));
+            }
+
             this.identOffset += size;
         }
 
