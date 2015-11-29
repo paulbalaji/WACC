@@ -62,12 +62,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
-        this.currentST.stackOffset++;
+        this.currentST.stackOffset += pushArgs.length;
         return Instr.Push.apply(this, pushArgs);
     }
 
     popWithDecrement(...popArgs) { // Decrements currentST stack offset and returns the push instruction
-        this.currentST.stackOffset--;
+        this.currentST.stackOffset -= popArgs.length;
         return Instr.Pop.apply(this, popArgs);
     }
 
@@ -360,13 +360,51 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
-        if (!(node.lhs instanceof NodeType.IdentNode)) {
-            console.log("WARNING: UNIMPLEMENTED LHS OF ASSIGN NODE.");
-            return []
-        }
         var rhsIns = node.rhs.visit(this);
         var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
-        return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode> node.lhs))))]; 
+
+        if (node.lhs instanceof NodeType.IdentNode) {
+
+            return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
+
+        } else if (node.lhs instanceof NodeType.ArrayElemNode) {
+            this.insertCheckArrayBounds();
+            var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
+
+            var findAddress = [
+                Instr.Bl('p_check_array_bounds'),
+                Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
+                Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))
+            ];
+            var indexExprs = (<NodeType.ArrayElemNode>node.lhs).exprList;
+            var instructions = [
+                rhsIns,
+                this.pushWithIncrement(Reg.R0, Reg.R4),
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.lhs).ident))),
+            ]
+            for (var i = 0; i < indexExprs.length - 1; i++) {
+                instructions.push(indexExprs[i].visit(this));
+                instructions.push(findAddress);
+                instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
+            }
+
+            instructions.push([
+                indexExprs[indexExprs.length - 1].visit(this),
+                findAddress,
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)),
+                Instr.Mov(Reg.R1, Reg.R4),
+                this.popWithDecrement(Reg.R0, Reg.R4),
+                strInstruction(Reg.R0, Instr.Mem(Reg.R1))
+            ]);
+
+
+
+            return instructions;
+
+        }
+
+
+
 
 
     }
@@ -500,7 +538,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertCheckArrayBounds();
             instrList.push(node.exprList[i].visit(this),
                            Instr.Bl('p_check_array_bounds'),
-                           Instr.Add(Reg.R4, Reg.R4, Instr.Liter(elemByteSize)),
+                           Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
                            Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)),
                            Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)));
         }
