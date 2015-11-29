@@ -500,7 +500,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertCheckArrayBounds();
             instrList.push(node.exprList[i].visit(this),
                            Instr.Bl('p_check_array_bounds'),
-                           Instr.Add(Reg.R4, Reg.R4, Instr.Liter(elemByteSize)),
+                           Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
                            Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)),
                            Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)));
         }
