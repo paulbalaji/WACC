@@ -220,6 +220,12 @@ export class CodeGenerator implements NodeType.Visitor {
         var byteSize = node.st.totalByteSize;
 
        
+        /* Visit the functions - does not insert any code in main,
+           but will cause an insertion in this.sections.userFuncs later.
+           This is why we just need to visit the function nodes.
+        */
+        SemanticUtil.visitNodeList(node.functionList, this);
+
 
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
@@ -236,39 +242,22 @@ export class CodeGenerator implements NodeType.Visitor {
             Instr.Directive('global', 'main')];
         var mainLabelInit = [Instr.Label('main'), Instr.Push(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC),
-            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
-
-        return Instr.buildList(this.sections.header, mainStart, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+            Instr.Pop(Reg.PC)];
+        return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
-        /*this.currentST = node.st;
-        var byteSize = node.st.totalByteSize;
+        this.currentST = node.st;
+        var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
+        var funcInstructions = [Instr.Label('f_' + node.ident.toString()),
+                                Instr.Push(Reg.LR),
+                                statListInstructions,
+                                Instr.Pop(Reg.PC),
+                                Instr.Directive('ltorg')
+                               ];
 
-        var mainStart = [Instr.Directive('text'),
-            Instr.Directive('global', 'main'),
-            Instr.Label('main'), Instr.Push(Reg.LR)];
-
-        var instructionList = [
-            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-        ];
-
-        (function() {
-            for (var i = 0; i < this.closingInsertions.length; i++) {
-                this.closingInsertions[i].call(this);
-            }
-        }).call(this);
-        // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
-    
-
-        var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC),
-            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
-
-        var funcInstructions = [];
-
-        this.sections.userFuncs.push(funcInstructions);*/
+        this.sections.userFuncs.push(funcInstructions);
+        this.currentST = node.st.parent;
         return [];
     }
 
@@ -400,7 +389,8 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitReturnNode(node: NodeType.ReturnNode): any {
-
+        var returnExprInstructions = node.returnExpr.visit(this);
+        return [returnExprInstructions];    
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
