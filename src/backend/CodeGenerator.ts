@@ -707,7 +707,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIfNode(node: NodeType.IfNode): any {
 
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
