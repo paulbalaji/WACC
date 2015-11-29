@@ -282,6 +282,7 @@ export var mods = {
     b: "B",
     s: "S",
     sb: "SB",
+    bang: "!",
 	none : ""
 }
 

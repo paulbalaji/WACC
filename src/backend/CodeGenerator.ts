@@ -441,8 +441,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 strInstruction(Reg.R0, Instr.Mem(Reg.R1))
             ]);
 
-
-
             return instructions;
 
         }
@@ -473,7 +471,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode): any {
-
+        // just a type node, doesn't need to generate code
     }
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
