@@ -46,6 +46,7 @@ export class CodeGenerator implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
+    allocPairElem: any;
 
     constructor(programInfo) {
         this.nextReg = 4;
@@ -225,6 +226,23 @@ export class CodeGenerator implements NodeType.Visitor {
                 console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
             }
         }
+        this.allocPairElem = function(nodeType) {
+            var str;
+            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
+            if(elemSize == 1) {
+                str = Instr.modify(Instr.Str(Reg.R1, Instr.Mem(Reg.R0)), Instr.mods.b);
+            } else {
+                str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
+            }
+            return [
+                this.pushWithIncrement(Reg.R0),
+                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
+                Instr.Bl('malloc'),
+                this.popWithDecrement(Reg.R1),
+                str,
+                this.pushWithIncrement(Reg.R0)
+            ];
+        }.bind(this)
 
     }
 
@@ -541,7 +559,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
 
-        if (node.expr instanceof NodeType.PairTypeNode) {
+        if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
             this.insertFreePair();
         }
@@ -771,19 +789,18 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
-        var fstExprInstruction = node.fstExpr.visit(this);
-        var sndExprInstruction = node.sndExpr.visit(this);
 
-        var pairFooter = [Instr.Mov(Reg.R0, Instr.Const(8)),
-                          Instr.Bl('malloc'),
-                          this.popWithDecrement(Reg.R1, Reg.R2),
-                          Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
-                          Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
-        return [fstExprInstruction,
-                CodeGenUtil.funcDefs.allocPairElem(node.fstExpr.type), 
-                sndExprInstruction, 
-                CodeGenUtil.funcDefs.allocPairElem(node.sndExpr.type),
-                pairFooter];
+
+
+        return [node.fstExpr.visit(this),
+            this.allocPairElem(node.fstExpr.type),
+            node.sndExpr.visit(this),
+            this.allocPairElem(node.sndExpr.type),
+            Instr.Mov(Reg.R0, Instr.Const(8)),
+            Instr.Bl('malloc'),
+            this.popWithDecrement(Reg.R1, Reg.R2),
+            Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
+            Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
