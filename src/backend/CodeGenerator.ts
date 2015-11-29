@@ -604,7 +604,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairLiterNode(node: NodeType.PairLiterNode): any {
-
+        return node.type.visit(this);   
     }
 
     visitIntLiterNode(node: NodeType.IntLiterNode): any {
@@ -693,8 +693,21 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
-    visitNewPairNode(node: NodeType.NewPairNode): any {
 
+    visitNewPairNode(node: NodeType.NewPairNode): any {
+        var fstExprInstruction = node.fstExpr.visit(this);
+        var sndExprInstruction = node.sndExpr.visit(this);
+
+        var pairFooter = [Instr.Mov(Reg.R0, Instr.Const(8)),
+                          Instr.Bl('malloc'),
+                          this.popWithDecrement(Reg.R1, Reg.R2),
+                          Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
+                          Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
+        return [fstExprInstruction,
+                CodeGenUtil.funcDefs.allocPairElem(node.fstExpr.type), 
+                sndExprInstruction, 
+                CodeGenUtil.funcDefs.allocPairElem(node.sndExpr.type),
+                pairFooter];
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
@@ -702,7 +715,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
-
     }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
