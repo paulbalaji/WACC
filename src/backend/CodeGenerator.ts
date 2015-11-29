@@ -24,10 +24,12 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintRef: any;
     insertPrintLn: any;
 
-    insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertCheckArrayBounds: any;
+
     insertFreePair: any;
+
+    insertOverflowError: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -641,8 +643,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
