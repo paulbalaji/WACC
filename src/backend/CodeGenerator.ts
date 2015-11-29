@@ -15,6 +15,9 @@ export class CodeGenerator implements NodeType.Visitor {
     insertDataLabel: any;
     insertStringDataHeader: any;
 
+    insertReadInt: any;
+    insertReadChar: any;
+
     insertPrintString: any;
     insertPrintBool: any;
     insertPrintInt: any;
@@ -87,6 +90,20 @@ export class CodeGenerator implements NodeType.Visitor {
             return dataLabel;
         };
 
+        this.insertReadInt = _.once(() => {
+            this.closingInsertions.push(function() {
+                var intFormatLabel = this.insertStringDataHeader("%d\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.readInt(intFormatLabel));
+            });
+        });
+
+        this.insertReadChar = _.once(() => {
+            this.closingInsertions.push(function() {
+                var charFormatLabel = this.insertStringDataHeader(" %c\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.readChar(charFormatLabel));
+            });
+        });
+
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
                 var message = '%.*s\\0';
@@ -114,6 +131,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.closingInsertions.push(function() {
                 var refFormatLabel = this.insertStringDataHeader('%p\\0');
                 this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+                //this.insertPrintInt();
             });
         });
 
@@ -183,9 +201,10 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('putchar')]
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode
                         && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+                // The case for printing a string (array of chars)
                 this.insertPrintString();
                 return [exprInstructions, Instr.Bl('p_print_string')];
-            } else if (node.expr.type instanceof NodeType.NullTypeNode
+            } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
@@ -195,6 +214,7 @@ export class CodeGenerator implements NodeType.Visitor {
             }
 
         }
+
 
     }
 
@@ -417,11 +437,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitWhileNode(node: NodeType.WhileNode): any {
+        var bodyLabel = this.getNextLabelName();
+        var exprLabel = this.getNextLabelName();
         this.currentST = node.st;
         var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
         this.currentST = node.st.parent;
-        var bodyLabel = this.getNextLabelName();
-        var exprLabel = this.getNextLabelName();
         var expr = node.predicateExpr.visit(this);
         return [Instr.B(exprLabel),
                 Instr.Label(bodyLabel),
@@ -531,7 +551,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
 
-        instrList.push(Instr.Push(Reg.R4),
+        instrList.push(this.pushWithIncrement(Reg.R4),
                        Instr.Mov(Reg.R4, Reg.R0));
 
         for (var i = 0; i < node.exprList.length; i++) {
@@ -544,7 +564,7 @@ export class CodeGenerator implements NodeType.Visitor {
         }
 
         instrList.push(Instr.Mov(Reg.R0, Reg.R4),
-                       Instr.Pop(Reg.R4));
+                       this.popWithDecrement(Reg.R4));
 
         return instrList;
     }
@@ -572,7 +592,16 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
-
+        var readInstruction;
+        if (node.readTarget.type instanceof NodeType.IntTypeNode) {
+            readInstruction = [Instr.Bl('p_read_int')];
+            this.insertReadInt();
+        } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
+            readInstruction = [Instr.Bl('p_read_char')];
+            this.insertReadChar();
+        }
+        
+        return [ Instr.Add(Reg.R0, Reg.SP, Instr.Const(0)), readInstruction];
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {
