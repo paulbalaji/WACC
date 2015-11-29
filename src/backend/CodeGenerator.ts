@@ -219,6 +219,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('p_print_string')];
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
+
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
             } else {
@@ -808,16 +809,23 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
+        var type1 = this.currentST.lookupAll(node.ident).type.type1;
+        var type2 = this.currentST.lookupAll(node.ident).type.type2;
         var indexInstruction;
-        if(node.index == 0) {
+        if (node.index == 0) {
+            var fetchType = type1;
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
         } else {
-            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(node.type))))];
+            var fetchType = type2;
+
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(type1))))];
         }
-        var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(node.type)))),
+        
+        var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.modify(Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)), Instr.mods.sb) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
+        var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
                                    indexInstruction,
-                                   Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
+                                   ldrIns];
         this.insertCheckNullPointer();
         return pairElemInstruction;
     }

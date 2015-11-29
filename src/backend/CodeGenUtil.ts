@@ -139,7 +139,7 @@ export var funcDefs = {
     },
 
     checkNullPointer: function(nullPointerLabel) {
-		return [Instr.Label('p_check_null_pointer:'),
+		return [Instr.Label('p_check_null_pointer'),
 				Instr.Push(Reg.LR),
 				Instr.Cmp(Reg.R0, Instr.Const(0)),
 				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(nullPointerLabel)), Instr.mods.eq),
