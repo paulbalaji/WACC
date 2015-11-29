@@ -697,6 +697,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
+
     visitNewPairNode(node: NodeType.NewPairNode): any {
         var fstExprInstruction = node.fstExpr.visit(this);
         var sndExprInstruction = node.sndExpr.visit(this);
