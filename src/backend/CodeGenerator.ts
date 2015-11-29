@@ -24,12 +24,10 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintRef: any;
     insertPrintLn: any;
 
+    insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertCheckArrayBounds: any;
-
     insertFreePair: any;
-
-    insertOverflowError: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -221,8 +219,7 @@ export class CodeGenerator implements NodeType.Visitor {
         this.currentST = node.st;
         var byteSize = node.st.totalByteSize;
 
-        var mainStart = [Instr.Directive('text'),
-            Instr.Directive('global', 'main')];
+       
 
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
@@ -235,12 +232,14 @@ export class CodeGenerator implements NodeType.Visitor {
         }).call(this);
          // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
     
+        var mainStart = [Instr.Directive('text'),
+            Instr.Directive('global', 'main')];
         var mainLabelInit = [Instr.Label('main'), Instr.Push(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             Instr.Pop(Reg.PC),
             _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
-        return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+        return Instr.buildList(this.sections.header, mainStart, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -270,6 +269,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var funcInstructions = [];
 
         this.sections.userFuncs.push(funcInstructions);*/
+        return [];
     }
 
    
@@ -283,7 +283,6 @@ export class CodeGenerator implements NodeType.Visitor {
             return [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(byteSize)),
                 instructions,
                 Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
-
         }
     }
 
@@ -416,28 +415,27 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertCheckArrayBounds();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
-            var findAddress = function(step) {
-                return[
-                    Instr.Bl('p_check_array_bounds'),
-                    Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
-                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
-                ];
-            } 
+            var findAddress = [
+                Instr.Bl('p_check_array_bounds'),
+                Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
+                Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))
+            ];
             var indexExprs = (<NodeType.ArrayElemNode>node.lhs).exprList;
             var instructions = [
                 rhsIns,
                 this.pushWithIncrement(Reg.R0, Reg.R4),
-                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.lhs).ident)))),
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.lhs).ident))),
             ]
             for (var i = 0; i < indexExprs.length - 1; i++) {
                 instructions.push(indexExprs[i].visit(this));
-                instructions.push(findAddress(4));
+                instructions.push(findAddress);
                 instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
             }
 
             instructions.push([
                 indexExprs[indexExprs.length - 1].visit(this),
-                findAddress(elemByteSize),
+                findAddress,
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)),
                 Instr.Mov(Reg.R1, Reg.R4),
                 this.popWithDecrement(Reg.R0, Reg.R4),
                 strInstruction(Reg.R0, Instr.Mem(Reg.R1))
@@ -448,10 +446,6 @@ export class CodeGenerator implements NodeType.Visitor {
             return instructions;
 
         }
-
-
-
-
 
     }
 
@@ -676,6 +670,8 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
+
+
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
