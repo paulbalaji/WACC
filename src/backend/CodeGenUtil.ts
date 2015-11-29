@@ -150,5 +150,14 @@ export var funcDefs = {
         		Instr.Bl('p_print_string'),
         		Instr.Mov(Reg.R0, Instr.Const(-1)),
         		Instr.Bl('exit')];
+    },
+
+    checkNullPointer: function(nullPointerLabel) {
+		return [Instr.Label('p_check_null_pointer:'),
+				Instr.Push(Reg.LR),
+				Instr.Cmp(Reg.R0, Instr.Const(0)),
+				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(nullPointerLabel)), Instr.mods.eq),
+				Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.eq),
+    			Instr.Pop(Reg.PC)];
     }
 };
