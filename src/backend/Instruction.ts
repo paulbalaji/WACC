@@ -102,9 +102,10 @@ export function Mem(...memArgs) {
 		memArgs = _.initial(memArgs); // Remove the last arg
 	}
 
-    mem.memArgs = memArgs
+    mem.memArgs = memArgs;
+    mem.command = ']';
     mem.toString = function() {
-        return '[' + mem.memArgs.join(', ') + ']';
+        return '[' + mem.memArgs.join(', ') + mem.command;
     }
 
 	return mem;
@@ -282,6 +283,7 @@ export var mods = {
     b: "B",
     s: "S",
     sb: "SB",
+    bang: "!",
 	none : ""
 }
 
