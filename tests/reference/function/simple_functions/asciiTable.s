@@ -8,7 +8,7 @@ msg_1:
 .ascii ""
 msg_2:
 .word 3
-.ascii "| "
+.ascii "|  "
 msg_3:
 .word 1
 .ascii " "
@@ -17,7 +17,7 @@ msg_4:
 .ascii " = "
 msg_5:
 .word 3
-.ascii " |"
+.ascii "  |"
 msg_6:
 .word 28
 .ascii "Asci character lookup table:"
