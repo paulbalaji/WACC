@@ -557,8 +557,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 unOpInstructions = [];
                 break;
             case 'len':
-                unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP)),
-                                    Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
+                unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
                 break;
         }
 
