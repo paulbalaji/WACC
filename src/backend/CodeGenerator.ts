@@ -15,6 +15,9 @@ export class CodeGenerator implements NodeType.Visitor {
     insertDataLabel: any;
     insertStringDataHeader: any;
 
+    insertReadInt: any;
+    insertReadChar: any;
+
     insertPrintString: any;
     insertPrintBool: any;
     insertPrintInt: any;
@@ -86,6 +89,20 @@ export class CodeGenerator implements NodeType.Visitor {
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
+
+        this.insertReadInt = _.once(() => {
+            this.closingInsertions.push(function() {
+                var intFormatLabel = this.insertStringDataHeader("%d\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.readInt(intFormatLabel));
+            });
+        });
+
+        this.insertReadChar = _.once(() => {
+            this.closingInsertions.push(function() {
+                var charFormatLabel = this.insertStringDataHeader(" %c\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.readChar(charFormatLabel));
+            });
+        });
 
         this.insertPrintString = _.once(() => {
             this.closingInsertions.push(function() {
@@ -196,6 +213,7 @@ export class CodeGenerator implements NodeType.Visitor {
             }
 
         }
+
 
     }
 
@@ -535,7 +553,16 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
-
+        var readInstruction;
+        if (node.readTarget.type instanceof NodeType.IntTypeNode) {
+            readInstruction = [Instr.Bl('p_read_int')];
+            this.insertReadInt();
+        } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
+            readInstruction = [Instr.Bl('p_read_char')];
+            this.insertReadChar();
+        }
+        
+        return [ Instr.Add(Reg.R0, Reg.SP, Instr.Const(0)), readInstruction];
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {

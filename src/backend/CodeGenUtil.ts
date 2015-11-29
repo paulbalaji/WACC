@@ -10,12 +10,31 @@ var printFooter = [
 	Instr.Pop(Reg.PC)
 ]
 
+var readHeader = [Instr.Push(Reg.LR), Instr.Mov(Reg.R1, Reg.R0)];
+var readFooter = [Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
+				  Instr.Bl('scanf'),
+				  Instr.Pop(Reg.PC)];
+
 export function getByteSizeFromTypeNode(typeNode) {
     var typeName = typeNode.constructor.name;
     return (typeName === 'BoolTypeNode' || typeName === 'CharTypeNode') ? 1 : 4;
 }
 
 export var funcDefs = {
+	readInt: function(readFormatLabel) {
+		return [Instr.Label('p_read_int'),
+				readHeader,
+				Instr.Ldr(Reg.R0, Instr.Liter(readFormatLabel)),
+				readFooter];
+	},
+
+	readChar: function(readFormatLabel) {
+		return [Instr.Label('p_read_char'),
+				readHeader,
+				Instr.Ldr(Reg.R0, Instr.Liter(readFormatLabel)),
+				readFooter];
+	},
+
 	printString: function(stringFormatLabel) {
 		return [Instr.Label('p_print_string'),
 				Instr.Push(Reg.LR),
