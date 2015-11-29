@@ -704,7 +704,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
-        //return node.ident.visit(this);
     }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
