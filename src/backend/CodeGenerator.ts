@@ -469,6 +469,41 @@ export class CodeGenerator implements NodeType.Visitor {
             return instructions;
 
         }
+        else if (node.lhs instanceof NodeType.PairElemNode) {
+            var lhs = <NodeType.PairElemNode>node.lhs;
+
+
+            var type1 = this.currentST.lookupAll(lhs.ident).type.type1;
+            var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
+            this.insertCheckNullPointer();
+            
+            var indexInstruction;
+            if (lhs.index == 0) {
+                var fetchType = type1;
+            } else {
+                var fetchType = type2;
+
+            }
+        
+            var fetchTypeSize = CodeGenUtil.getByteSizeFromTypeNode(fetchType);
+            return [
+                rhsIns,
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(lhs.ident)))),
+                Instr.Bl("p_check_null_pointer"),
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(lhs.index * 4)),
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                Instr.Bl('free'),
+                Instr.Mov(Reg.R0, Instr.Const(fetchTypeSize)),
+                Instr.Bl('malloc'),
+                this.popWithDecrement(Reg.R1),
+                Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
+                Instr.Mov(Reg.R1, Reg.R0),
+                this.popWithDecrement(Reg.R0),
+                fetchTypeSize === 4 ? Instr.Str(Reg.R0, Instr.Mem(Reg.R1)) : Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.R1)), Instr.mods.b)
+            ]
+        }
 
     }
 
@@ -534,11 +569,13 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-        var ch = node.ch.length > 1 ? node.ch[1] : node.ch;
+        var ch = node.ch;
         var cst;
-        if (ch === '0') {
-            cst = Instr.Const(ch);
+
+        if (ch === '\\0') {
+            cst = Instr.Const(0);
         } else {
+            ch = ch.length > 1 ? ch.charAt(1) : ch;
             cst = Instr.Const('\'' + ch + '\''); 
         }
         return [Instr.Mov(Reg.R0, cst)];
@@ -805,6 +842,8 @@ export class CodeGenerator implements NodeType.Visitor {
     visitPairElemNode(node: NodeType.PairElemNode): any {
         var type1 = this.currentST.lookupAll(node.ident).type.type1;
         var type2 = this.currentST.lookupAll(node.ident).type.type2;
+        this.insertCheckNullPointer();
+        
         var indexInstruction;
         if (node.index == 0) {
             var fetchType = type1;
@@ -812,7 +851,7 @@ export class CodeGenerator implements NodeType.Visitor {
         } else {
             var fetchType = type2;
 
-            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(type1))))];
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4)))];
         }
         
         var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.modify(Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)), Instr.mods.sb) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
@@ -820,7 +859,6 @@ export class CodeGenerator implements NodeType.Visitor {
                                    Instr.Bl('p_check_null_pointer'),
                                    indexInstruction,
                                    ldrIns];
-        this.insertCheckNullPointer();
         return pairElemInstruction;
     }
 
