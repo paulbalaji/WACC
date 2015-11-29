@@ -244,23 +244,23 @@ export class CodeGenerator implements NodeType.Visitor {
     
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
-        var mainLabelInit = [Instr.Label('main'), Instr.Push(Reg.LR)];
+        var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC)];
+            this.popWithDecrement(Reg.PC)];
         return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
         this.currentST = node.st;
         var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
-        var funcInstructions = [Instr.Label('f_' + node.ident.toString()),
-                                Instr.Push(Reg.LR),
+        var labelInstruction = [Instr.Label('f_' + node.ident.toString()), this.pushWithIncrement(Reg.LR)];
+        var funcInstructions = [
                                 statListInstructions,
-                                Instr.Pop(Reg.PC),
-                                Instr.Directive('ltorg')
                                ];
+        var endFuncInstructions = [this.popWithDecrement(Reg.PC),
+                                   Instr.Directive('ltorg')];
 
-        this.sections.userFuncs.push(funcInstructions);
+         this.sections.userFuncs.push([labelInstruction, this.scopedInstructions(this.currentST.totalByteSize, funcInstructions)], endFuncInstructions);
         this.currentST = node.st.parent;
         return [];
     }
@@ -589,6 +589,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var functionCall = Instr.Bl('f_' + node.ident.identStr)
         var argListSize = node.argList.length;
 
+        // this.currentST.stackOffset += argListSize; // Assuming all args are ints
 
         if (argListSize === 0) {
             return [functionCall];
@@ -630,6 +631,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
 
@@ -642,6 +644,7 @@ export class CodeGenerator implements NodeType.Visitor {
             readInstruction = [Instr.Bl('p_read_char')];
             this.insertReadChar();
         }
+
         if (node.readTarget instanceof NodeType.IdentNode) {
             return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
 
@@ -687,7 +690,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
 
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
