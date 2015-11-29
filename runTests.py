@@ -63,7 +63,7 @@ def run_valid(fname):
     exit_code =  (subprocess.call("./compile " + fname  + " > dist/test.out", shell=True))
 
     if exit_code != SUCCESS_CODE:
-        
+        print exit_code
         print "Failed: " + fname
         return False
     else:
