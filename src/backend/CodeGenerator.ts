@@ -187,7 +187,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('p_print_string')];
             } else if (node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
-                console.log(exprInstructions);
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
             } else {
@@ -471,6 +470,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
+        this.currentST.seenIdents.push(node.ident);
         var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
         var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); // Pops from front of byte sizes
         
