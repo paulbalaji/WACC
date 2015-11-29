@@ -171,7 +171,6 @@ export function Smull(...smullArgs) {
     var smull: any = {};
     smull.args = smullArgs;
     smull.toString = function() {
-        console.log("blah blah blah");
         return 'SMULL ' + smull.args.join(', ');
     }
     return smull;

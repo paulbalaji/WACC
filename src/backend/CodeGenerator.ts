@@ -383,8 +383,8 @@ export class CodeGenerator implements NodeType.Visitor {
         var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
         this.currentST = node.st.parent;
         var bodyLabel = this.getNextLabelName();
-        var expr = node.predicateExpr.visit(this);
         var exprLabel = this.getNextLabelName();
+        var expr = node.predicateExpr.visit(this);
         return [Instr.B(exprLabel),
                 Instr.Label(bodyLabel),
                 body,

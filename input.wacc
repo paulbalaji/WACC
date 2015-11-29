@@ -1,17 +1,15 @@
-# Simple conditional statement with boolen expression test
+# evaluating a moderately complex integer expression
 
 # Output:
-# correct
+# Correct
 
 # Program:
 
 begin
-  bool b = true;
-  bool c = false;	
-  if b && c 
-  then 
-    println "incorrect"
-  else 
-    println "correct"
+  int a = ( 10 * 1 + 2 * 15 );
+  if a == 40 then
+    println "Correct"
+  else
+    println "Wrong"
   fi
 end
