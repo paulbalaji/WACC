@@ -12,7 +12,7 @@ compiler: frontend backend
 
 frontend: dist/frontend/grammar/grammar.js
 	@echo "Compiling Front End..."
-	@$(TSC) $(TSC_FLAGS) src/frontend/frontend.ts --outDir dist/frontend
+	@$(TSC) $(TSC_FLAGS) src/frontend/frontend.ts --outDir dist
 
 backend: src/backend/CodeGenerator.ts
 	@echo "Compiling Back End..."
@@ -20,7 +20,7 @@ backend: src/backend/CodeGenerator.ts
 
 dist/frontend/grammar/grammar.js: src/frontend/grammar/grammar.ts
 	@echo "Compiling Grammar to JavaScript..."
-	@$(TSC) $(TSC_FLAGS) src/frontend/grammar/grammar.ts --outDir dist/frontend
+	@$(TSC) $(TSC_FLAGS) src/frontend/grammar/grammar.ts --outDir dist
 
 src/frontend/grammar/grammar.ts: src/frontend/grammar/grammar.pegjs
 	@echo "Compiling Grammar to TypeScript..."

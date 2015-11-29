@@ -21,21 +21,7 @@ export function getByteSizeFromTypeNode(typeNode) {
 }
 
 export var funcDefs = {
-	allocPairElem: function(nodeType) {
-		var str;
-		var elemSize = getByteSizeFromTypeNode(nodeType);
-		if(elemSize == 1) {
-			str = Instr.modify(Instr.Str(Reg.R1, Instr.Mem(Reg.R0)), Instr.mods.b);
-		} else {
-			str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
-		}
-		return [Instr.Push(Reg.R0),
-				Instr.Mov(Reg.R0, Instr.Const(elemSize)),
-                Instr.Bl('malloc'),
-		        Instr.Pop(Reg.R1),
-		        str,
-		        Instr.Push(Reg.R0)];
-	},
+	
 
 	readInt: function(readFormatLabel) {
 		return [Instr.Label('p_read_int'),
@@ -136,12 +122,12 @@ export var funcDefs = {
         		Instr.modify(Instr.B('p_throw_runtime_error'), Instr.mods.eq),
         		Instr.Push(Reg.R0),
         		Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
-        		Instr.B('free'),
+        		Instr.Bl('free'),
 	            Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP)),
 				Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4))),
-                Instr.B('free'),
+                Instr.Bl('free'),
                 Instr.Pop(Reg.R0),
-				Instr.B('free'),
+				Instr.Bl('free'),
                 Instr.Pop(Reg.PC)];
     },
 
@@ -150,5 +136,14 @@ export var funcDefs = {
         		Instr.Bl('p_print_string'),
         		Instr.Mov(Reg.R0, Instr.Const(-1)),
         		Instr.Bl('exit')];
+    },
+
+    checkNullPointer: function(nullPointerLabel) {
+		return [Instr.Label('p_check_null_pointer'),
+				Instr.Push(Reg.LR),
+				Instr.Cmp(Reg.R0, Instr.Const(0)),
+				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(nullPointerLabel)), Instr.mods.eq),
+				Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.eq),
+    			Instr.Pop(Reg.PC)];
     }
 };

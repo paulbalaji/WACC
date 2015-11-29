@@ -29,6 +29,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertCheckArrayBounds: any;
     insertFreePair: any;
     insertRuntimeError: any;
+    insertCheckNullPointer: any;
 
     closingInsertions: any[];
     printNodeLogic: any;
@@ -45,6 +46,7 @@ export class CodeGenerator implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
+    allocPairElem: any;
 
     constructor(programInfo) {
         this.nextReg = 4;
@@ -93,6 +95,14 @@ export class CodeGenerator implements NodeType.Visitor {
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
+
+        this.insertCheckNullPointer = _.once(() => {
+            this.closingInsertions.push(function() {
+                var nullPointerLabel = this.insertStringDataHeader("NullReferenceError: dereference a null reference\\n\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkNullPointer(nullPointerLabel));
+                this.insertRuntimeError();
+            });
+        });
 
         this.insertReadInt = _.once(() => {
             this.closingInsertions.push(function() {
@@ -209,6 +219,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('p_print_string')];
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
+
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
             } else {
@@ -216,6 +227,23 @@ export class CodeGenerator implements NodeType.Visitor {
                 console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
             }
         }
+        this.allocPairElem = function(nodeType) {
+            var str;
+            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
+            if(elemSize == 1) {
+                str = Instr.modify(Instr.Str(Reg.R1, Instr.Mem(Reg.R0)), Instr.mods.b);
+            } else {
+                str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
+            }
+            return [
+                this.pushWithIncrement(Reg.R0),
+                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
+                Instr.Bl('malloc'),
+                this.popWithDecrement(Reg.R1),
+                str,
+                this.pushWithIncrement(Reg.R0)
+            ];
+        }.bind(this)
 
     }
 
@@ -522,7 +550,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
 
-        if (node.expr instanceof NodeType.PairTypeNode) {
+        if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
             this.insertFreePair();
         }
@@ -637,18 +665,58 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitReadNode(node: NodeType.ReadNode): any {
         var readInstruction;
-        if (node.readTarget.type instanceof NodeType.IntTypeNode) {
-            readInstruction = [Instr.Bl('p_read_int')];
-            this.insertReadInt();
-        } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
-            readInstruction = [Instr.Bl('p_read_char')];
-            this.insertReadChar();
-        }
+
+        var getReadInstruction = function() {
+            if (node.readTarget.type instanceof NodeType.IntTypeNode) {
+                this.insertReadInt();
+                return [Instr.Bl('p_read_int')];
+
+            } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
+                this.insertReadChar();
+                return [Instr.Bl('p_read_char')];
+            }
+        }.bind(this);
 
         if (node.readTarget instanceof NodeType.IdentNode) {
+            readInstruction = getReadInstruction();
             return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
+        } else if (node.readTarget instanceof NodeType.ArrayElemNode) {
+            this.insertCheckArrayBounds();
+            readInstruction = getReadInstruction();
+            var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.readTarget.type);
 
+            var findAddress = function(step) {
+                return [
+                    Instr.Bl('p_check_array_bounds'),
+                    Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
+                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
+                ];
+            }
+            var indexExprs = (<NodeType.ArrayElemNode>node.readTarget).exprList;
+            var instructions = [
+                
+                this.pushWithIncrement(Reg.R0, Reg.R4),
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.readTarget).ident)))),
+            ]
+            for (var i = 0; i < indexExprs.length - 1; i++) {
+                indexExprs[i].visit(this);
+                instructions.push(findAddress(4));
+                instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
+            }
+
+            instructions.push([
+                indexExprs[indexExprs.length - 1].visit(this),
+                findAddress(elemByteSize),
+                Instr.Mov(Reg.R1, Reg.R4),
+                this.popWithDecrement(Reg.R0, Reg.R4),
+                Instr.Add(Reg.R0, Instr.Mem(Reg.R1), Instr.Const(0)),
+                readInstruction,
+            ]);
+            return instructions;          
         }
+
+
+
         return []
 
     }
@@ -714,19 +782,18 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
-        var fstExprInstruction = node.fstExpr.visit(this);
-        var sndExprInstruction = node.sndExpr.visit(this);
 
-        var pairFooter = [Instr.Mov(Reg.R0, Instr.Const(8)),
-                          Instr.Bl('malloc'),
-                          this.popWithDecrement(Reg.R1, Reg.R2),
-                          Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
-                          Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
-        return [fstExprInstruction,
-                CodeGenUtil.funcDefs.allocPairElem(node.fstExpr.type), 
-                sndExprInstruction, 
-                CodeGenUtil.funcDefs.allocPairElem(node.sndExpr.type),
-                pairFooter];
+
+
+        return [node.fstExpr.visit(this),
+            this.allocPairElem(node.fstExpr.type),
+            node.sndExpr.visit(this),
+            this.allocPairElem(node.sndExpr.type),
+            Instr.Mov(Reg.R0, Instr.Const(8)),
+            Instr.Bl('malloc'),
+            this.popWithDecrement(Reg.R1, Reg.R2),
+            Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
+            Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
@@ -734,6 +801,25 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
+        var type1 = this.currentST.lookupAll(node.ident).type.type1;
+        var type2 = this.currentST.lookupAll(node.ident).type.type2;
+        var indexInstruction;
+        if (node.index == 0) {
+            var fetchType = type1;
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
+        } else {
+            var fetchType = type2;
+
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(type1))))];
+        }
+        
+        var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.modify(Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)), Instr.mods.sb) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
+        var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
+                                   Instr.Bl('p_check_null_pointer'),
+                                   indexInstruction,
+                                   ldrIns];
+        this.insertCheckNullPointer();
+        return pairElemInstruction;
     }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
