@@ -16,7 +16,9 @@ export class SymbolTable {
     name: string;
 
     byteSizes: number[];
-    totalByteSize: number
+    totalByteSize: number;
+
+    paramByteSizes: any; // array of numbers
 
     stackOffset: number;
 
@@ -27,19 +29,36 @@ export class SymbolTable {
 		this.table = {};
 		this.parent = parent;
         this.seenIdents = [];
+
         this.byteSizes = [];
         this.totalByteSize = 0;
+
+        this.paramByteSizes = [0];
+        this.paramByteSizes.rollingSum = 0;
 
         this.stackOffset = 0;
 	}
 
 	insert(ident:NodeType.IdentNode, infoObj:typeAndNodeTuple):void {
         infoObj.offset = CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type) + this.totalByteSize ;
-        this.table[ident.toString()] = infoObj;
 
-        this.byteSizes.push(infoObj.offset);
-        this.totalByteSize += CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type);
-	}
+      /*  var originalIdent = this.lookupAll(ident);
+        if (originalIdent && (originalIdent.node instanceof NodeType.ParamNode)) {
+            this.paramByteSizes.rollingSum -= originalIdent.offset;
+            this.paramByteSizes[originalIdent.node.ident.paramNum + 1] = 0;
+            console.log(originalIdent.offset);
+        }
+*/
+        if (!ident.isParam()) {
+            this.byteSizes.push(infoObj.offset);
+            this.totalByteSize += CodeGenUtil.getByteSizeFromTypeNode(infoObj.node.type);
+        } else {
+            this.paramByteSizes.rollingSum += infoObj.offset;
+            this.paramByteSizes.push(this.paramByteSizes.rollingSum);
+            // If the ident is a param then don't increase totalByteSize
+        }
+        this.table[ident.toString()] = infoObj;
+    }
 
 	lookupAll(ident:NodeType.IdentNode):typeAndNodeTuple {
 		var result = this.lookup(ident);
@@ -47,19 +66,41 @@ export class SymbolTable {
 	}
 
     lookUpOffset(ident: NodeType.IdentNode): number {
-        var result =  this.lookup(ident);
-        if (!_.some(this.seenIdents, (elem) => elem.identStr == ident.identStr)) {
+        var result = this.lookup(ident);
 
-            result = null;
+        if (result && result.node instanceof NodeType.ParamNode) { // If the ident corresponds to a param
+            return this.paramByteSizes[result.node.ident.paramNum] + this.totalByteSize + (this.stackOffset * 4) + 4;
+        } else {
+            if (!_.some(this.seenIdents, (elem) => elem.identStr == ident.identStr)) {
+                result = null;
+            }
+
+            var scopeOffset = result === null ? (this.parent ? (this.parent.lookUpOffset(ident) + this.totalByteSize) : this.totalByteSize): this.totalByteSize - result.offset;
+            return scopeOffset + (this.stackOffset * 4);
         }
-        var scopeOffset = result === null ? (this.parent.lookUpOffset(ident) + this.totalByteSize) : this.totalByteSize - result.offset;
-        return scopeOffset + (this.stackOffset * 4);
 
     }
+
+    countTotalByteSizeUntilRoot() {
+        if (this.parent && !this.parent.parent) {
+            return this.totalByteSize;
+        }
+        return this.totalByteSize + this.parent.countTotalByteSizeUntilRoot();
+    }
+
     lookup(ident: NodeType.IdentNode):typeAndNodeTuple {
 		var result = this.table[ident.toString()];
         return result ? result : null;
 	}
+
+    toString() {
+        var str = 'totalByteSize = ' + this.totalByteSize + '\n';
+        for (var key in this.table) {
+            str += key.toString() + ': ' + this.table[key].toString();
+        }
+
+        return str;
+    }
 
     /*getByteSize() {
         var sum = (xs) => _.reduce(xs, (acc, n) => acc + n);

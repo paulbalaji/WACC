@@ -285,10 +285,12 @@ export class CodeGenerator implements NodeType.Visitor {
         var funcInstructions = [
                                 statListInstructions,
                                ];
-        var endFuncInstructions = [this.popWithDecrement(Reg.PC),
+        var endFuncInstructions = [
                                    Instr.Directive('ltorg')];
 
-         this.sections.userFuncs.push([labelInstruction, this.scopedInstructions(this.currentST.totalByteSize, funcInstructions)], endFuncInstructions);
+        var totalByteSize = this.currentST.totalByteSize;                       
+        var scopeSub = totalByteSize === 0 ? [] : Instr.Sub(Reg.SP, Reg.SP, Instr.Const(totalByteSize));
+        this.sections.userFuncs.push([labelInstruction, scopeSub, funcInstructions, endFuncInstructions]);
         this.currentST = node.st.parent;
         return [];
     }
@@ -302,8 +304,7 @@ export class CodeGenerator implements NodeType.Visitor {
             return instructions;
         } else {
             return [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(byteSize)),
-                instructions,
-                Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
+                instructions, Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
         }
     }
 
@@ -422,7 +423,9 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitReturnNode(node: NodeType.ReturnNode): any {
         var returnExprInstructions = node.returnExpr.visit(this);
-        return [returnExprInstructions];    
+        var cumByteSize = this.currentST.countTotalByteSizeUntilRoot()
+        var scopeAdd = cumByteSize === 0 ? [] : Instr.Add(Reg.SP, Reg.SP, Instr.Const(cumByteSize));
+        return [returnExprInstructions, scopeAdd, this.popWithDecrement(Reg.PC)]; 
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
@@ -430,7 +433,6 @@ export class CodeGenerator implements NodeType.Visitor {
         var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
 
         if (node.lhs instanceof NodeType.IdentNode) {
-
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
@@ -675,7 +677,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 instrList.push(Instr.modify(Instr.Str(Reg.R0,
                                Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)), Instr.mods.b));
             }
-
+            
             this.identOffset += size;
         }
 

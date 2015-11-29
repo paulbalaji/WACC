@@ -187,15 +187,22 @@ export class BoolTypeNode extends TreeNode implements BaseTypeNode {
 export class IdentNode extends TreeNode implements ExprNode, AssignLHSNode {
     identStr: string;
     type:     TypeNode; // Filled by semantic visitor
+    paramNum: number // -1 when not a param, >= 0 when is a param
 
     constructor(identStr: string) {
         super();
         this.identStr = identStr;
+        this.paramNum = -1;
+    }
+
+    isParam(): boolean {
+        return this.paramNum >= 0;
     }
 
     visit(v: Visitor): any {
         return v.visitIdentNode(this);
     }
+
     toString(): string {
         return this.identStr;
     }
@@ -476,6 +483,7 @@ export class ParamNode extends TreeNode {
         this.type = type;
         this.ident = ident;
     }
+
     visit(v: Visitor): any {
         return v.visitParamNode(this);
     }
