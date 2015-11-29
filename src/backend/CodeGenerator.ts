@@ -29,6 +29,7 @@ export class CodeGenerator implements NodeType.Visitor {
     insertCheckArrayBounds: any;
     insertFreePair: any;
     insertRuntimeError: any;
+    insertCheckNullPointer: any;
 
     closingInsertions: any[];
     printNodeLogic: any;
@@ -89,6 +90,14 @@ export class CodeGenerator implements NodeType.Visitor {
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
+
+        this.insertCheckNullPointer = _.once(() => {
+            this.closingInsertions.push(function() {
+                var nullPointerLabel = this.insertStringDataHeader("NullReferenceError: dereference a null reference\\n\\0");
+                this.sections.footer.push(CodeGenUtil.funcDefs.checkNullPointer(nullPointerLabel));
+                this.insertRuntimeError();
+            });
+        });
 
         this.insertReadInt = _.once(() => {
             this.closingInsertions.push(function() {
@@ -716,6 +725,18 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
+        var indexInstruction;
+        if(node.index == 0) {
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
+        } else {
+            indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(node.type))))];
+        }
+        var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(CodeGenUtil.getByteSizeFromTypeNode(node.type)))),
+                                   Instr.Bl('p_check_null_pointer'),
+                                   indexInstruction,
+                                   Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
+        this.insertCheckNullPointer();
+        return pairElemInstruction;
     }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
