@@ -129,8 +129,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
                 var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
+                this.insertRuntimeError();
             });
-            this.insertRuntimeError();
         });
 
         this.insertCheckDivideByZero = _.once( () => {
@@ -138,8 +138,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
                 var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
+                this.insertRuntimeError();
             });
-            this.insertRuntimeError();
         });
 
         this.insertCheckArrayBounds = _.once(() => {
@@ -149,8 +149,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 var largeMessage = 'ArrayIndexOutOfBoundsError: index too large\\n\\0';
                 var largeLabel = this.insertStringDataHeader(largeMessage);
                 this.sections.footer.push(CodeGenUtil.funcDefs.checkArrayBounds(negLabel, largeLabel));
+                this.insertRuntimeError();
             });
-            this.insertRuntimeError();
         });
 
         this.insertFreePair = _.once(() => {
@@ -158,15 +158,15 @@ export class CodeGenerator implements NodeType.Visitor {
                 var message = 'NullReferenceError: dereference a null reference\\n\\0';
                 var dataLabel = this.insertStringDataHeader(message);
                 this.sections.footer.push(CodeGenUtil.funcDefs.freePair(dataLabel));
+                this.insertRuntimeError();
             });
-            this.insertRuntimeError();
         });
 
         this.insertRuntimeError = _.once(() => {
             this.closingInsertions.push(function() {
                 this.sections.footer.push(CodeGenUtil.funcDefs.runtimeError());
+                this.insertPrintString();
             });
-            this.insertPrintString();
         });
 
 
@@ -202,16 +202,24 @@ export class CodeGenerator implements NodeType.Visitor {
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
         var byteSize = node.st.totalByteSize;
-       
+
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main'),
             Instr.Label('main'), Instr.Push(Reg.LR)];
-        
+
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
         ];
 
-        _.map(this.closingInsertions, (closingFunc) => closingFunc.call(this));
+         
+
+        (function() {
+            for (var i = 0; i < this.closingInsertions.length; i++) {
+                this.closingInsertions[i].call(this);
+            }
+        }).call(this);
+         // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
+    
 
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             Instr.Pop(Reg.PC),
@@ -368,7 +376,6 @@ export class CodeGenerator implements NodeType.Visitor {
         this.currentST = node.st;
         var instrs = SemanticUtil.visitNodeList(node.statList, this);
         this.currentST = node.st.parent;
-
         return this.scopedInstructions(node.st.totalByteSize, instrs);
     }
 
@@ -427,12 +434,14 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
-        if (node.ch.length > 1) {
-            var ch = node.ch[1];
+        var ch = node.ch.length > 1 ? node.ch[1] : node.ch;
+        var cst;
+        if (ch === '0') {
+            cst = Instr.Const(ch);
         } else {
-            var ch = node.ch;
+            cst = Instr.Const('\'' + ch + '\''); 
         }
-        return [Instr.Mov(Reg.R0, Instr.Const('\'' + ch + '\''))]
+        return [Instr.Mov(Reg.R0, cst)];
     }
 
     visitParamNode(node: NodeType.ParamNode): any {
