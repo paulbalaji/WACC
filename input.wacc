@@ -1,0 +1,27 @@
+begin
+    int foo(int f) is
+        return 22
+    end
+    
+    int blahfunction(int d, bool a, int b, int c) is
+        return (d + b)
+    end
+
+
+    bool y = true;
+    int z = 2;
+    int w = 3;
+    int e = 1;
+
+    int x = call blahfunction(e, y, z, w);
+    int xs = call foo(w)
+end
+
+#LDR r0, [sp, #4]
+#STR r0, [sp, #-4]!
+#LDR r0, [sp, #12]
+#STR r0, [sp, #-4]!
+#LDRSB r0, [sp, #20]
+#STRB r0, [sp, #-1]!
+#BL f_blahfunction
+#ADD sp, sp, #9

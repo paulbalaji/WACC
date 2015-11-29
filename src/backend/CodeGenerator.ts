@@ -34,6 +34,8 @@ export class CodeGenerator implements NodeType.Visitor {
     closingInsertions: any[];
     printNodeLogic: any;
 
+    identOffset: any;
+
     spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
     spSubCurrent: number;
 
@@ -56,6 +58,8 @@ export class CodeGenerator implements NodeType.Visitor {
         this.spSubCurrent = 4;
 
         this.stackMap = {};
+
+        this.identOffset = 0;
 
         this.getNextLabelName = (function() {
             var labelNum = 0;
@@ -451,8 +455,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 strInstruction(Reg.R0, Instr.Mem(Reg.R1))
             ]);
 
-
-
             return instructions;
 
         }
@@ -483,7 +485,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode): any {
-
+        // just a type node, doesn't need to generate code
     }
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
@@ -604,13 +606,37 @@ export class CodeGenerator implements NodeType.Visitor {
         // leaves result in R0
 
         var functionCall = Instr.Bl('f_' + node.ident.identStr)
-        
-        if (!node.argList) {
+        var argListSize = node.argList.length;
+
+
+        if (argListSize === 0) {
             return [functionCall];
         }
 
-        
+        var argByteSize = 0;
+        var instrList = [];
 
+        for (var i = argListSize - 1; i >= 0; i--) {
+            var size = CodeGenUtil.getByteSizeFromTypeNode(node.argList[i].type);
+            argByteSize += size;
+            instrList.push(node.argList[i].visit(this));
+            
+            if (size === 4) {
+                instrList.push(Instr.Str(Reg.R0,
+                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
+            } else {
+                instrList.push(Instr.modify(Instr.Str(Reg.R0,
+                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)), Instr.mods.b));
+            }
+
+            this.identOffset += size;
+        }
+
+        this.identOffset -= argByteSize;
+
+        instrList.push(functionCall, Instr.Add(Reg.SP, Reg.SP, Instr.Const(argByteSize)));
+
+        return instrList;
     }
 
     visitPairLiterNode(node: NodeType.PairLiterNode): any {
@@ -623,7 +649,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
-        return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))]; 
+        return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
