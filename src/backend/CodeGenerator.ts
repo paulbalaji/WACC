@@ -601,8 +601,12 @@ export class CodeGenerator implements NodeType.Visitor {
             readInstruction = [Instr.Bl('p_read_char')];
             this.insertReadChar();
         }
-        
-        return [ Instr.Add(Reg.R0, Reg.SP, Instr.Const(0)), readInstruction];
+        if (node.readTarget instanceof NodeType.IdentNode) {
+            return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
+
+        }
+        return []
+
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {
