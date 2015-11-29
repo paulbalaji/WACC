@@ -551,7 +551,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
-                unOpInstructions = [Instr.Mov(Reg.R0, Instr.Const('TODO:'))];
+                unOpInstructions = []
                 break;
             case 'chr':
                 unOpInstructions = [];
