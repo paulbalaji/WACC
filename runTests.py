@@ -8,7 +8,8 @@ n_threads = 1
 SEMANTICS_ERROR_CODE = 200
 SYNTAX_ERROR_CODE = 100
 SUCCESS_CODE = 0
-
+global verbose
+verbose = False
 def compare_files(ours, ref):
     try:
         fp_ours = open(ours, "r")
@@ -24,16 +25,18 @@ def compare_files(ours, ref):
         correct = True
         for i, l in enumerate(ref_lines):
             if i >= len(ours_lines):
-                # print "Fail in: " + ref 
-                # print "Not enough lines in ours"
-                # print "Rest of ref:" + str(ref_lines[i:])
+                if verbose:
+                    print "Fail in: " + ref 
+                    print "Not enough lines in ours"
+                    print "Rest of ref:" + str(ref_lines[i:])
                 correct = False
                 break
             if l != ours_lines[i]:
-                 # print "Fail in: " + ref 
-                 # print "    Ours: " + ours_lines[i]
-                 # print "    Ref : " + l
-                 correct =  False
+                if verbose:
+                    print "Fail in: " + ref  
+                    print "    Ours: " + ours_lines[i]
+                    print "    Ref : " + l
+                correct =  False
         if not correct:
             print "Incorrect " + ref
         return correct
@@ -60,6 +63,7 @@ def run_valid(fname):
     exit_code =  (subprocess.call("./compile " + fname  + " > dist/test.out", shell=True))
 
     if exit_code != SUCCESS_CODE:
+        
         print "Failed: " + fname
         return False
     else:
@@ -68,14 +72,17 @@ def run_valid(fname):
         return True
 
 if __name__ == '__main__':
+    subprocess.call("make compiler", shell=True)
     t = time.time()
-    if  sys.argv[1] == "-f":
+    if  sys.argv[1].startswith("-f"):
 
         valid_files = sys.argv[2:]
-    elif sys.argv[1] == "-d":
+    elif sys.argv[1].startswith("-d"):
             valid_files = [y for x in os.walk(sys.argv[2]) for y in glob(os.path.join(x[0], '*.wacc'))]
     else:
         valid_files = [y for x in os.walk('tests/valid') for y in glob(os.path.join(x[0], '*.wacc'))]
+    if sys.argv[1].endswith("v"):
+        verbose = True
     #invalid_files_semantics = [y for x in os.walk('tests/invalid/semanticErr') for y in glob(os.path.join(x[0], '*.wacc'))]
     #invalid_files_syntax = [y for x in os.walk('tests/invalid/syntaxErr') for y in glob(os.path.join(x[0], '*.wacc'))]
     p = Pool(n_threads)
