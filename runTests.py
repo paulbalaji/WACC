@@ -27,14 +27,14 @@ def compare_files(ours, ref):
         for i, l in enumerate(ref_lines):
             if i >= len(ours_lines):
                 if verbose:
-                    print "Fail in: " + ref 
+                    print "Fail in: " + ref  
                     print "Not enough lines in ours"
                     print "Rest of ref:" + str(ref_lines[i:])
                 correct = False
                 break
             if l != ours_lines[i]:
                 if verbose:
-                    print "Fail in: " + ref  
+                    print "Fail in: " + ref  + " " + str(i)
                     print "    Ours: " + ours_lines[i]
                     print "    Ref : " + l
                 correct =  False
