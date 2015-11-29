@@ -24,14 +24,14 @@ export var funcDefs = {
 	readInt: function(readFormatLabel) {
 		return [Instr.Label('p_read_int'),
 				readHeader,
-				Instr.Ldr(Reg.R0, readFormatLabel),
+				Instr.Ldr(Reg.R0, Instr.Liter(readFormatLabel)),
 				readFooter];
 	},
 
 	readChar: function(readFormatLabel) {
 		return [Instr.Label('p_read_char'),
 				readHeader,
-				Instr.Ldr(Reg.R0, readFormatLabel),
+				Instr.Ldr(Reg.R0, Instr.Liter(readFormatLabel)),
 				readFooter];
 	},
 

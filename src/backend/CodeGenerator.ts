@@ -99,7 +99,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertReadChar = _.once(() => {
             this.closingInsertions.push(function() {
-                var charFormatLabel = this.insertStringDataHeader("%c\\0");
+                var charFormatLabel = this.insertStringDataHeader(" %c\\0");
                 this.sections.footer.push(CodeGenUtil.funcDefs.readChar(charFormatLabel));
             });
         });
