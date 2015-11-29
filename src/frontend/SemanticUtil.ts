@@ -20,11 +20,13 @@ export class SymbolTable {
 
     stackOffset: number;
 
+    seenIdents: NodeType.IdentNode[];
+
 	constructor(parent:SymbolTable) {
         // initialise table
 		this.table = {};
 		this.parent = parent;
-
+        this.seenIdents = [];
         this.byteSizes = [];
         this.totalByteSize = 0;
 
@@ -46,6 +48,10 @@ export class SymbolTable {
 
     lookUpOffset(ident: NodeType.IdentNode): number {
         var result =  this.lookup(ident);
+        if (!_.some(this.seenIdents, (elem) => elem.identStr == ident.identStr)) {
+
+            result = null;
+        }
         var scopeOffset = result === null ? (this.parent.lookUpOffset(ident) + this.totalByteSize) : this.totalByteSize - result.offset;
         return scopeOffset + (this.stackOffset * 4);
 
