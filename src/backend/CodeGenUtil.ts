@@ -47,8 +47,7 @@ export var funcDefs = {
 	printRef: function(refFormatLabel) {
 		return [Instr.Label('p_print_reference'),
 				Instr.Push(Reg.LR),
-				Instr.Ldr(Reg.R1, Instr.Mem(Reg.R0)),
-				Instr.Add(Reg.R2, Reg.R0, Instr.Const(4)),
+				Instr.Mov(Reg.R1, Reg.R0),
 				Instr.Ldr(Reg.R0, Instr.Liter(refFormatLabel)),
 				printFooter];
 	},

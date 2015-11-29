@@ -183,9 +183,10 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [exprInstructions, Instr.Bl('putchar')]
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode
                         && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
+                // The case for printing a string (array of chars)
                 this.insertPrintString();
                 return [exprInstructions, Instr.Bl('p_print_string')];
-            } else if (node.expr.type instanceof NodeType.NullTypeNode
+            } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
                 this.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];

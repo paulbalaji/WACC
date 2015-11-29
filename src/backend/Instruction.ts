@@ -185,6 +185,7 @@ function SafeConst(cmd) {
 		if (isRepresentable(n)) {
 			return [n];
 		}
+
 		var window = 255 << 24;
 
 		var prev = 0;
@@ -208,12 +209,11 @@ function SafeConst(cmd) {
 
 		}
 
+
 		if (isConst(lastArg) && !isRepresentable(lastArg.n)) {
 			return _.map(makeRepresentable(lastArg.n), function(representableN) {
 				return instr.apply(this,  _.initial(args).concat(Const(representableN)));
 			});
-		
-
 		}
 
 		return instrObj;
