@@ -491,7 +491,6 @@ export class CodeGenerator implements NodeType.Visitor {
             return instrList;
         }
 
-        // console.log(node.constructor.name);
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
 
         instrList.push(Instr.Push(Reg.R4),

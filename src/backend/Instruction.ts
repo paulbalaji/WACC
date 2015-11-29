@@ -147,7 +147,7 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
-export function Add(...addArgs) {
+/*export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
 	add.command = 'ADD';
@@ -165,7 +165,63 @@ export function Sub(...subArgs) {
         return sub.command + ' ' + sub.args.join(', ');
     }
     return sub;
+}*/
+
+function SafeConst(cmd) {
+	function isRepresentable(n) {
+
+		while (n >= 256) {
+			if (n & 3) {
+				return false;
+			}
+
+			n >>= 2;
+		}
+
+		return true;
+	}
+
+	function makeRepresentable(n) {
+		if (isRepresentable(n)) {
+			return [n];
+		}
+		var window = 255 << 24;
+
+		var prev = 0;
+		while ((window & n) >= prev) {
+			prev = window & n;
+			window >>>= 2;
+		}
+		return [prev].concat(makeRepresentable(n - prev)); 
+	}
+
+	return function instr(...args) {
+		var instrObj: any = {};
+		instrObj.args = args;
+		instrObj.command = cmd;
+
+		var lastArg = _.last(args);
+
+
+		instrObj.toString = function() {
+			return instrObj.command + ' ' + instrObj.args.join(', ');
+
+		}
+
+		if (isConst(lastArg) && !isRepresentable(lastArg.n)) {
+			return _.map(makeRepresentable(lastArg.n), function(representableN) {
+				return instr.apply(this,  _.initial(args).concat(Const(representableN)));
+			});
+		
+
+		}
+
+		return instrObj;
+	}
 }
+
+export var Add = SafeConst('ADD');
+export var Sub = SafeConst('SUB');
 
 export function Smull(...smullArgs) {
     var smull: any = {};
