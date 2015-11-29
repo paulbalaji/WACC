@@ -573,6 +573,14 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCallNode(node: NodeType.CallNode): any {
+        // if no parameters, simply just call Bl 'f_'+node.ident.identStr
+        // leaves result in R0
+        
+        if (!node.argList) {
+            return [Instr.Bl('f_' + node.ident.identStr)];
+        }
+
+        
 
     }
 

@@ -1,3 +1,10 @@
 begin
-    skip
+    int blahFunction(int a, int b) is
+        return 4
+    end
+
+    int y = 1;
+    int z = 2;
+
+    int x = call blahFunction(y, z)
 end
