@@ -385,7 +385,7 @@ EscapedChar
   / 'f' { return '\\f'; }
   / 'r' { return '\\r'; }
   / '"' { return '\\"'; }
-  / "'" { return '\''; }
+  / "'" { return "\\'"; }
   / '\\'{ return '\\'; }
 
 /* Utils */

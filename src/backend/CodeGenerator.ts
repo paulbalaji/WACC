@@ -619,17 +619,58 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitReadNode(node: NodeType.ReadNode): any {
         var readInstruction;
-        if (node.readTarget.type instanceof NodeType.IntTypeNode) {
-            readInstruction = [Instr.Bl('p_read_int')];
-            this.insertReadInt();
-        } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
-            readInstruction = [Instr.Bl('p_read_char')];
-            this.insertReadChar();
-        }
-        if (node.readTarget instanceof NodeType.IdentNode) {
-            return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
+        var getReadInstruction = function() {
+            if (node.readTarget.type instanceof NodeType.IntTypeNode) {
+                this.insertReadInt();
+                return [Instr.Bl('p_read_int')];
 
+            } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
+                this.insertReadChar();
+                return [Instr.Bl('p_read_char')];
+            }
+        }.bind(this);
+
+
+        if (node.readTarget instanceof NodeType.IdentNode) {
+            readInstruction = getReadInstruction();
+            return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
+        } else if (node.readTarget instanceof NodeType.ArrayElemNode) {
+            this.insertCheckArrayBounds();
+            readInstruction = getReadInstruction();
+            var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.readTarget.type);
+
+            var findAddress = function(step) {
+                return [
+                    Instr.Bl('p_check_array_bounds'),
+                    Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
+                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
+                ];
+            }
+            var indexExprs = (<NodeType.ArrayElemNode>node.readTarget).exprList;
+            var instructions = [
+                
+                this.pushWithIncrement(Reg.R0, Reg.R4),
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.readTarget).ident)))),
+            ]
+            for (var i = 0; i < indexExprs.length - 1; i++) {
+                indexExprs[i].visit(this);
+                instructions.push(findAddress(4));
+                instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
+            }
+
+            instructions.push([
+                indexExprs[indexExprs.length - 1].visit(this),
+                findAddress(elemByteSize),
+                Instr.Mov(Reg.R1, Reg.R4),
+                this.popWithDecrement(Reg.R0, Reg.R4),
+                Instr.Add(Reg.R0, Instr.Mem(Reg.R1), Instr.Const(0)),
+                readInstruction,
+            ]);
+            return instructions;          
         }
+
+
+
         return []
 
     }
