@@ -131,6 +131,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.closingInsertions.push(function() {
                 var refFormatLabel = this.insertStringDataHeader('%p\\0');
                 this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+                //this.insertPrintInt();
             });
         });
 
@@ -398,11 +399,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitWhileNode(node: NodeType.WhileNode): any {
+        var bodyLabel = this.getNextLabelName();
+        var exprLabel = this.getNextLabelName();
         this.currentST = node.st;
         var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
         this.currentST = node.st.parent;
-        var bodyLabel = this.getNextLabelName();
-        var exprLabel = this.getNextLabelName();
         var expr = node.predicateExpr.visit(this);
         return [Instr.B(exprLabel),
                 Instr.Label(bodyLabel),
@@ -512,7 +513,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
 
-        instrList.push(Instr.Push(Reg.R4),
+        instrList.push(this.pushWithIncrement(Reg.R4),
                        Instr.Mov(Reg.R4, Reg.R0));
 
         for (var i = 0; i < node.exprList.length; i++) {
@@ -525,7 +526,7 @@ export class CodeGenerator implements NodeType.Visitor {
         }
 
         instrList.push(Instr.Mov(Reg.R0, Reg.R4),
-                       Instr.Pop(Reg.R4));
+                       this.popWithDecrement(Reg.R4));
 
         return instrList;
     }
