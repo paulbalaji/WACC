@@ -252,6 +252,12 @@ export class CodeGenerator implements NodeType.Visitor {
         var byteSize = node.st.totalByteSize;
 
        
+        /* Visit the functions - does not insert any code in main,
+           but will cause an insertion in this.sections.userFuncs later.
+           This is why we just need to visit the function nodes.
+        */
+        SemanticUtil.visitNodeList(node.functionList, this);
+
 
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
@@ -266,41 +272,24 @@ export class CodeGenerator implements NodeType.Visitor {
     
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
-        var mainLabelInit = [Instr.Label('main'), Instr.Push(Reg.LR)];
+        var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC),
-            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
-
-        return Instr.buildList(this.sections.header, mainStart, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+            this.popWithDecrement(Reg.PC)];
+        return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
-        /*this.currentST = node.st;
-        var byteSize = node.st.totalByteSize;
+        this.currentST = node.st;
+        var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
+        var labelInstruction = [Instr.Label('f_' + node.ident.toString()), this.pushWithIncrement(Reg.LR)];
+        var funcInstructions = [
+                                statListInstructions,
+                               ];
+        var endFuncInstructions = [this.popWithDecrement(Reg.PC),
+                                   Instr.Directive('ltorg')];
 
-        var mainStart = [Instr.Directive('text'),
-            Instr.Directive('global', 'main'),
-            Instr.Label('main'), Instr.Push(Reg.LR)];
-
-        var instructionList = [
-            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
-        ];
-
-        (function() {
-            for (var i = 0; i < this.closingInsertions.length; i++) {
-                this.closingInsertions[i].call(this);
-            }
-        }).call(this);
-        // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
-    
-
-        var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
-            Instr.Pop(Reg.PC),
-            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
-
-        var funcInstructions = [];
-
-        this.sections.userFuncs.push(funcInstructions);*/
+         this.sections.userFuncs.push([labelInstruction, this.scopedInstructions(this.currentST.totalByteSize, funcInstructions)], endFuncInstructions);
+        this.currentST = node.st.parent;
         return [];
     }
 
@@ -432,7 +421,8 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitReturnNode(node: NodeType.ReturnNode): any {
-
+        var returnExprInstructions = node.returnExpr.visit(this);
+        return [returnExprInstructions];    
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
@@ -664,6 +654,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var functionCall = Instr.Bl('f_' + node.ident.identStr)
         var argListSize = node.argList.length;
 
+        // this.currentST.stackOffset += argListSize; // Assuming all args are ints
 
         if (argListSize === 0) {
             return [functionCall];
@@ -705,11 +696,13 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
         var readInstruction;
+
         var getReadInstruction = function() {
             if (node.readTarget.type instanceof NodeType.IntTypeNode) {
                 this.insertReadInt();
@@ -720,7 +713,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [Instr.Bl('p_read_char')];
             }
         }.bind(this);
-
 
         if (node.readTarget instanceof NodeType.IdentNode) {
             readInstruction = getReadInstruction();
