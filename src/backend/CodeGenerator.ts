@@ -750,6 +750,41 @@ export class CodeGenerator implements NodeType.Visitor {
                 readInstruction,
             ]);
             return instructions;          
+        }  else if (node.readTarget instanceof NodeType.PairElemNode) {
+            var target = <NodeType.PairElemNode>node.readTarget;
+
+
+            var type1 = this.currentST.lookupAll(target.ident).type.type1;
+            var type2 = this.currentST.lookupAll(target.ident).type.type2;
+            this.insertCheckNullPointer();
+            this.insertReadInt();
+            
+            var indexInstruction;
+            if (target.index == 0) {
+                var readType = type1;
+            } else {
+                var readType = type2;
+
+            }
+            var readTypeSize = CodeGenUtil.getByteSizeFromTypeNode(readType);
+            return [
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(target.ident)))),
+                Instr.Bl("p_check_null_pointer"),
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(target.index * 4)),
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                Instr.Bl('free'),
+                Instr.Mov(Reg.R0, Instr.Const(readTypeSize)),
+                Instr.Bl('malloc'),
+                this.popWithDecrement(Reg.R1),
+                Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
+                Instr.Mov(Reg.R1, Reg.R0),
+                this.popWithDecrement(Reg.R0),
+                Instr.Add(Reg.R0, Reg.R1, Instr.Const(0)),
+                Instr.Bl('p_read_int')
+
+            ]
         }
 
 
