@@ -1,11 +1,10 @@
-
 begin
-    int blahFunction(int a, int b) is
+    int blahfunction() is
         return 4
     end
 
     int y = 1;
     int z = 2;
 
-    int x = call blahFunction(y, z)
+    int x = call blahfunction()
 end

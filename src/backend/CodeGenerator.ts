@@ -601,7 +601,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var functionCall = Instr.Bl('f_' + node.ident.identStr)
         
-        if (!node.argList) {
+        if (node.argList.length === 0) {
             return [functionCall];
         }
 
