@@ -24,10 +24,12 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintRef: any;
     insertPrintLn: any;
 
-    insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertCheckArrayBounds: any;
+
     insertFreePair: any;
+
+    insertOverflowError: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -46,7 +48,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     constructor(programInfo) {
         this.nextReg = 4;
-        this.sections = { header: [], footer: [] };
+        this.sections = { header: [], userFuncs: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
 
@@ -187,7 +189,6 @@ export class CodeGenerator implements NodeType.Visitor {
             });
         });
 
-
         this.printNodeLogic = function(node) {
             var exprInstructions = node.expr.visit(this);
 
@@ -212,14 +213,38 @@ export class CodeGenerator implements NodeType.Visitor {
                 //please don't forget to remove this Jan
                 console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
             }
-
         }
-
 
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
+        var byteSize = node.st.totalByteSize;
+
+        var mainStart = [Instr.Directive('text'),
+            Instr.Directive('global', 'main')];
+
+        var instructionList = [
+            _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
+        ];
+
+        (function() {
+            for (var i = 0; i < this.closingInsertions.length; i++) {
+                this.closingInsertions[i].call(this);
+            }
+        }).call(this);
+         // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
+    
+        var mainLabelInit = [Instr.Label('main'), Instr.Push(Reg.LR)];
+        var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
+            Instr.Pop(Reg.PC),
+            _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
+
+        return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+    }
+
+    visitFuncNode(node: NodeType.FuncNode): any {
+        /*this.currentST = node.st;
         var byteSize = node.st.totalByteSize;
 
         var mainStart = [Instr.Directive('text'),
@@ -230,23 +255,23 @@ export class CodeGenerator implements NodeType.Visitor {
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
         ];
 
-         
-
         (function() {
             for (var i = 0; i < this.closingInsertions.length; i++) {
                 this.closingInsertions[i].call(this);
             }
         }).call(this);
-         // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
+        // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
     
 
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             Instr.Pop(Reg.PC),
             _.flatten(SemanticUtil.visitNodeList(node.functionList, this))];
 
-        return Instr.buildList(this.sections.header, mainStart, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+        var funcInstructions = [];
 
+        this.sections.userFuncs.push(funcInstructions);*/
     }
+
    
     scopedInstructions(byteSize, instructions) {
         /* Given the byteSize for the current scope,
@@ -582,11 +607,6 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Ldr(Reg.R0, Instr.Liter(node.num))];
     }
 
-
-    visitFuncNode(node: NodeType.FuncNode): any {
-        return Instr.Push(Reg.R0);
-    }
-
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node))))]; 
@@ -646,8 +666,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
