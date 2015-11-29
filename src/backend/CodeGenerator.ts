@@ -24,10 +24,12 @@ export class CodeGenerator implements NodeType.Visitor {
     insertPrintRef: any;
     insertPrintLn: any;
 
-    insertOverflowError: any;
     insertCheckDivideByZero: any;
     insertCheckArrayBounds: any;
+
     insertFreePair: any;
+
+    insertOverflowError: any;
     insertRuntimeError: any;
 
     closingInsertions: any[];
@@ -414,27 +416,28 @@ export class CodeGenerator implements NodeType.Visitor {
             this.insertCheckArrayBounds();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
-            var findAddress = [
-                Instr.Bl('p_check_array_bounds'),
-                Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
-                Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))
-            ];
+            var findAddress = function(step) {
+                return[
+                    Instr.Bl('p_check_array_bounds'),
+                    Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
+                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
+                ];
+            } 
             var indexExprs = (<NodeType.ArrayElemNode>node.lhs).exprList;
             var instructions = [
                 rhsIns,
                 this.pushWithIncrement(Reg.R0, Reg.R4),
-                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.lhs).ident))),
+                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.lhs).ident)))),
             ]
             for (var i = 0; i < indexExprs.length - 1; i++) {
                 instructions.push(indexExprs[i].visit(this));
-                instructions.push(findAddress);
+                instructions.push(findAddress(4));
                 instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
             }
 
             instructions.push([
                 indexExprs[indexExprs.length - 1].visit(this),
-                findAddress,
-                Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)),
+                findAddress(elemByteSize),
                 Instr.Mov(Reg.R1, Reg.R4),
                 this.popWithDecrement(Reg.R0, Reg.R4),
                 strInstruction(Reg.R0, Instr.Mem(Reg.R1))
@@ -659,8 +662,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
 
