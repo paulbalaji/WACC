@@ -21,8 +21,6 @@ export function getByteSizeFromTypeNode(typeNode) {
 }
 
 export var funcDefs = {
-	
-
 	readInt: function(readFormatLabel) {
 		return [Instr.Label('p_read_int'),
 				readHeader,

@@ -12,14 +12,15 @@ function compileStr(programStr) {
 	var programInfo = frontend.semanticCheck(ast);
 
     var code = backend.generateCode(ast, programInfo);
-    console.log(code);    
+    // console.log(code); 
+    return code;   
 }
 
 /*
     Given a filename, it throws an error if the program can't be found, is semantically 
     or syntactically incorrect it throws an error object.
 */
-export function compile(filename) {
+export function compile(filename, cb) {
     fs.readFile(filename, 'utf8', function (err, programStr) {
         if (err) { 
             err.code = 1;     
@@ -28,7 +29,7 @@ export function compile(filename) {
             err.message = 'File not found.';
             throw err;
         }
-        compileStr(programStr);
+        cb(compileStr(programStr));
     });
 }
 

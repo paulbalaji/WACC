@@ -1,3 +1,13 @@
 #!/usr/bin/env node
+var fs = require('fs'),
+	path = require('path');
 var compiler = require('./dist/compiler.js');
-compiler.compile(process.argv[2]);
+
+var filename = process.argv[2],
+	basename = path.basename(filename, '.wacc');
+
+
+
+compiler.compile(filename, function(res) {
+	fs.writeFile(basename + '.s', res);
+});
