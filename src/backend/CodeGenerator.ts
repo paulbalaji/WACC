@@ -283,7 +283,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
         SysFunctionsHandler.insertDataLabel();
         var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
-        this.sections.header.push(strDataInstructions);
+        SysFunctionsHandler.sections.dataSection.push(strDataInstructions);
          
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];
     }

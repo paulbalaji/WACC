@@ -1,17 +1,14 @@
-# Create and double free a pair indirectly
+# exit with unreachable print
 
 # Output:
-# #runtime_error#
+# #empty#
 
 # Exit:
-# 255
+# 42
 
 # Program:
 
 begin
-  pair(int, char) a = newpair(10, 'a') ;
-  pair(int, char) b = a ;
-  free a ;
-  free b
+  exit 42 ;
+  println "Should not print this."
 end
-
