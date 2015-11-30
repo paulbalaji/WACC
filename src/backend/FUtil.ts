@@ -1,6 +1,6 @@
 export function counterWithStrPrefix(strPrefix, initial) {
-	var n = 0;
+	var n = initial;
 	return function() {
-		return strPrefix + initial;
+		return strPrefix + (initial++);
 	}
 }
