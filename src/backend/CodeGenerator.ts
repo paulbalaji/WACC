@@ -4,6 +4,8 @@ import Instr = require('./Instruction');
 import Reg = require('./Register');
 import CodeGenUtil = require('./CodeGenUtil');
 import FUtil = require('./FUtil');
+import SysFunctionsHandler = require('./SystemFunctionsHandler');
+
 var _ = require('underscore');
 
 
@@ -69,142 +71,26 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     defineSystemFunctions() {
-        this.insertDataLabel = _.once(function() {
-            this.sections.header.push(Instr.Directive('data'));
-        })
-
-        this.insertStringDataHeader = function(str: string) {
-            this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(str.length - str.split("\\").length + 1, str);
-            this.sections.header.push(strDataInstructions);
-            return dataLabel;
-        };
-
-        this.insertCheckNullPointer = _.once(() => {
-            this.closingInsertions.push(function() {
-                var nullPointerLabel = this.insertStringDataHeader("NullReferenceError: dereference a null reference\\n\\0");
-                this.sections.footer.push(CodeGenUtil.funcDefs.checkNullPointer(nullPointerLabel));
-                this.insertRuntimeError();
-            });
-        });
-
-        this.insertReadInt = _.once(() => {
-            this.closingInsertions.push(function() {
-                var intFormatLabel = this.insertStringDataHeader("%d\\0");
-                this.sections.footer.push(CodeGenUtil.funcDefs.readInt(intFormatLabel));
-            });
-        });
-
-        this.insertReadChar = _.once(() => {
-            this.closingInsertions.push(function() {
-                var charFormatLabel = this.insertStringDataHeader(" %c\\0");
-                this.sections.footer.push(CodeGenUtil.funcDefs.readChar(charFormatLabel));
-            });
-        });
-
-        this.insertPrintString = _.once(() => {
-            this.closingInsertions.push(function() {
-                var message = '%.*s\\0';
-                var dataLabel = this.insertStringDataHeader(message);
-                this.sections.footer.push(CodeGenUtil.funcDefs.printString(dataLabel));
-            });
-        });
-
-        this.insertPrintBool = _.once(() => {
-            this.closingInsertions.push(function() {
-                var trueLabel = this.insertStringDataHeader("true\\0");
-                var falseLabel = this.insertStringDataHeader("false\\0");
-                this.sections.footer.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
-            });
-        });
-
-        this.insertPrintInt = _.once(() => {
-            this.closingInsertions.push(function() {
-                var intFormatLabel = this.insertStringDataHeader("%d\\0");
-                this.sections.footer.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
-            });
-        });
-
-        this.insertPrintRef = _.once(() => {
-            this.closingInsertions.push(function() {
-                var refFormatLabel = this.insertStringDataHeader('%p\\0');
-                this.sections.footer.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
-                //this.insertPrintInt();
-            });
-        });
-
-        this.insertPrintLn = _.once(() => {
-            this.closingInsertions.push(function() {
-                var terminatorLabel = this.insertStringDataHeader('\\0');
-                this.sections.footer.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
-            });
-        });
-
-        this.insertOverflowError = _.once(() => {
-            this.closingInsertions.push(function() {
-                var message = 'OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n';
-                var dataLabel = this.insertStringDataHeader(message);
-                this.sections.footer.push(CodeGenUtil.funcDefs.overflowError(dataLabel));
-                this.insertRuntimeError();
-            });
-        });
-
-        this.insertCheckDivideByZero = _.once( () => {
-            this.closingInsertions.push(function() {
-                var message = 'DivideByZeroError: divide or modulo by zero\\n\\0';
-                var dataLabel = this.insertStringDataHeader(message);
-                this.sections.footer.push(CodeGenUtil.funcDefs.checkDivideByZero(dataLabel));
-                this.insertRuntimeError();
-            });
-        });
-
-        this.insertCheckArrayBounds = _.once(() => {
-            this.closingInsertions.push(function() {
-                var negMessage = 'ArrayIndexOutOfBoundsError: negative index\\n\\0';
-                var negLabel = this.insertStringDataHeader(negMessage);
-                var largeMessage = 'ArrayIndexOutOfBoundsError: index too large\\n\\0';
-                var largeLabel = this.insertStringDataHeader(largeMessage);
-                this.sections.footer.push(CodeGenUtil.funcDefs.checkArrayBounds(negLabel, largeLabel));
-                this.insertRuntimeError();
-            });
-        });
-
-        this.insertFreePair = _.once(() => {
-            this.closingInsertions.push(function() {
-                var message = 'NullReferenceError: dereference a null reference\\n\\0';
-                var dataLabel = this.insertStringDataHeader(message);
-                this.sections.footer.push(CodeGenUtil.funcDefs.freePair(dataLabel));
-                this.insertRuntimeError();
-            });
-        });
-
-        this.insertRuntimeError = _.once(() => {
-            this.closingInsertions.push(function() {
-                this.sections.footer.push(CodeGenUtil.funcDefs.runtimeError());
-                this.insertPrintString();
-            });
-        });
-
         this.printNodeLogic = function(node) {
             var exprInstructions = node.expr.visit(this);
 
             if (node.expr.type instanceof NodeType.BoolTypeNode) {
-                this.insertPrintBool();
+                SysFunctionsHandler.insertPrintBool();
                 return [exprInstructions, Instr.Bl('p_print_bool')]
             } else if (node.expr.type instanceof NodeType.IntTypeNode) {
-                this.insertPrintInt();
+                SysFunctionsHandler.insertPrintInt();
                 return [exprInstructions, Instr.Bl('p_print_int')]
             } else if (node.expr.type instanceof NodeType.CharTypeNode) {
                 return [exprInstructions, Instr.Bl('putchar')]
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode
                         && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
                 // The case for printing a string (array of chars)
-                this.insertPrintString();
+                SysFunctionsHandler.insertPrintString();
                 return [exprInstructions, Instr.Bl('p_print_string')];
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
 
-                this.insertPrintRef();
+                SysFunctionsHandler.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
             } else {
                 //please don't forget to remove this Jan
@@ -227,7 +113,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 str,
                 this.pushWithIncrement(Reg.R0)
             ];
-        }.bind(this)
+        }.bind(this);
+
 
     }
 
@@ -246,13 +133,8 @@ export class CodeGenerator implements NodeType.Visitor {
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
         ];
 
-        (function() {
-            for (var i = 0; i < this.closingInsertions.length; i++) {
-                this.closingInsertions[i].call(this);
-            }
-        }).call(this);
-         // this.closingInsertions.map((closingFunc) => {console.log(this.closingInsertions.length); closingFunc.call(this)
-    
+        var {dataSection: dataSection, sysFuncSection: sysFuncSection} = SysFunctionsHandler.runClosingInsertions(); // Run closing insertions on sections.
+
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
         var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
@@ -260,7 +142,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.popWithDecrement(Reg.PC)];
 
         var byteSize = node.st.totalByteSize;
-        return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
+        return Instr.buildList(dataSection, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -302,33 +184,33 @@ export class CodeGenerator implements NodeType.Visitor {
             case '+':
                 binOpInstructions = [Instr.modify(Instr.Add(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
-                this.insertOverflowError();
+                SysFunctionsHandler.insertOverflowError();
                 break;
 
             case '-':
                 binOpInstructions = [Instr.modify(Instr.Sub(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
-                this.insertOverflowError();
+                SysFunctionsHandler.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
                                      Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.ne)];
-                this.insertOverflowError();
+                SysFunctionsHandler.insertOverflowError();
                 break;
 
             case '/':
                 binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
                                      Instr.Bl('__aeabi_idiv')];
-                this.insertCheckDivideByZero();
+                SysFunctionsHandler.insertCheckDivideByZero();
                 break;
 
             case '%':
                 binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
                                      Instr.Bl('__aeabi_idivmod'),
                                      Instr.Mov(Reg.R0, Reg.R1)];
-                this.insertCheckDivideByZero();
+                SysFunctionsHandler.insertCheckDivideByZero();
                 break;
 
             case '>':
@@ -399,7 +281,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
-        this.insertDataLabel();
+        SysFunctionsHandler.insertDataLabel();
         var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
         this.sections.header.push(strDataInstructions);
          
@@ -421,7 +303,7 @@ export class CodeGenerator implements NodeType.Visitor {
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
-            this.insertCheckArrayBounds();
+            SysFunctionsHandler.insertCheckArrayBounds();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
             var findAddress = function(step) {
@@ -460,7 +342,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var type1 = this.currentST.lookupAll(lhs.ident).type.type1;
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
-            this.insertCheckNullPointer();
+            SysFunctionsHandler.insertCheckNullPointer();
             
             var indexInstruction;
             if (lhs.index == 0) {
@@ -581,7 +463,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
-            this.insertFreePair();
+            SysFunctionsHandler.insertFreePair();
         }
         var offset = this.currentST.lookUpOffset(<NodeType.IdentNode>node.expr);
 
@@ -594,7 +476,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
         var printInstrs = this.printNodeLogic(node);
-        this.insertPrintLn();
+        SysFunctionsHandler.insertPrintLn();
         return [printInstrs, Instr.Bl('p_print_ln')]
     }
 
@@ -627,7 +509,7 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Mov(Reg.R4, Reg.R0));
 
         for (var i = 0; i < node.exprList.length; i++) {
-            this.insertCheckArrayBounds();
+            SysFunctionsHandler.insertCheckArrayBounds();
             var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
 
             instrList.push(node.exprList[i].visit(this),
@@ -701,11 +583,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var getReadInstruction = function() {
             if (node.readTarget.type instanceof NodeType.IntTypeNode) {
-                this.insertReadInt();
+                SysFunctionsHandler.insertReadInt();
                 return [Instr.Bl('p_read_int')];
 
             } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
-                this.insertReadChar();
+                SysFunctionsHandler.insertReadChar();
                 return [Instr.Bl('p_read_char')];
             }
         }.bind(this);
@@ -714,7 +596,7 @@ export class CodeGenerator implements NodeType.Visitor {
             readInstruction = getReadInstruction();
             return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
         } else if (node.readTarget instanceof NodeType.ArrayElemNode) {
-            this.insertCheckArrayBounds();
+            SysFunctionsHandler.insertCheckArrayBounds();
             readInstruction = getReadInstruction();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.readTarget.type);
 
@@ -752,8 +634,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var type1 = this.currentST.lookupAll(target.ident).type.type1;
             var type2 = this.currentST.lookupAll(target.ident).type.type2;
-            this.insertCheckNullPointer();
-            this.insertReadInt();
+            SysFunctionsHandler.insertCheckNullPointer();
+            SysFunctionsHandler.insertReadInt();
             
             var indexInstruction;
             if (target.index == 0) {
@@ -796,7 +678,7 @@ export class CodeGenerator implements NodeType.Visitor {
             case '-':
                 unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s),
                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
-                this.insertOverflowError();
+                SysFunctionsHandler.insertOverflowError();
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
@@ -871,7 +753,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitPairElemNode(node: NodeType.PairElemNode): any {
         var type1 = this.currentST.lookupAll(node.ident).type.type1;
         var type2 = this.currentST.lookupAll(node.ident).type.type2;
-        this.insertCheckNullPointer();
+        SysFunctionsHandler.insertCheckNullPointer();
         
         var indexInstruction;
         if (node.index == 0) {
