@@ -526,10 +526,13 @@ export class CodeGenerator implements NodeType.Visitor {
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
+        
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
+
         if ((<NodeType.ArrayTypeNode> node.type).depth > 1) {
             elemByteSize = 4;
         }
+
         // add 4 in front to store the array length
         var offset = 4;
 
@@ -584,8 +587,9 @@ export class CodeGenerator implements NodeType.Visitor {
             freeText = 'p_free_pair';
             this.insertFreePair();
         }
+        var offset = this.currentST.lookUpOffset(<NodeType.IdentNode>node.expr);
 
-        return [node.expr.visit(this), Instr.Bl(freeText)];
+        return [node.expr.visit(this), Instr.Bl(freeText), Instr.Mov(Reg.R0, Instr.Const(0)), Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(offset)))];
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
