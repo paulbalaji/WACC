@@ -3,6 +3,7 @@ import backend = require('./backend/backend');
 var colors = require('colors');
 
 var fs = require('fs');
+var path = require('path');
 
 var filename: string = process.argv[2];
 var silence: string = process.argv[3];
@@ -19,35 +20,18 @@ function compileStr(programStr) {
     Given a filename, it throws an error if the program can't be found, is semantically 
     or syntactically incorrect it throws an error object.
 */
-export function compile(filename, cb) {
-    fs.readFile(filename, 'utf8', function (err, programStr) {
+export function compile(inputFile, outputFile) {
+    fs.readFile(inputFile, 'utf8', function (err, programStr) {
         if (err) { 
             err.code = 1;     
             err.name = 'IO error';
-            err.location = filename;
+            err.location = inputFile;
             err.message = 'File not found.';
             throw err;
         }
-        cb(compileStr(programStr));
+        fs.writeFile(outputFile, compileStr(programStr));
     });
 }
-
-// function(res) {
-//     fs.writeFile(basename + '.s', res);
-// }
-
-// export function newCompile(inputFile, outputFile) {
-//     fs.readFile(inputFile, 'utf8', function (err, programStr) {
-//         if (err) { 
-//             err.code = 1;     
-//             err.name = 'IO error';
-//             err.location = inputFile;
-//             err.message = 'File not found.';
-//             throw err;
-//         }
-//         cb(compileStr(programStr));
-//     });
-// }
 
 process.on('uncaughtException', function (err) {
     if (!err.code) {
