@@ -2,7 +2,8 @@ import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil')
 import Instr = require('./Instruction');
 import Reg = require('./Register');
-import CodeGenUtil = require('./CodeGenUtil')
+import CodeGenUtil = require('./CodeGenUtil');
+import FUtil = require('./FUtil');
 var _ = require('underscore');
 
 
@@ -50,12 +51,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.identOffset = 0;
 
-        this.getNextLabelName = (function() {
-            var labelNum = 0;
-            return function() {
-                return 'L' + labelNum++;
-            }
-        })();
+        this.getNextLabelName = FUtil.counterWithStrPrefix('L', 0);
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
@@ -79,7 +75,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.insertStringDataHeader = function(str: string) {
             this.insertDataLabel();
-            var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(str.length - str.split("\\").length + 1, str);
+            var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(str.length - str.split("\\").length + 1, str);
             this.sections.header.push(strDataInstructions);
             return dataLabel;
         };
@@ -404,7 +400,7 @@ export class CodeGenerator implements NodeType.Visitor {
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
         this.insertDataLabel();
-        var {label: dataLabel, instructions: strDataInstructions} = Instr.genStrDataBlock(node.actualStrLength, node.str);
+        var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
         this.sections.header.push(strDataInstructions);
          
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];

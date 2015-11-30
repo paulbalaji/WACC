@@ -296,37 +296,6 @@ export function Eor(...eorArgs) {
 	return eor;
 }
 
-var nextDataLabel = function() {
-	var l = 0;
-	return function() {
-		return 'msg_' + (l++);
-	}
-} ();
-
-/*function unescape(str) {
-	console.log(str);
-	str = str.replace('\0', '\\0')
-		.replace('\b', '\\b')
-		.replace('\t', '\\t')
-		.replace('\n', '\\n')
-		.replace('\f', '\\f')
-		.replace('\r', '\\r')
-		.replace('\"', '\\"')
-		.replace('\'', '\\\'')
-		.replace('\\', '\\\\');
-	console.log(str);
-
-	return str;
-}*/
-
-export function genStrDataBlock(len: number, str: string) {
-	var label = nextDataLabel();
-	return {label: label, instructions: [Label(label),
-			Directive('word', len),
-			Directive('ascii', '"' + str + '"')]}
-		;
-}
-
 export function buildList(...unflattenedList) {
 	return _.flatten(unflattenedList);
 }
