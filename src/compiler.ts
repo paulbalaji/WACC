@@ -3,6 +3,7 @@ import backend = require('./backend/backend');
 var colors = require('colors');
 
 var fs = require('fs');
+var path = require('path');
 
 var filename: string = process.argv[2];
 var silence: string = process.argv[3];
@@ -32,12 +33,7 @@ export function compile(filename, cb) {
     });
 }
 
-function fileWriter(filename, res) {
-    fs.writeFile(filename, res);
-}
-
 export function newCompile(inputFile, outputFile) {
-    var result;
     fs.readFile(inputFile, 'utf8', function (err, programStr) {
         if (err) { 
             err.code = 1;     
@@ -46,9 +42,8 @@ export function newCompile(inputFile, outputFile) {
             err.message = 'File not found.';
             throw err;
         }
-        result = compileStr(programStr);
+        fs.writeFile(outputFile, compileStr(programStr));
     });
-    fileWriter(outputFile, result);
 }
 
 process.on('uncaughtException', function (err) {

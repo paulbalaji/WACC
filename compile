@@ -3,8 +3,14 @@ var fs = require('fs'),
 	path = require('path');
 var compiler = require('./dist/compiler.js');
 
-var inputFile = process.argv[2],
-	outputFile = path.basename(inputFile, '.wacc') + '.s';
+var inputFile = process.argv[2];
+
+if (process.argv.length === 3) {
+	var	outputFile = path.basename(inputFile, '.wacc') + '.s';
+} else {
+	var outputFile = process.argv[3];
+	var outputFile = outputFile.split(path.extname(outputFile))[0] + '.s';
+}
 
 // compiler.compile(inputFile, function(res) {
 // 	fs.writeFile(outputFile, res);
