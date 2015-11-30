@@ -11,48 +11,21 @@ var _ = require('underscore');
 
 export class CodeGenerator implements NodeType.Visitor {
 
-    nextReg: number;
-    nextMessageLabel: number;
-    sections: any;
-
-    insertDataLabel: any;
-    insertStringDataHeader: any;
-
-    insertReadInt: any;
-    insertReadChar: any;
-
-    insertPrintString: any;
-    insertPrintBool: any;
-    insertPrintInt: any;
-    insertPrintRef: any;
-    insertPrintLn: any;
-
-    insertOverflowError: any;
-    insertCheckDivideByZero: any;
-    insertCheckArrayBounds: any;
-    insertFreePair: any;
-    insertRuntimeError: any;
-    insertCheckNullPointer: any;
-
-    closingInsertions: any[];
-    printNodeLogic: any;
+    userFuncs: any;
 
     identOffset: any;
-
-    programInfo: any; // Contains info about the program, as returned by semantic checker
 
     currentST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
+    printNodeLogic: any;
     allocPairElem: any;
 
     constructor() {
-        this.sections = { header: [], userFuncs: [], footer: [] };
         this.defineSystemFunctions();
-        this.closingInsertions = [];
 
+        this.userFuncs = [];
         this.identOffset = 0;
-
         this.getNextLabelName = FUtil.counterWithStrPrefix('L', 0);
     }
 
@@ -64,10 +37,6 @@ export class CodeGenerator implements NodeType.Visitor {
     popWithDecrement(...popArgs) { // Decrements currentST stack offset and returns the push instruction
         this.currentST.stackOffset -= popArgs.length;
         return Instr.Pop.apply(this, popArgs);
-    }
-
-    enterNewScope(st) {
-        this.currentST = st;
     }
 
     defineSystemFunctions() {
@@ -115,7 +84,6 @@ export class CodeGenerator implements NodeType.Visitor {
             ];
         }.bind(this);
 
-
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -123,11 +91,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
        
         /* Visit the functions - does not insert any code in main,
-           but will cause an insertion in this.sections.userFuncs later.
+           but will cause an insertion in this.userFuncs later.
            This is why we just need to visit the function nodes.
         */
         SemanticUtil.visitNodeList(node.functionList, this);
-
 
         var instructionList = [
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
@@ -142,7 +109,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.popWithDecrement(Reg.PC)];
 
         var byteSize = node.st.totalByteSize;
-        return Instr.buildList(dataSection, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
+        return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -157,7 +124,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var totalByteSize = this.currentST.totalByteSize;                       
         var scopeSub = totalByteSize === 0 ? [] : Instr.Sub(Reg.SP, Reg.SP, Instr.Const(totalByteSize));
-        this.sections.userFuncs.push([labelInstruction, scopeSub, funcInstructions, endFuncInstructions]);
+        this.userFuncs.push([labelInstruction, scopeSub, funcInstructions, endFuncInstructions]);
         this.currentST = node.st.parent;
         return [];
     }
