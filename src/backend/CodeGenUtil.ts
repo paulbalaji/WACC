@@ -1,6 +1,7 @@
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import NodeType = require('../frontend/NodeType');
+import FUtil = require('./FUtil');
 
 var printFooter = [	
 	Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
@@ -145,3 +146,13 @@ export var funcDefs = {
     			Instr.Pop(Reg.PC)];
     }
 };
+
+var nextDataLabel = FUtil.counterWithStrPrefix('msg_', 0);
+
+export function genStrDataBlock(len: number, str: string) {
+	var label = nextDataLabel();
+	return {label: label, instructions: [Instr.Label(label),
+			Instr.Directive('word', len),
+			Instr.Directive('ascii', '"' + str + '"')]}
+		;
+}
