@@ -9,11 +9,7 @@ if (process.argv.length === 3) {
 	var	outputFile = path.basename(inputFile, '.wacc') + '.s';
 } else {
 	var outputFile = process.argv[3];
-	var outputFile = outputFile.split(path.extname(outputFile))[0] + '.s';
+	outputFile = outputFile.split(path.extname(outputFile))[0] + '.s';
 }
 
-// compiler.compile(inputFile, function(res) {
-// 	fs.writeFile(outputFile, res);
-// });
-
-compiler.newCompile(inputFile, outputFile);
+compiler.compile(inputFile, outputFile);
