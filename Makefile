@@ -35,6 +35,7 @@ preview: compiler
 clean:
 	@echo "Removing all generated files..."
 	@rm -r -f dist
+	@rm *.s
 	@rm src/frontend/grammar/grammar.ts
 	
 rebuild: clean compiler

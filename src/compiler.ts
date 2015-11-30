@@ -32,22 +32,24 @@ export function compile(filename, cb) {
     });
 }
 
-// function(res) {
-//     fs.writeFile(basename + '.s', res);
-// }
+function fileWriter(filename, res) {
+    fs.writeFile(filename, res);
+}
 
-// export function newCompile(inputFile, outputFile) {
-//     fs.readFile(inputFile, 'utf8', function (err, programStr) {
-//         if (err) { 
-//             err.code = 1;     
-//             err.name = 'IO error';
-//             err.location = inputFile;
-//             err.message = 'File not found.';
-//             throw err;
-//         }
-//         cb(compileStr(programStr));
-//     });
-// }
+export function newCompile(inputFile, outputFile) {
+    var result;
+    fs.readFile(inputFile, 'utf8', function (err, programStr) {
+        if (err) { 
+            err.code = 1;     
+            err.name = 'IO error';
+            err.location = inputFile;
+            err.message = 'File not found.';
+            throw err;
+        }
+        result = compileStr(programStr);
+    });
+    fileWriter(outputFile, result);
+}
 
 process.on('uncaughtException', function (err) {
     if (!err.code) {
