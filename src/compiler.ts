@@ -36,18 +36,18 @@ export function compile(filename, cb) {
 //     fs.writeFile(basename + '.s', res);
 // }
 
-export function newCompile(inputFile, outputFile) {
-    fs.readFile(inputFile, 'utf8', function (err, programStr) {
-        if (err) { 
-            err.code = 1;     
-            err.name = 'IO error';
-            err.location = inputFile;
-            err.message = 'File not found.';
-            throw err;
-        }
-        cb(compileStr(programStr));
-    });
-}
+// export function newCompile(inputFile, outputFile) {
+//     fs.readFile(inputFile, 'utf8', function (err, programStr) {
+//         if (err) { 
+//             err.code = 1;     
+//             err.name = 'IO error';
+//             err.location = inputFile;
+//             err.message = 'File not found.';
+//             throw err;
+//         }
+//         cb(compileStr(programStr));
+//     });
+// }
 
 process.on('uncaughtException', function (err) {
     if (!err.code) {
