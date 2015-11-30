@@ -12,8 +12,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
-    declareNodeCount: number;
-
     constructor() {
 
         // Creating functions symbol table
@@ -21,8 +19,6 @@ export class SemanticVisitor implements NodeType.Visitor {
 
         // Creating the root symbol table
         this.currentST = new SemanticUtil.SymbolTable(null);
-
-        this.declareNodeCount = 0;
     }
 
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
@@ -54,11 +50,6 @@ export class SemanticVisitor implements NodeType.Visitor {
         var returnVisitor : NodeType.Visitor = new ReturnChecker.ReturnVisitor();
         node.visit(returnVisitor);
 
-        return { // Return info about the program that is useful in backend 
-            declareNodeCount: this.declareNodeCount,
-            rootST: this.currentST,
-            functionST: this.functionST
-        }; 
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -207,8 +198,6 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): void {
-        this.declareNodeCount++;
-
         node.type.visit(this);
         node.rhs.visit(this);
 

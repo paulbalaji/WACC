@@ -9,10 +9,9 @@ var silence: string = process.argv[3];
 
 function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
-	var programInfo = frontend.semanticCheck(ast);
+	frontend.semanticCheck(ast);
 
-    var code = backend.generateCode(ast, programInfo);
-    // console.log(code); 
+    var code = backend.generateCode(ast);
     return code;   
 }
 

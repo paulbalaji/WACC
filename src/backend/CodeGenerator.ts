@@ -36,29 +36,17 @@ export class CodeGenerator implements NodeType.Visitor {
 
     identOffset: any;
 
-    spSubNum: number; // The number of words to subtract from SP at start of main. spSubNum = 1 means SUB sp, sp, #4 will be inserted.
-    spSubCurrent: number;
-
     programInfo: any; // Contains info about the program, as returned by semantic checker
-
-    stackMap: any; // Maps ident strings to corresponding stack locations
 
     currentST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
     allocPairElem: any;
 
-    constructor(programInfo) {
-        this.nextReg = 4;
+    constructor() {
         this.sections = { header: [], userFuncs: [], footer: [] };
         this.defineSystemFunctions();
         this.closingInsertions = [];
-
-        this.programInfo = programInfo;
-
-        this.spSubCurrent = 4;
-
-        this.stackMap = {};
 
         this.identOffset = 0;
 
