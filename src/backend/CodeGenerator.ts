@@ -249,7 +249,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
-        var byteSize = node.st.totalByteSize;
 
        
         /* Visit the functions - does not insert any code in main,
@@ -275,6 +274,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
+        var byteSize = node.st.totalByteSize;
         return Instr.buildList(this.sections.header, mainStart, this.sections.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, this.sections.footer);
     }
 
@@ -537,8 +537,8 @@ export class CodeGenerator implements NodeType.Visitor {
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
+        
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
-
         // add 4 in front to store the array length
         var offset = 4;
 
