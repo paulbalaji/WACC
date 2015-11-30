@@ -538,7 +538,9 @@ export class CodeGenerator implements NodeType.Visitor {
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
-
+        if ((<NodeType.ArrayTypeNode> node.type).depth > 1) {
+            elemByteSize = 4;
+        }
         // add 4 in front to store the array length
         var offset = 4;
 
@@ -630,17 +632,20 @@ export class CodeGenerator implements NodeType.Visitor {
         }
 
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
+        
 
         instrList.push(this.pushWithIncrement(Reg.R4),
                        Instr.Mov(Reg.R4, Reg.R0));
 
         for (var i = 0; i < node.exprList.length; i++) {
             this.insertCheckArrayBounds();
+            var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+
             instrList.push(node.exprList[i].visit(this),
                            Instr.Bl('p_check_array_bounds'),
-                           Instr.Add(Reg.R4, Reg.R4, Instr.Const(elemByteSize)),
-                           Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)),
-                           Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)));
+                           Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
+                           (elemByteSize === 1 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0) : Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))),
+                           ldrInstruction(Reg.R4, Instr.Mem(Reg.R4)));
         }
 
         instrList.push(Instr.Mov(Reg.R0, Reg.R4),

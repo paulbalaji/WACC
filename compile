@@ -1,3 +1,9 @@
 #!/usr/bin/env node
 var compiler = require('./dist/compiler.js');
-compiler.compile(process.argv[2]);
+var fs = require('fs');
+
+var filename = process.argv[2],
+	base = filename.split('.')[0];
+compiler.compile(filename, function(res) {
+	fs.writeFile(base + '.s', res);
+});
