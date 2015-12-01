@@ -190,7 +190,7 @@ export class CodeGenerator implements NodeType.Visitor {
             case '<':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
                                      Instr.Movlt(Reg.R0, Instr.Const(1)),
-                                     Instr.Movge(Reg.R0, Instr.Const(0)), Instr.mods.ge];
+                                     Instr.Movge(Reg.R0, Instr.Const(0))];
                 break;
 
             case '>=':
