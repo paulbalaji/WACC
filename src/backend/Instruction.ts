@@ -23,7 +23,7 @@ export function modify (instr, mod) {
 
 function modInstr(instrF, mod) {
 	return function(...args) {
-		var instr = instrF(args);
+		var instr = instrF.apply(this, args);
 		instr.command += mod;
 		return instr;
 	};

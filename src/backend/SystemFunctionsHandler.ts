@@ -15,7 +15,6 @@ export function runClosingInsertions() {
     for (var i = 0; i < closingInsertions.length; i++) {
         closingInsertions[i]();
     }
-
     return sections;
 }
 
@@ -129,6 +128,7 @@ export var insertFreePair = _.once(() => {
 });
 
 export var insertRuntimeError = _.once(() => {
+
 	closingInsertions.push(function() {
 		sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
 		insertPrintString();
