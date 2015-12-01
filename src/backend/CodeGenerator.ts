@@ -70,7 +70,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var str;
             var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
             if(elemSize == 1) {
-                str = Instr.modify(Instr.Str(Reg.R1, Instr.Mem(Reg.R0)), Instr.mods.b);
+                str = Instr.Strb(Reg.R1, Instr.Mem(Reg.R0));
             } else {
                 str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
             }
@@ -109,7 +109,7 @@ export class CodeGenerator implements NodeType.Visitor {
             this.popWithDecrement(Reg.PC)];
 
         var byteSize = node.st.totalByteSize;
-        return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
+        return Instr.buildList(Instr.Blne('hi'), dataSection, mainStart, this.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -149,21 +149,21 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '+':
-                binOpInstructions = [Instr.modify(Instr.Add(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
-                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
+                binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
+                                     Instr.Blvs('p_throw_overflow_error')];
                 SysFunctionsHandler.insertOverflowError();
                 break;
 
             case '-':
-                binOpInstructions = [Instr.modify(Instr.Sub(Reg.R0, Reg.R0, Reg.R1), Instr.mods.s),
-                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
+                binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
+                                     Instr.Blvs('p_throw_overflow_error')];
                 SysFunctionsHandler.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
-                                     Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.ne)];
+                                     Instr.Blne('p_throw_overflow_error')];
                 SysFunctionsHandler.insertOverflowError();
                 break;
 
@@ -182,38 +182,38 @@ export class CodeGenerator implements NodeType.Visitor {
 
             case '>':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.gt),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.le)];
+                                     Instr.Movgt(Reg.R0, Instr.Const(1)),
+                                     Instr.Movle(Reg.R0, Instr.Const(0))];
                 break;
 
             case '<':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.lt),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ge)];
+                                     Instr.Movlt(Reg.R0, Instr.Const(1)),
+                                     Instr.Movge(Reg.R0, Instr.Const(0)), Instr.mods.ge];
                 break;
 
             case '>=':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ge),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.lt)];
+                                     Instr.Movge(Reg.R0, Instr.Const(1)),
+                                     Instr.Movlt(Reg.R0, Instr.Const(0))];
                 break;
 
             case '<=':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.le),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.gt)];
+                                     Instr.Movle(Reg.R0, Instr.Const(1)),
+                                     Instr.Movgt(Reg.R0, Instr.Const(0))];
                 break;
 
             case '==':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.eq),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.ne)];
+                                     Instr.Moveq(Reg.R0, Instr.Const(1)),
+                                     Instr.Movne(Reg.R0, Instr.Const(0))];
                 break;
 
             case '!=':
                 binOpInstructions = [Instr.Cmp(Reg.R0, Reg.R1),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(1)), Instr.mods.ne),
-                                     Instr.modify(Instr.Mov(Reg.R0, Instr.Const(0)), Instr.mods.eq)];
+                                     Instr.Movne(Reg.R0, Instr.Const(1)),
+                                     Instr.Moveq(Reg.R0, Instr.Const(0))];
                 break;
 
             case '&&':
@@ -221,7 +221,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 var rhsInstructions = node.rightOperand.visit(this);
                 binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(0)),
-                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Beq(label),
                                      rhsInstructions,
                                      Instr.Label(label)];
                 return binOpInstructions;
@@ -231,7 +231,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 var rhsInstructions = node.rightOperand.visit(this);
                 binOpInstructions = [lhsInstructions,
                                      Instr.Cmp(Reg.R0, Instr.Const(1)),
-                                     Instr.modify(Instr.B(label), Instr.mods.eq),
+                                     Instr.Beq(label),
                                      rhsInstructions,
                                      Instr.Label(label)];
                 return binOpInstructions;
@@ -264,7 +264,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitAssignNode(node: NodeType.AssignNode): any {
         var rhsIns = node.rhs.visit(this);
-        var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
+        var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Strb(arg1, arg2) : Instr.Str;
 
         if (node.lhs instanceof NodeType.IdentNode) {
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
@@ -335,7 +335,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
-                fetchTypeSize === 4 ? Instr.Str(Reg.R0, Instr.Mem(Reg.R1)) : Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.R1)), Instr.mods.b)
+                fetchTypeSize === 4 ? Instr.Str(Reg.R0, Instr.Mem(Reg.R1)) : Instr.Strb(Reg.R0, Instr.Mem(Reg.R1))
             ]
         }
 
@@ -361,7 +361,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Label(exprLabel),
                 expr,
                 Instr.Cmp(Reg.R0, Instr.Const(1)),
-                Instr.modify(Instr.B(bodyLabel), Instr.mods.eq)];
+                Instr.Beq(bodyLabel)];
     }
 
     visitPairTypeNode(node: NodeType.PairTypeNode): any {
@@ -395,8 +395,7 @@ export class CodeGenerator implements NodeType.Visitor {
         } else {
             for (var i = 0; i < arrayLength; i++) {
                 instrList.push(node.exprList[i].visit(this),
-                               Instr.modify(Instr.Str(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(offset + i))),
-                                            Instr.mods.b));
+                               Instr.Strb(Reg.R0, Instr.Mem(Reg.R3, Instr.Const(offset + i))));
             }
         }
 
@@ -453,7 +452,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); // Pops from front of byte sizes
         
         // Decide whether to use a Strb instruction or just a str, depending on the type of the node
-        var strInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Str(arg1, arg2), Instr.mods.b) : Instr.Str;
+        var strInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Strb(arg1, arg2) : Instr.Str;
         
         return [rhsInstructions,
                 strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(spOffset)))];
@@ -477,7 +476,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         for (var i = 0; i < node.exprList.length; i++) {
             SysFunctionsHandler.insertCheckArrayBounds();
-            var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+            var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
 
             instrList.push(node.exprList[i].visit(this),
                            Instr.Bl('p_check_array_bounds'),
@@ -517,8 +516,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 instrList.push(Instr.Str(Reg.R0,
                                Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
             } else {
-                instrList.push(Instr.modify(Instr.Str(Reg.R0,
-                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)), Instr.mods.b));
+                instrList.push(Instr.Strb(Reg.R0,
+                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
             }
             
             this.identOffset += size;
@@ -540,7 +539,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-        var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.modify(Instr.Ldr(arg1, arg2), Instr.mods.sb) : Instr.Ldr;
+        var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
 
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
@@ -643,8 +642,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
         switch (node.operator) {
             case '-':
-                unOpInstructions = [Instr.modify(Instr.Rsb(Reg.R0, Reg.R0, Instr.Const(0)), Instr.mods.s),
-                                    Instr.modify(Instr.Bl('p_throw_overflow_error'), Instr.mods.vs)];
+                unOpInstructions = [Instr.Rsbs(Reg.R0, Reg.R0, Instr.Const(0)),
+                                    Instr.Blvs('p_throw_overflow_error')];
                 SysFunctionsHandler.insertOverflowError();
                 break;
             case '!':
@@ -682,7 +681,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var exprInstructions = node.predicateExpr.visit(this);
         var parentST = this.currentST;
 
-        var cmpInstructions = [Instr.Cmp(Reg.R0, Instr.Const(0)), Instr.modify(Instr.B(falseLabel), Instr.mods.eq)];
+        var cmpInstructions = [Instr.Cmp(Reg.R0, Instr.Const(0)), Instr.Beq(falseLabel)];
         this.currentST = node.trueSt;
         var trueInstructions = this.scopedInstructions(node.trueSt.totalByteSize, SemanticUtil.visitNodeList(node.trueStatList, this));
         
@@ -732,7 +731,7 @@ export class CodeGenerator implements NodeType.Visitor {
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4)))];
         }
         
-        var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.modify(Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)), Instr.mods.sb) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
+        var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.Ldrsb(Reg.R0, Instr.Mem(Reg.R0)) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
         var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
                                    indexInstruction,

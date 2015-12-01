@@ -50,8 +50,8 @@ export var funcDefs = {
 		return [Instr.Label('p_print_bool'),
 			Instr.Push(Reg.LR),
 			Instr.Cmp(Reg.R0, Instr.Const(0)),
-			Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(trueLabel)), Instr.mods.ne),
-			Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(falseLabel)), Instr.mods.eq),
+			Instr.Ldrne(Reg.R0, Instr.Liter(trueLabel)),
+			Instr.Ldreq(Reg.R0, Instr.Liter(falseLabel)),
 			printFooter];
 
 	},
@@ -95,8 +95,8 @@ export var funcDefs = {
         return [Instr.Label('p_check_divide_by_zero'),
         		Instr.Push(Reg.LR),
         		Instr.Cmp(Reg.R1, Instr.Const(0)),
-        		Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(errorLabel)), Instr.mods.eq),
-        		Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.eq),
+        		Instr.Ldreq(Reg.R0, Instr.Liter(errorLabel)),
+        		Instr.Bleq('p_throw_runtime_error'),
         		Instr.Pop(Reg.PC)];
     },
 
@@ -104,12 +104,12 @@ export var funcDefs = {
         return [Instr.Label('p_check_array_bounds'),
 	            Instr.Push(Reg.LR),
 	            Instr.Cmp(Reg.R0, Instr.Const(0)),
-	            Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(negIndexLabel)), Instr.mods.lt),
-	            Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.lt),
+	            Instr.Ldrlt(Reg.R0, Instr.Liter(negIndexLabel)),
+	            Instr.Bllt('p_throw_runtime_error'),
 	            Instr.Ldr(Reg.R1, Instr.Mem(Reg.R4)),
 	            Instr.Cmp(Reg.R0, Reg.R1),
-	            Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(largeIndexLabel)), Instr.mods.cs),
-	            Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.cs),
+	            Instr.Ldrcs(Reg.R0, Instr.Liter(largeIndexLabel)),
+	            Instr.Blcs('p_throw_runtime_error'),
 	            Instr.Pop(Reg.PC)];
     },
 
@@ -117,8 +117,8 @@ export var funcDefs = {
         return [Instr.Label('p_free_pair'),
         		Instr.Push(Reg.LR),
         		Instr.Cmp(Reg.R0, Instr.Const(0)),
-        		Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(errorLabel)), Instr.mods.eq),
-        		Instr.modify(Instr.B('p_throw_runtime_error'), Instr.mods.eq),
+        		Instr.Ldreq(Reg.R0, Instr.Liter(errorLabel)),
+        		Instr.Beq('p_throw_runtime_error'),
         		Instr.Push(Reg.R0),
         		Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
         		Instr.Bl('free'),
@@ -141,8 +141,8 @@ export var funcDefs = {
 		return [Instr.Label('p_check_null_pointer'),
 				Instr.Push(Reg.LR),
 				Instr.Cmp(Reg.R0, Instr.Const(0)),
-				Instr.modify(Instr.Ldr(Reg.R0, Instr.Liter(nullPointerLabel)), Instr.mods.eq),
-				Instr.modify(Instr.Bl('p_throw_runtime_error'), Instr.mods.eq),
+				Instr.Ldreq(Reg.R0, Instr.Liter(nullPointerLabel)),
+				Instr.Bleq('p_throw_runtime_error'),
     			Instr.Pop(Reg.PC)];
     }
 };

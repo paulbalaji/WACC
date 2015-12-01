@@ -1,8 +1,32 @@
 var _ = require('underscore');
 
+export var mods = {
+	ne: "NE",
+	eq: "EQ",
+    cs: "CS",
+    vs: "VS",
+    gt: "GT",
+    ge: "GE",
+    lt: "LT",
+    le: "LE",
+    b: "B",
+    s: "S",
+    sb: "SB",
+    bang: "!",
+	none: ""
+};
+
 export function modify (instr, mod) {
 	instr.command += mod;
 	return instr;
+}
+
+function modInstr(instrF, mod) {
+	return function(...args) {
+		var instr = instrF(args);
+		instr.command += mod;
+		return instr;
+	};
 }
 
 function isConst(obj) {
@@ -148,6 +172,28 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
+export var Blne = modInstr(Bl, mods.ne);
+export var Bllt = modInstr(Bl, mods.lt);
+export var Blcs = modInstr(Bl, mods.cs);
+export var Bleq = modInstr(Bl, mods.eq);
+
+export var Strb = modInstr(Str, mods.b);
+export var Adds = modInstr(Add, mods.s);
+export var Blvs = modInstr(Bl, mods.vs);
+export var Movgt = modInstr(Mov, mods.gt);
+export var Movle = modInstr(Mov, mods.le);
+export var Movlt = modInstr(Mov, mods.lt);
+export var Movge = modInstr(Mov, mods.ge);
+export var Moveq = modInstr(Mov, mods.eq);
+export var Movne = modInstr(Mov, mods.ne);
+export var Beq = modInstr(B, mods.eq);
+export var Ldrsb = modInstr(Ldr, mods.sb);
+export var Ldrlt = modInstr(Ldr, mods.lt);
+export var Ldreq = modInstr(Ldr, mods.eq);
+export var Ldrcs = modInstr(Ldr, mods.cs);
+export var Ldrne = modInstr(Ldr, mods.ne);
+export var Rsbs = modInstr(Rsb, mods.s);
+export var Subs = modInstr(Sub, mods.s);
 /*export function Add(...addArgs) {
 	var add: any = {};
 	add.args = addArgs;
@@ -269,22 +315,6 @@ export function Lsl(n) {
         return 'LSL ' + lsl.value;
     }
     return lsl;
-}
-
-export var mods = {
-	ne : "NE",
-	eq : "EQ",
-    cs: "CS",
-    vs:  "VS",
-    gt: "GT",
-    ge: "GE",
-    lt: "LT",
-    le: "LE",
-    b: "B",
-    s: "S",
-    sb: "SB",
-    bang: "!",
-	none : ""
 }
 
 export function Eor(...eorArgs) {
