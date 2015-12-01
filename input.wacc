@@ -1,16 +1,15 @@
-# Create and double free a pair
+# evaluating a moderately complex integer expression
 
 # Output:
-# #runtime_error#
-
-# Exit:
-# 255
+# Correct
 
 # Program:
 
 begin
-  pair(int, char) a = newpair(10, 'a') ;
-  free a ;
-  free a
+  int a = ( 10 * 1 + 2 * 15 );
+  if a == 40 then
+    println "Correct"
+  else
+    println "Wrong"
+  fi
 end
-
