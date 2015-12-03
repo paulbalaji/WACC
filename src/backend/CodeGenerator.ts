@@ -12,7 +12,6 @@ var _ = require('underscore');
 export class CodeGenerator implements NodeType.Visitor {
 
     userFuncs: any;
-
     identOffset: any;
 
     currentST: SemanticUtil.SymbolTable;
@@ -120,8 +119,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var funcInstructions = [
                                 statListInstructions,
                                ];
-        var endFuncInstructions = [
-                                   Instr.Directive('ltorg')];
+        var endFuncInstructions = [Instr.Directive('ltorg')];
 
         var totalByteSize = this.currentST.totalByteSize;                       
         var scopeSub = totalByteSize === 0 ? [] : Instr.Sub(Reg.SP, Reg.SP, Instr.Const(totalByteSize));
@@ -272,6 +270,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
             Macros.insertCheckArrayBounds();
+            
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
             var findAddress = function(step) {
