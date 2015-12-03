@@ -303,8 +303,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             return instructions;
 
-        }
-        else if (node.lhs instanceof NodeType.PairElemNode) {
+        } else if (node.lhs instanceof NodeType.PairElemNode) {
             var lhs = <NodeType.PairElemNode>node.lhs;
 
 
@@ -620,14 +619,10 @@ export class CodeGenerator implements NodeType.Visitor {
                 this.popWithDecrement(Reg.R0),
                 Instr.Add(Reg.R0, Reg.R1, Instr.Const(0)),
                 Instr.Bl('p_read_int')
-
-            ]
+            ];
         }
 
-
-
-        return []
-
+        return [];
     }
 
     visitUnOpNode(node: NodeType.UnOpNode): any {
@@ -689,11 +684,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
-
     visitNewPairNode(node: NodeType.NewPairNode): any {
-
-
-
         return [node.fstExpr.visit(this),
             this.allocPairElem(node.fstExpr.type),
             node.sndExpr.visit(this),
