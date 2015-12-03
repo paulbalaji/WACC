@@ -1,5 +1,5 @@
 function Reg(regName) {
-	var reg:any = {};
+	var reg: any = {};
 	reg.name = regName;
     reg.toString = function() {
         return reg.name;

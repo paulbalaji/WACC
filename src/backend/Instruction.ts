@@ -16,7 +16,7 @@ export var mods = {
 	none: ""
 };
 
-export function modify (instr, mod) {
+export function modify(instr, mod) {
 	instr.command += mod;
 	return instr;
 }
@@ -327,6 +327,9 @@ export var Ldrcs = modInstr(Ldr, mods.cs);
 export var Ldrne = modInstr(Ldr, mods.ne);
 export var Rsbs = modInstr(Rsb, mods.s);
 export var Subs = modInstr(Sub, mods.s);
+
+// Represents [...]!
+export var MemBang = modInstr(Mem, mods.bang);
 
 export function buildList(...unflattenedList) {
 	return _.flatten(unflattenedList);

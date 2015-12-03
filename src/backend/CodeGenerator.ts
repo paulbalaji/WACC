@@ -512,14 +512,10 @@ export class CodeGenerator implements NodeType.Visitor {
             argByteSize += size;
             instrList.push(node.argList[i].visit(this));
             
-            if (size === 4) {
-                instrList.push(Instr.Str(Reg.R0,
-                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
-            } else {
-                instrList.push(Instr.Strb(Reg.R0,
-                               Instr.modify(Instr.Mem(Reg.SP, Instr.Const(-(size))), Instr.mods.bang)));
-            }
-            
+            var strInstruction = (SemanticUtil.isType(node.argList[i].type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? Instr.Strb : Instr.Str;
+              instrList.push(strInstruction(Reg.R0,
+                               Instr.MemBang(Reg.SP, Instr.Const(-(size)))));
+
             this.identOffset += size;
         }
 
