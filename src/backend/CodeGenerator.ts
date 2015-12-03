@@ -718,7 +718,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
                                    indexInstruction,
-                                   ldrIns];
+                                   ldrIns(Reg.R0, Instr.Mem(Reg.R0))];
         return pairElemInstruction;
     }
 
