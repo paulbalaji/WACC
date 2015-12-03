@@ -433,7 +433,6 @@ export class CodeGenerator implements NodeType.Visitor {
             SysFunctionsHandler.insertFreePair();
         }
         var offset = this.currentST.lookUpOffset(<NodeType.IdentNode>node.expr);
-
         return [node.expr.visit(this), Instr.Bl(freeText), Instr.Mov(Reg.R0, Instr.Const(0)), Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(offset)))];
     }
 
