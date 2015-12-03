@@ -156,3 +156,19 @@ export function genStrDataBlock(len: number, str: string) {
 			Instr.Directive('ascii', '"' + str + '"')]}
 		;
 }
+
+export function selectStr(type) {
+	if (SemanticUtil.isType, type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
+		return Instr.Strb;
+	} else {
+		return Instr.Str;
+	} 
+}
+
+export function selectLdr(type) {
+	if (SemanticUtil.isType(type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
+		return Instr.Ldrsb;
+	} else {
+		return Instr.Ldr;
+	}
+}

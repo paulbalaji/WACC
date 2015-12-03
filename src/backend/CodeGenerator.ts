@@ -459,7 +459,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
-        // int[] x = a[0]
         var instrList = [];
         instrList.push(node.ident.visit(this));
 
@@ -536,7 +535,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
-
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
 
@@ -547,7 +545,6 @@ export class CodeGenerator implements NodeType.Visitor {
             if (node.readTarget.type instanceof NodeType.IntTypeNode) {
                 SysFunctionsHandler.insertReadInt();
                 return [Instr.Bl('p_read_int')];
-
             } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
                 SysFunctionsHandler.insertReadChar();
                 return [Instr.Bl('p_read_char')];
@@ -726,7 +723,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4)))];
         }
-        
         var ldrIns = SemanticUtil.isType(fetchType, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE) ? Instr.Ldrsb(Reg.R0, Instr.Mem(Reg.R0)) : Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0));
         var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
