@@ -4,7 +4,7 @@ import Instr = require('./Instruction');
 import Reg = require('./Register');
 import CodeGenUtil = require('./CodeGenUtil');
 import FUtil = require('./FUtil');
-import SysFunctionsHandler = require('./SystemFunctionsHandler');
+import Macros = require('./Macros');
 
 var _ = require('underscore');
 
@@ -44,22 +44,22 @@ export class CodeGenerator implements NodeType.Visitor {
             var exprInstructions = node.expr.visit(this);
 
             if (node.expr.type instanceof NodeType.BoolTypeNode) {
-                SysFunctionsHandler.insertPrintBool();
+                Macros.insertPrintBool();
                 return [exprInstructions, Instr.Bl('p_print_bool')]
             } else if (node.expr.type instanceof NodeType.IntTypeNode) {
-                SysFunctionsHandler.insertPrintInt();
+                Macros.insertPrintInt();
                 return [exprInstructions, Instr.Bl('p_print_int')]
             } else if (node.expr.type instanceof NodeType.CharTypeNode) {
                 return [exprInstructions, Instr.Bl('putchar')]
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode
                         && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
                 // The case for printing a string (array of chars)
-                SysFunctionsHandler.insertPrintString();
+                Macros.insertPrintString();
                 return [exprInstructions, Instr.Bl('p_print_string')];
             } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
                         || node.expr.type instanceof NodeType.PairTypeNode) {
 
-                SysFunctionsHandler.insertPrintRef();
+                Macros.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
             } else {
                 //please don't forget to remove this Jan
@@ -100,7 +100,7 @@ export class CodeGenerator implements NodeType.Visitor {
             _.flatten(SemanticUtil.visitNodeList(node.statList, this)),
         ];
 
-        var {dataSection: dataSection, sysFuncSection: sysFuncSection} = SysFunctionsHandler.runClosingInsertions(); // Run closing insertions on sections.
+        var {dataSection: dataSection, sysFuncSection: sysFuncSection} = Macros.runClosingInsertions(); // Run closing insertions on sections.
 
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
@@ -152,33 +152,33 @@ export class CodeGenerator implements NodeType.Visitor {
             case '+':
                 binOpInstructions = [Instr.Adds(Reg.R0, Reg.R0, Reg.R1),
                                      Instr.Blvs('p_throw_overflow_error')];
-                SysFunctionsHandler.insertOverflowError();
+                Macros.insertOverflowError();
                 break;
 
             case '-':
                 binOpInstructions = [Instr.Subs(Reg.R0, Reg.R0, Reg.R1),
                                      Instr.Blvs('p_throw_overflow_error')];
-                SysFunctionsHandler.insertOverflowError();
+                Macros.insertOverflowError();
                 break;
 
             case '*':
                 binOpInstructions = [Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
                                      Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
                                      Instr.Blne('p_throw_overflow_error')];
-                SysFunctionsHandler.insertOverflowError();
+                Macros.insertOverflowError();
                 break;
 
             case '/':
                 binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
                                      Instr.Bl('__aeabi_idiv')];
-                SysFunctionsHandler.insertCheckDivideByZero();
+                Macros.insertCheckDivideByZero();
                 break;
 
             case '%':
                 binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
                                      Instr.Bl('__aeabi_idivmod'),
                                      Instr.Mov(Reg.R0, Reg.R1)];
-                SysFunctionsHandler.insertCheckDivideByZero();
+                Macros.insertCheckDivideByZero();
                 break;
 
             case '>':
@@ -249,9 +249,9 @@ export class CodeGenerator implements NodeType.Visitor {
     }
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
-        SysFunctionsHandler.insertDataLabel();
+        Macros.insertDataLabel();
         var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
-        SysFunctionsHandler.sections.dataSection.push(strDataInstructions);
+        Macros.sections.dataSection.push(strDataInstructions);
          
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];
     }
@@ -271,7 +271,7 @@ export class CodeGenerator implements NodeType.Visitor {
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
-            SysFunctionsHandler.insertCheckArrayBounds();
+            Macros.insertCheckArrayBounds();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
             var findAddress = function(step) {
@@ -310,7 +310,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var type1 = this.currentST.lookupAll(lhs.ident).type.type1;
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
-            SysFunctionsHandler.insertCheckNullPointer();
+            Macros.insertCheckNullPointer();
             
             var indexInstruction;
             if (lhs.index == 0) {
@@ -430,7 +430,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
-            SysFunctionsHandler.insertFreePair();
+            Macros.insertFreePair();
         }
         var offset = this.currentST.lookUpOffset(<NodeType.IdentNode>node.expr);
         return [node.expr.visit(this), Instr.Bl(freeText), Instr.Mov(Reg.R0, Instr.Const(0)), Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(offset)))];
@@ -442,7 +442,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
         var printInstrs = this.printNodeLogic(node);
-        SysFunctionsHandler.insertPrintLn();
+        Macros.insertPrintLn();
         return [printInstrs, Instr.Bl('p_print_ln')]
     }
 
@@ -474,7 +474,7 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Mov(Reg.R4, Reg.R0));
 
         for (var i = 0; i < node.exprList.length; i++) {
-            SysFunctionsHandler.insertCheckArrayBounds();
+            Macros.insertCheckArrayBounds();
             var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
 
             instrList.push(node.exprList[i].visit(this),
@@ -543,10 +543,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var getReadInstruction = function() {
             if (node.readTarget.type instanceof NodeType.IntTypeNode) {
-                SysFunctionsHandler.insertReadInt();
+                Macros.insertReadInt();
                 return [Instr.Bl('p_read_int')];
             } else if (node.readTarget.type instanceof NodeType.CharTypeNode) {
-                SysFunctionsHandler.insertReadChar();
+                Macros.insertReadChar();
                 return [Instr.Bl('p_read_char')];
             }
         }.bind(this);
@@ -555,7 +555,7 @@ export class CodeGenerator implements NodeType.Visitor {
             readInstruction = getReadInstruction();
             return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
         } else if (node.readTarget instanceof NodeType.ArrayElemNode) {
-            SysFunctionsHandler.insertCheckArrayBounds();
+            Macros.insertCheckArrayBounds();
             readInstruction = getReadInstruction();
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.readTarget.type);
 
@@ -593,8 +593,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var type1 = this.currentST.lookupAll(target.ident).type.type1;
             var type2 = this.currentST.lookupAll(target.ident).type.type2;
-            SysFunctionsHandler.insertCheckNullPointer();
-            SysFunctionsHandler.insertReadInt();
+            Macros.insertCheckNullPointer();
+            Macros.insertReadInt();
             
             var indexInstruction;
             if (target.index == 0) {
@@ -637,7 +637,7 @@ export class CodeGenerator implements NodeType.Visitor {
             case '-':
                 unOpInstructions = [Instr.Rsbs(Reg.R0, Reg.R0, Instr.Const(0)),
                                     Instr.Blvs('p_throw_overflow_error')];
-                SysFunctionsHandler.insertOverflowError();
+                Macros.insertOverflowError();
                 break;
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
@@ -712,7 +712,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitPairElemNode(node: NodeType.PairElemNode): any {
         var type1 = this.currentST.lookupAll(node.ident).type.type1;
         var type2 = this.currentST.lookupAll(node.ident).type.type2;
-        SysFunctionsHandler.insertCheckNullPointer();
+        Macros.insertCheckNullPointer();
         
         var indexInstruction;
         if (node.index == 0) {
