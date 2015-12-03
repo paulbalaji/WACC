@@ -265,7 +265,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitAssignNode(node: NodeType.AssignNode): any {
         var rhsIns = node.rhs.visit(this);
-        var strInstruction = (SemanticUtil.isType(node.lhs.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Strb(arg1, arg2) : Instr.Str;
+        var strInstruction = CodeGenUtil.SelectStr(node.lhs.type)
 
         if (node.lhs instanceof NodeType.IdentNode) {
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
@@ -452,7 +452,8 @@ export class CodeGenerator implements NodeType.Visitor {
         var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); // Pops from front of byte sizes
         
         // Decide whether to use a Strb instruction or just a str, depending on the type of the node
-        var strInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Strb(arg1, arg2) : Instr.Str;
+        var strInstruction = CodeGenUtil.selectStr(node.type)
+
         
         return [rhsInstructions,
                 strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(spOffset)))];
@@ -475,7 +476,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         for (var i = 0; i < node.exprList.length; i++) {
             Macros.insertCheckArrayBounds();
-            var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
+            var ldrInstruction = CodeGenUtil.selectLdr(node.type)
 
             instrList.push(node.exprList[i].visit(this),
                            Instr.Bl('p_check_array_bounds'),
@@ -510,10 +511,9 @@ export class CodeGenerator implements NodeType.Visitor {
             var size = CodeGenUtil.getByteSizeFromTypeNode(node.argList[i].type);
             argByteSize += size;
             instrList.push(node.argList[i].visit(this));
-            
-            var strInstruction = (SemanticUtil.isType(node.argList[i].type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? Instr.Strb : Instr.Str;
-              instrList.push(strInstruction(Reg.R0,
-                               Instr.MemBang(Reg.SP, Instr.Const(-(size)))));
+            var strInstruction = CodeGenUtil.selectStr(node.argList[i].type);
+            instrList.push(strInstruction(Reg.R0,
+                    Instr.MemBang(Reg.SP, Instr.Const(-(size)))));
 
             this.identOffset += size;
         }
@@ -534,7 +534,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-        var ldrInstruction = (SemanticUtil.isType(node.type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) ? (arg1, arg2) => Instr.Ldrsb(arg1, arg2) : Instr.Ldr;
+        var ldrInstruction = CodeGenUtil.selectLdr(node.type);
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
     }
 
