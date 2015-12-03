@@ -263,7 +263,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitAssignNode(node: NodeType.AssignNode): any {
         var rhsIns = node.rhs.visit(this);
-        var strInstruction = CodeGenUtil.SelectStr(node.lhs.type)
+        var strInstruction = CodeGenUtil.selectStr(node.lhs.type)
 
         if (node.lhs instanceof NodeType.IdentNode) {
             return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
@@ -280,6 +280,7 @@ export class CodeGenerator implements NodeType.Visitor {
                     step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
                 ];
             }
+
             var indexExprs = (<NodeType.ArrayElemNode>node.lhs).exprList;
             var instructions = [
                 rhsIns,

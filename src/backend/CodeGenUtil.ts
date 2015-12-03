@@ -2,6 +2,7 @@ import Instr = require('./Instruction');
 import Reg = require('./Register');
 import NodeType = require('../frontend/NodeType');
 import FUtil = require('./FUtil');
+import SemanticUtil = require('../frontend/SemanticUtil')
 
 var printFooter = [	
 	Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
@@ -158,7 +159,7 @@ export function genStrDataBlock(len: number, str: string) {
 }
 
 export function selectStr(type) {
-	if (SemanticUtil.isType, type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
+	if (SemanticUtil.isType(type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
 		return Instr.Strb;
 	} else {
 		return Instr.Str;
