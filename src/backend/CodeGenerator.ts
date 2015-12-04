@@ -39,6 +39,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     defineSystemFunctions() {
+        // TODO: JAN move into codegenutil
         this.printNodeLogic = function(node) {
             var exprInstructions = node.expr.visit(this);
 
@@ -60,11 +61,9 @@ export class CodeGenerator implements NodeType.Visitor {
 
                 Macros.insertPrintRef();
                 return [exprInstructions, Instr.Bl('p_print_reference')];
-            } else {
-                //please don't forget to remove this Jan
-                console.log("UNIMPLEMENTED PRINT: WHAT A NIGHTMARE. LOOK AT THIS TYPE: " + node.expr.type.constructor)
-            }
+            } 
         }
+
         this.allocPairElem = function(nodeType) {
             var str;
             var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
@@ -113,6 +112,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
+
         this.currentST = node.st;
         var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
         var labelInstruction = [Instr.Label('f_' + node.ident.toString()), this.pushWithIncrement(Reg.LR)];
@@ -248,7 +248,8 @@ export class CodeGenerator implements NodeType.Visitor {
  
     visitStrLiterNode(node: NodeType.StrLiterNode): any {
         Macros.insertDataLabel();
-        var {label: dataLabel, instructions: strDataInstructions} = CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
+        var {label: dataLabel, instructions: strDataInstructions} = 
+                CodeGenUtil.genStrDataBlock(node.actualStrLength, node.str);
         Macros.sections.dataSection.push(strDataInstructions);
          
         return [Instr.Ldr(Reg.R0, Instr.Liter(dataLabel))];
@@ -256,17 +257,19 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitReturnNode(node: NodeType.ReturnNode): any {
         var returnExprInstructions = node.returnExpr.visit(this);
-        var cumByteSize = this.currentST.countTotalByteSizeUntilRoot()
+        var cumByteSize = this.currentST.countTotalByteSizeUntilRoot();
         var scopeAdd = cumByteSize === 0 ? [] : Instr.Add(Reg.SP, Reg.SP, Instr.Const(cumByteSize));
         return [returnExprInstructions, scopeAdd, this.popWithDecrement(Reg.PC)]; 
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
+        // TODO JAN Comments
         var rhsIns = node.rhs.visit(this);
         var strInstruction = CodeGenUtil.selectStr(node.lhs.type)
 
         if (node.lhs instanceof NodeType.IdentNode) {
-            return [rhsIns, strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
+            return [rhsIns, strInstruction(Reg.R0, 
+                    Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
             Macros.insertCheckArrayBounds();
@@ -335,6 +338,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
+                // TODO use codegenUtil
                 fetchTypeSize === 4 ? Instr.Str(Reg.R0, Instr.Mem(Reg.R1)) : Instr.Strb(Reg.R0, Instr.Mem(Reg.R1))
             ]
         }
@@ -342,9 +346,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): any {
+        // Change to inner scope
         this.currentST = node.st;
+        // Generate instructions corresponding to the block
         var instrs = SemanticUtil.visitNodeList(node.statList, this);
         this.currentST = node.st.parent;
+        // Return the list of instructions in their scope (if necessary)
         return this.scopedInstructions(node.st.totalByteSize, instrs);
     }
 
@@ -352,7 +359,8 @@ export class CodeGenerator implements NodeType.Visitor {
         var bodyLabel = this.getNextLabelName();
         var exprLabel = this.getNextLabelName();
         this.currentST = node.st;
-        var body = this.scopedInstructions(node.st.totalByteSize, SemanticUtil.visitNodeList(node.loopBody, this));
+        var body = this.scopedInstructions(node.st.totalByteSize,
+                SemanticUtil.visitNodeList(node.loopBody, this));
         this.currentST = node.st.parent;
         var expr = node.predicateExpr.visit(this);
         return [Instr.B(exprLabel),
@@ -364,14 +372,11 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Beq(bodyLabel)];
     }
 
-    visitPairTypeNode(node: NodeType.PairTypeNode): any {
-        // just a type node, doesn't need to generate code
-    }
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
+        // TODO: NICENING JAN
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
-        
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
 
         if ((<NodeType.ArrayTypeNode> node.type).depth > 1) {
@@ -408,22 +413,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitCharLiterNode(node: NodeType.CharLiterNode): any {
         var ch = node.ch;
-        var cst;
-
-        if (ch === '\\0') {
-            cst = Instr.Const(0);
-        } else {
-            ch = ch.length > 1 ? ch.charAt(1) : ch;
-            cst = Instr.Const('\'' + ch + '\''); 
-        }
-        return [Instr.Mov(Reg.R0, cst)];
+        var constant;
+        ch = ch.length > 1 ? ch.charAt(1) : ch;
+        constant = Instr.Const('\'' + ch + '\''); 
+        return [Instr.Mov(Reg.R0, constant)];
     }
-
-    visitParamNode(node: NodeType.ParamNode): any {
-
-    }
-
+ 
     visitFreeNode(node: NodeType.FreeNode): any {
+        // TODO:  ANDREA FIX FORMATING
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
 
@@ -722,6 +719,11 @@ export class CodeGenerator implements NodeType.Visitor {
         return pairElemInstruction;
     }
 
+    visitNullTypeNode(node: NodeType.NullTypeNode): any {
+        // TO CHECK
+        return [Instr.Mov(Reg.R0, Instr.Const(0))];
+    }
+
     visitIntTypeNode(node: NodeType.IntTypeNode): any {
 
     }
@@ -738,8 +740,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
-    visitNullTypeNode(node: NodeType.NullTypeNode): any {
-        // TO CHECK
-        return [Instr.Mov(Reg.R0, Instr.Const(0))];
+    visitPairTypeNode(node: NodeType.PairTypeNode): any {
+        // just a type node, doesn't need to generate code
+    }
+
+    visitParamNode(node: NodeType.ParamNode): any {
+
     }
 }
