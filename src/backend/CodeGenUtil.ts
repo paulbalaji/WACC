@@ -1,7 +1,8 @@
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import NodeType = require('../frontend/NodeType');
-import SemanticUtil = require('../frontend/SemanticUtil')
+import SemanticUtil = require('../frontend/SemanticUtil');
+import Macros = require('./Macros');
 
 var printFooter = [Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
                    Instr.Bl('printf'),
@@ -142,12 +143,38 @@ export var funcDefs = {
     },
 
     checkNullPointer: function(nullPointerLabel) {
-        return [Instr.Label('p_check_null_pointer'),
-                Instr.Push(Reg.LR),
-                Instr.Cmp(Reg.R0, Instr.Const(0)),
-                Instr.Ldreq(Reg.R0, Instr.Liter(nullPointerLabel)),
-                Instr.Bleq('p_throw_runtime_error'),
-                Instr.Pop(Reg.PC)];
+
+		return [Instr.Label('p_check_null_pointer'),
+				Instr.Push(Reg.LR),
+				Instr.Cmp(Reg.R0, Instr.Const(0)),
+				Instr.Ldreq(Reg.R0, Instr.Liter(nullPointerLabel)),
+				Instr.Bleq('p_throw_runtime_error'),
+    			Instr.Pop(Reg.PC)];
+    },
+
+    printNodeLogic: function(node, visitor) {
+		var exprInstructions = node.expr.visit(visitor);
+		if (node.expr.type instanceof NodeType.BoolTypeNode) {
+			Macros.insertPrintBool();
+			return [exprInstructions, Instr.Bl('p_print_bool')]
+		} else if (node.expr.type instanceof NodeType.IntTypeNode) {
+			Macros.insertPrintInt();
+			return [exprInstructions, Instr.Bl('p_print_int')]
+		} else if (node.expr.type instanceof NodeType.CharTypeNode) {
+			return [exprInstructions, Instr.Bl('putchar')]
+		} else if (node.expr.type instanceof NodeType.ArrayTypeNode
+			&& (<NodeType.ArrayTypeNode>node.expr.type).type instanceof NodeType.CharTypeNode) {
+			// The case for printing a string (array of chars)
+			Macros.insertPrintString();
+			return [exprInstructions, Instr.Bl('p_print_string')];
+		} else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
+			|| node.expr.type instanceof NodeType.PairTypeNode) {
+
+			Macros.insertPrintRef();
+			return [exprInstructions, Instr.Bl('p_print_reference')];
+		}
+
+
     }
 };
 
