@@ -197,6 +197,11 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
+  /  GET_FRAME_BUFFER {
+    var node = new NodeType.GetFrameBufferNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
   / ArrayLiter
   / PairElem
   / Expr
@@ -432,6 +437,7 @@ CALL = 'call'
 
 PAIR     = 'pair'
 NEW_PAIR = 'newpair'
+GET_FRAME_BUFFER = 'get_frame_buffer'
 FST      = 'fst'
 SND      = 'snd'
 COMMA    = ','

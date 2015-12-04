@@ -702,6 +702,10 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
     }
 
+    visitGetFrameBufferNode(node: NodeType.GetFrameBufferNode): any {
+        return [];
+    }
+
     visitIntTypeNode(node: NodeType.IntTypeNode): any {}
     visitBoolTypeNode(node: NodeType.BoolTypeNode): any {}
     visitCharTypeNode(node: NodeType.CharTypeNode): any {}

@@ -219,13 +219,42 @@ export class SemanticVisitor implements NodeType.Visitor {
                 arrayLiter.type = node.type;
             }
         }
-
         if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw new Error.SemanticError('Declaration expression must be of correct type.  '
                                          +'Expecting: ' + node.type     + ', '
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
         }
+
+        if (node.type instanceof NodeType.ArrayTypeNode) {
+
+
+            if (node.rhs instanceof NodeType.ArrayLiterNode) {
+                 var exprDepths = _.map((<NodeType.ArrayLiterNode> node.rhs).exprList, function (expr) {
+                if (expr instanceof NodeType.IdentNode) {
+                    var t = this.currentST.lookupAll(expr).type;
+                    return t instanceof NodeType.ArrayTypeNode ? t.depth: 0;
+                } else {
+                    return 0;
+                }
+
+                }.bind(this));
+
+                if (_.some(exprDepths, ((depth) => (depth + 1) !== (<NodeType.ArrayTypeNode> node.type).depth) )) {
+                    throw new Error.SemanticError('Declaration expression must be of correct type.' + 
+                                                  '  Array depths of lhs and rhs expressions do not match.',
+                                                  node.rhs.errorLocation);
+                }
+
+            } else if (node.rhs instanceof NodeType.GetFrameBufferNode) {
+                if (!((<NodeType.ArrayTypeNode>(node.type)).depth === (<NodeType.ArrayTypeNode> node.rhs.type).depth)) {
+                    throw new Error.SemanticError('Declaration expression must be of correct type.' + 
+                                                  '  get_frame_buffer returns an array of type INT[].',
+                                                  node.rhs.errorLocation);
+                }
+            }
+        }
+       
 
         this.currentST.insert(node.ident, {type: node.type, node: node, offset : 0});
     }
@@ -444,6 +473,10 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): void {
         node.type = NodeType.BOOL_TYPE;
+    }
+
+    visitGetFrameBufferNode(node: NodeType.GetFrameBufferNode): any {
+        node.type = new NodeType.ArrayTypeNode(NodeType.INT_TYPE, 1);
     }
 
     visitSkipNode(node: NodeType.SkipNode): void {}

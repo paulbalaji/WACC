@@ -53,6 +53,8 @@ export interface Visitor {
     visitCharTypeNode(node:CharTypeNode): any;
     visitEmptyArrayTypeNode(node:EmptyArrayTypeNode): any;
     visitNullTypeNode(node:NullTypeNode): any;
+
+    visitGetFrameBufferNode(node:GetFrameBufferNode): any;
 }
 
 export interface Visitable {
@@ -606,6 +608,17 @@ export class EmptyArrayTypeNode extends TreeNode implements TypeNode {
         return v.visitEmptyArrayTypeNode(this);
     }
 }
+
+export class GetFrameBufferNode extends TreeNode implements AssignRHSNode {
+    type: TypeNode;
+
+    constructor() { super(); }
+
+    visit(v: Visitor): any {
+        return v.visitGetFrameBufferNode(this);
+    }
+}
+
 
 export var INT_TYPE: IntTypeNode = new IntTypeNode();
 export var CHAR_TYPE: CharTypeNode = new CharTypeNode();

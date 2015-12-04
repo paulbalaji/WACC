@@ -69,6 +69,8 @@ export class ReturnVisitor implements NodeType.Visitor {
         do not return nor they can be an valid ancestor of
         a return node.
     */
+    
+    visitGetFrameBufferNode(node: NodeType.GetFrameBufferNode): any { return false; }
     visitBinOpExprNode(node: NodeType.BinOpExprNode): boolean { return false; }
     visitStrLiterNode(node: NodeType.StrLiterNode): boolean { return false; }
     visitAssignNode(node: NodeType.AssignNode): boolean { return false; }
