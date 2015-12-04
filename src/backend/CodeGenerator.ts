@@ -444,18 +444,18 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
         this.currentST.seenIdents.push(node.ident);
-        var rhsInstructions = node.rhs.visit(this); // Leave result of evaluating rhs in r0
-        var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); // Pops from front of byte sizes
-        
+        // Leave result of evaluating rhs in r0
+        var rhsInstructions = node.rhs.visit(this);
+        // Pops from front of byte sizes
+        var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); 
         // Decide whether to use a Strb instruction or just a str, depending on the type of the node
-        var strInstruction = CodeGenUtil.selectStr(node.type)
-
-        
+        var strInstruction = CodeGenUtil.selectStr(node.type);
         return [rhsInstructions,
                 strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(spOffset)))];
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
+        // SAM WANTS TO PUT HIS NAME HERE, SO HE CAN TODO THE SHIT OUR OF IT
         var instrList = [];
         instrList.push(node.ident.visit(this));
 
@@ -488,18 +488,14 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitCallNode(node: NodeType.CallNode): any {
-        // if no parameters, simply just call Bl 'f_'+node.ident.identStr
-        // leaves result in R0
-
         var functionCall = Instr.Bl('f_' + node.ident.identStr)
         var argListSize = node.argList.length;
-
-        // this.currentST.stackOffset += argListSize; // Assuming all args are ints
-
+        /* If no parameters, simply just call Bl 'f_'+node.ident.identStr
+           leaves result in R0. */
         if (argListSize === 0) {
             return [functionCall];
         }
-
+        // Otherwise, push parameters on the stack
         var argByteSize = 0;
         var instrList = [];
 
@@ -515,9 +511,7 @@ export class CodeGenerator implements NodeType.Visitor {
         }
 
         this.identOffset -= argByteSize;
-
         instrList.push(functionCall, Instr.Add(Reg.SP, Reg.SP, Instr.Const(argByteSize)));
-
         return instrList;
     }
 
@@ -531,12 +525,12 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitIdentNode(node: NodeType.IdentNode): any {
         var ldrInstruction = CodeGenUtil.selectLdr(node.type);
-        return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)))]; 
+        var constant =  Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)
+        return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, constant))]; 
     }
 
     visitReadNode(node: NodeType.ReadNode): any {
         var readInstruction;
-
         var getReadInstruction = function() {
             if (node.readTarget.type instanceof NodeType.IntTypeNode) {
                 Macros.insertReadInt();
@@ -549,7 +543,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
         if (node.readTarget instanceof NodeType.IdentNode) {
             readInstruction = getReadInstruction();
-            return [Instr.Add(Reg.R0, Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))), readInstruction];
+            return [Instr.Add(Reg.R0, 
+                              Reg.SP,
+                              Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.readTarget))),
+                    readInstruction];
         } else if (node.readTarget instanceof NodeType.ArrayElemNode) {
             Macros.insertCheckArrayBounds();
             readInstruction = getReadInstruction();
@@ -564,15 +561,17 @@ export class CodeGenerator implements NodeType.Visitor {
             }
             var indexExprs = (<NodeType.ArrayElemNode>node.readTarget).exprList;
             var instructions = [
-                
                 this.pushWithIncrement(Reg.R0, Reg.R4),
-                Instr.Ldr(Reg.R4, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.readTarget).ident)))),
-            ]
-            for (var i = 0; i < indexExprs.length - 1; i++) {
+                Instr.Ldr(Reg.R4,
+                          Instr.Mem(Reg.SP,
+                                    Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.readTarget).ident))))
+            ];
+
+            _.times(indexExprs.length - 1, function(i) {
                 indexExprs[i].visit(this);
                 instructions.push(findAddress(4));
                 instructions.push(Instr.Ldr(Reg.R4, Instr.Mem(Reg.R4)))
-            }
+            }.bind(this));
 
             instructions.push([
                 indexExprs[indexExprs.length - 1].visit(this),
@@ -582,24 +581,21 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Add(Reg.R0, Instr.Mem(Reg.R1), Instr.Const(0)),
                 readInstruction,
             ]);
+
             return instructions;          
         }  else if (node.readTarget instanceof NodeType.PairElemNode) {
             var target = <NodeType.PairElemNode>node.readTarget;
 
-
             var type1 = this.currentST.lookupAll(target.ident).type.type1;
             var type2 = this.currentST.lookupAll(target.ident).type.type2;
+            
             Macros.insertCheckNullPointer();
             Macros.insertReadInt();
             
             var indexInstruction;
-            if (target.index == 0) {
-                var readType = type1;
-            } else {
-                var readType = type2;
-
-            }
+            var readType = target.index === 0 ? type1 : type2;
             var readTypeSize = CodeGenUtil.getByteSizeFromTypeNode(readType);
+            
             return [
                 this.pushWithIncrement(Reg.R0),
                 Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(target.ident)))),
@@ -635,7 +631,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
             case 'ord':
-                unOpInstructions = []
+                unOpInstructions = [];
                 break;
             case 'chr':
                 unOpInstructions = [];
@@ -662,27 +658,36 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
-
         var exprInstructions = node.predicateExpr.visit(this);
         var parentST = this.currentST;
-
         var cmpInstructions = [Instr.Cmp(Reg.R0, Instr.Const(0)), Instr.Beq(falseLabel)];
-        this.currentST = node.trueSt;
-        var trueInstructions = this.scopedInstructions(node.trueSt.totalByteSize, SemanticUtil.visitNodeList(node.trueStatList, this));
         
+        // Generate scope for instructions in true branch.
+        this.currentST = node.trueSt;
+        var trueInstructions = this.scopedInstructions(node.trueSt.totalByteSize,
+                SemanticUtil.visitNodeList(node.trueStatList, this));
+        
+        // Generate scope for instructions in false branch.
         this.currentST = node.falseSt;
-        var falseInstructions = this.scopedInstructions(node.falseSt.totalByteSize, SemanticUtil.visitNodeList(node.falseStatList, this));
-    
+        var falseInstructions = this.scopedInstructions(node.falseSt.totalByteSize,
+                SemanticUtil.visitNodeList(node.falseStatList, this));
+        //Return to the parent scope.
         this.currentST = parentST;
-        return [exprInstructions, cmpInstructions, trueInstructions, Instr.B(afterLabel), Instr.Label(falseLabel), falseInstructions, Instr.Label(afterLabel)];
-    }
 
-    visitArrayTypeNode(node: NodeType.ArrayTypeNode): any {
-
+        return [
+            exprInstructions, 
+            cmpInstructions,
+            trueInstructions, 
+            Instr.B(afterLabel),
+            Instr.Label(falseLabel),
+            falseInstructions, 
+            Instr.Label(afterLabel)
+        ];
     }
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
-        return [node.fstExpr.visit(this),
+        return [
+            node.fstExpr.visit(this),
             this.allocPairElem(node.fstExpr.type),
             node.sndExpr.visit(this),
             this.allocPairElem(node.sndExpr.type),
@@ -690,7 +695,8 @@ export class CodeGenerator implements NodeType.Visitor {
             Instr.Bl('malloc'),
             this.popWithDecrement(Reg.R1, Reg.R2),
             Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
-            Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))];
+            Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))
+        ];
     }
 
     visitBoolLiterNode(node: NodeType.BoolLiterNode): any {
@@ -698,19 +704,20 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPairElemNode(node: NodeType.PairElemNode): any {
+        var fetchType;
+        var indexInstruction;
         var type1 = this.currentST.lookupAll(node.ident).type.type1;
         var type2 = this.currentST.lookupAll(node.ident).type.type2;
         Macros.insertCheckNullPointer();
-        
-        var indexInstruction;
+
         if (node.index == 0) {
-            var fetchType = type1;
+            fetchType = type1;
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
         } else {
-            var fetchType = type2;
-
+            fetchType = type2;
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4)))];
         }
+
         var ldrIns = CodeGenUtil.selectLdr(fetchType);
         var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
@@ -720,31 +727,14 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNullTypeNode(node: NodeType.NullTypeNode): any {
-        // TO CHECK
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
     }
 
-    visitIntTypeNode(node: NodeType.IntTypeNode): any {
-
-    }
-
-    visitBoolTypeNode(node: NodeType.BoolTypeNode): any {
-
-    }
-
-    visitCharTypeNode(node: NodeType.CharTypeNode): any {
-
-    }
-
-    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): any {
-
-    }
-
-    visitPairTypeNode(node: NodeType.PairTypeNode): any {
-        // just a type node, doesn't need to generate code
-    }
-
-    visitParamNode(node: NodeType.ParamNode): any {
-
-    }
+    visitIntTypeNode(node: NodeType.IntTypeNode): any {}
+    visitBoolTypeNode(node: NodeType.BoolTypeNode): any {}
+    visitCharTypeNode(node: NodeType.CharTypeNode): any {}
+    visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): any {}
+    visitArrayTypeNode(node: NodeType.ArrayTypeNode): any {}
+    visitPairTypeNode(node: NodeType.PairTypeNode): any {}
+    visitParamNode(node: NodeType.ParamNode): any {}
 }
