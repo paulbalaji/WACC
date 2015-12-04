@@ -374,7 +374,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
-        // TODO: NICENING JAN
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
@@ -385,9 +384,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         // add 4 in front to store the array length
         var offset = 4;
-
         var size = offset + arrayLength * elemByteSize;
-        
         instrList.push(Instr.Mov(Reg.R0, Instr.Const(size)),
                        Instr.Bl('malloc'),
                        Instr.Mov(Reg.R3, Reg.R0));
