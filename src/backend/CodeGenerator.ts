@@ -455,32 +455,30 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitArrayElemNode(node: NodeType.ArrayElemNode): any {
-        // SAM WANTS TO PUT HIS NAME HERE, SO HE CAN TODO THE SHIT OUR OF IT
         var instrList = [];
         instrList.push(node.ident.visit(this));
 
         if (!node.exprList) {
-            // if asking for the entire array, just return what you get from visiting the ident
+            // If asking for the entire array, just return what you get from visiting the ident.
             return instrList;
         }
 
         var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.type);
         
-
         instrList.push(this.pushWithIncrement(Reg.R4),
                        Instr.Mov(Reg.R4, Reg.R0));
 
-        for (var i = 0; i < node.exprList.length; i++) {
+        _.forEach(node.exprList, function(expr) {
             Macros.insertCheckArrayBounds();
-            var ldrInstruction = CodeGenUtil.selectLdr(node.type)
-
-            instrList.push(node.exprList[i].visit(this),
+            var ldrInstruction = CodeGenUtil.selectLdr(node.type);
+            instrList.push(expr.visit(this),
                            Instr.Bl('p_check_array_bounds'),
                            Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
                            (elemByteSize === 1 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0) : Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))),
                            ldrInstruction(Reg.R4, Instr.Mem(Reg.R4)));
-        }
 
+        }.bind(this));
+       
         instrList.push(Instr.Mov(Reg.R0, Reg.R4),
                        this.popWithDecrement(Reg.R4));
 
