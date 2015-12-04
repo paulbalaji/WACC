@@ -39,30 +39,8 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     defineSystemFunctions() {
-        // TODO: JAN move into codegenutil
-        this.printNodeLogic = function(node) {
-            var exprInstructions = node.expr.visit(this);
+        
 
-            if (node.expr.type instanceof NodeType.BoolTypeNode) {
-                Macros.insertPrintBool();
-                return [exprInstructions, Instr.Bl('p_print_bool')]
-            } else if (node.expr.type instanceof NodeType.IntTypeNode) {
-                Macros.insertPrintInt();
-                return [exprInstructions, Instr.Bl('p_print_int')]
-            } else if (node.expr.type instanceof NodeType.CharTypeNode) {
-                return [exprInstructions, Instr.Bl('putchar')]
-            } else if (node.expr.type instanceof NodeType.ArrayTypeNode
-                        && (<NodeType.ArrayTypeNode> node.expr.type).type instanceof NodeType.CharTypeNode) {
-                // The case for printing a string (array of chars)
-                Macros.insertPrintString();
-                return [exprInstructions, Instr.Bl('p_print_string')];
-            } else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
-                        || node.expr.type instanceof NodeType.PairTypeNode) {
-
-                Macros.insertPrintRef();
-                return [exprInstructions, Instr.Bl('p_print_reference')];
-            } 
-        }
 
         this.allocPairElem = function(nodeType) {
             var str;
@@ -433,11 +411,11 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {
-        return this.printNodeLogic(node);
+        return CodeGenUtil.funcDefs.printNodeLogic(node, this);
     }
 
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
-        var printInstrs = this.printNodeLogic(node);
+        var printInstrs = CodeGenUtil.funcDefs.printNodeLogic(node, this);
         Macros.insertPrintLn();
         return [printInstrs, Instr.Bl('p_print_ln')]
     }
