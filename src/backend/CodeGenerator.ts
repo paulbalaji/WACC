@@ -86,7 +86,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
         var byteSize = node.st.totalByteSize;
-        return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit, this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
+        return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit,
+                               this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
@@ -307,7 +308,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
                 Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1))
-            ]
+            ];
         }
 
     }
@@ -405,7 +406,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitPrintlnNode(node: NodeType.PrintlnNode): any {
         var printInstrs = CodeGenUtil.funcDefs.printNodeLogic(node, this);
         Macros.insertPrintLn();
-        return [printInstrs, Instr.Bl('p_print_ln')]
+        return [printInstrs, Instr.Bl('p_print_ln')];
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): any {
@@ -440,7 +441,8 @@ export class CodeGenerator implements NodeType.Visitor {
             instrList.push(expr.visit(this),
                            Instr.Bl('p_check_array_bounds'),
                            Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
-                           (elemByteSize === 1 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0) : Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))),
+                           (elemByteSize === 1 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0)
+                                               : Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))),
                            ldrInstruction(Reg.R4, Instr.Mem(Reg.R4)));
 
         }.bind(this));
@@ -520,7 +522,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 return [
                     Instr.Bl('p_check_array_bounds'),
                     Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
-                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
+                    step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2))
+                              : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
                 ];
             }
             var indexExprs = (<NodeType.ArrayElemNode>node.readTarget).exprList;
@@ -528,7 +531,8 @@ export class CodeGenerator implements NodeType.Visitor {
                 this.pushWithIncrement(Reg.R0, Reg.R4),
                 Instr.Ldr(Reg.R4,
                           Instr.Mem(Reg.SP,
-                                    Instr.Const(this.currentST.lookUpOffset((<NodeType.ArrayElemNode>node.readTarget).ident))))
+                                    Instr.Const(this.currentST.lookUpOffset(
+                                               (<NodeType.ArrayElemNode>node.readTarget).ident))))
             ];
 
             _.times(indexExprs.length - 1, function(i) {
@@ -591,15 +595,19 @@ export class CodeGenerator implements NodeType.Visitor {
                                     Instr.Blvs('p_throw_overflow_error')];
                 Macros.insertOverflowError();
                 break;
+
             case '!':
                 unOpInstructions = [Instr.Eor(Reg.R0, Reg.R0, Instr.Const(1))];
                 break;
+
             case 'ord':
                 unOpInstructions = [];
                 break;
+
             case 'chr':
                 unOpInstructions = [];
                 break;
+
             case 'len':
                 unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
                 break;
