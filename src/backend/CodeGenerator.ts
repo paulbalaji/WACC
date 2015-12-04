@@ -3,7 +3,6 @@ import SemanticUtil = require('../frontend/SemanticUtil')
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import CodeGenUtil = require('./CodeGenUtil');
-import FUtil = require('./FUtil');
 import Macros = require('./Macros');
 
 var _ = require('underscore');
@@ -25,7 +24,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         this.userFuncs = [];
         this.identOffset = 0;
-        this.getNextLabelName = FUtil.counterWithStrPrefix('L', 0);
+        this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction

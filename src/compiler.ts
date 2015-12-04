@@ -11,9 +11,7 @@ var silence: string = process.argv[3];
 function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
 	frontend.semanticCheck(ast);
-
-    var code = backend.generateCode(ast);
-    return code;   
+    return backend.generateCode(ast);   
 }
 
 /*

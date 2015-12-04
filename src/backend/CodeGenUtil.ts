@@ -1,7 +1,6 @@
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import NodeType = require('../frontend/NodeType');
-import FUtil = require('./FUtil');
 import SemanticUtil = require('../frontend/SemanticUtil')
 
 var printFooter = [Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
@@ -19,6 +18,13 @@ var readFooter = [Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
 export function getByteSizeFromTypeNode(typeNode) {
     var typeName = typeNode.constructor.name;
     return (typeName === 'BoolTypeNode' || typeName === 'CharTypeNode') ? 1 : 4;
+}
+
+export function counterWithStrPrefix(strPrefix, initial) {
+    var n = initial;
+    return function() {
+        return strPrefix + (n++);
+    }
 }
 
 export var funcDefs = {
@@ -145,7 +151,7 @@ export var funcDefs = {
     }
 };
 
-var nextDataLabel = FUtil.counterWithStrPrefix('msg_', 0);
+var nextDataLabel = counterWithStrPrefix('msg_', 0);
 
 export function genStrDataBlock(len: number, str: string) {
     var label = nextDataLabel();
