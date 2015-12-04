@@ -285,21 +285,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
         } else if (node.lhs instanceof NodeType.PairElemNode) {
             var lhs = <NodeType.PairElemNode>node.lhs;
-
-
             var type1 = this.currentST.lookupAll(lhs.ident).type.type1;
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
+            var fetchType = lhs.index === 0 ? type1 : type2;            
             Macros.insertCheckNullPointer();
-            
-            var indexInstruction;
-            if (lhs.index == 0) {
-                var fetchType = type1;
-            } else {
-                var fetchType = type2;
-
-            }
         
-            var fetchTypeSize = CodeGenUtil.getByteSizeFromTypeNode(fetchType);
             return [
                 rhsIns,
                 this.pushWithIncrement(Reg.R0),
@@ -315,8 +305,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
-                // TODO use codegenUtil
-                fetchTypeSize === 4 ? Instr.Str(Reg.R0, Instr.Mem(Reg.R1)) : Instr.Strb(Reg.R0, Instr.Mem(Reg.R1))
+                Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1));
             ]
         }
 
