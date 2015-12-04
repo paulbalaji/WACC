@@ -8,12 +8,9 @@ var path = require('path');
 var filename: string = process.argv[2];
 var silence: string = process.argv[3];
 
-import gs = require('./backend/GraphicsMacros');
-
 function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
 	frontend.semanticCheck(ast);
-    gs.testing();
     return backend.generateCode(ast);
 }
 

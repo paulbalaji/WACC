@@ -87,7 +87,7 @@ export var MailboxRead = function() {
         Instr.Label("gx_getmail"),
         Instr.Label("gx_wait2"),
         Instr.Ldr(Reg.R2, Instr.Mem(Reg.R0, Instr.Const(0x18))),
-        Instr.Tst(Reg.R2, Instr.Mem(0x40000000)),
+        Instr.Tst(Reg.R2, Instr.Const(0x40000000)),
         Instr.Bne("gx_wait2"),
         Instr.Ldr(Reg.R2, Instr.Mem(Reg.R0)),
         Instr.And(Reg.R3, Reg.R2, Instr.Const(15)),
