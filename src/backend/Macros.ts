@@ -2,6 +2,7 @@
    Contains list of system function insertions to be done at end of code generation. */
 import Instr = require('./Instruction');
 import CodeGenUtil = require('./CodeGenUtil');
+import GXMacros = require('./GraphicsMacros');
 var _ = require('underscore');
 
 export var sections = { dataSection: [], sysFuncSection: [] };
@@ -131,4 +132,32 @@ export var insertRuntimeError = _.once(() => {
 		sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
 		insertPrintString();
 	});
+});
+
+export var insertMailboxBase = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(GXMacros.MailboxBase());
+    });
+});
+
+export var insertMailboxWrite = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(GXMacros.MailboxWrite());
+        insertMailboxBase();
+    });
+});
+
+export var insertMailboxRead = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(GXMacros.MailboxRead());
+        insertMailboxBase();
+    });
+});
+
+export var insertGetFrameBuffer = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(GXMacros.GetFrameBuffer());
+        insertMailboxWrite();
+        insertMailboxRead();
+    });
 });
