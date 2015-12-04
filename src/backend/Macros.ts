@@ -11,7 +11,6 @@ var closingInsertions = [];
  to be run at the end of code gen */
 
 export function runClosingInsertions() {
-
     for (var i = 0; i < closingInsertions.length; i++) {
         closingInsertions[i]();
     }
@@ -79,7 +78,7 @@ export var insertPrintRef = _.once(() => {
 		var refFormatLabel = insertStringDataHeader('%p\\0');
 		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
                 //insertPrintInt();
-            });
+	});
 });
 
 export var insertPrintLn = _.once(() => {

@@ -15,6 +15,8 @@ export var mods = {
     b: "B",
     s: "S",
     sb: "SB",
+    st: "ST",
+    hi: "HI",
     bang: "!",
 	none: ""
 };
@@ -175,6 +177,31 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
+export function And(...andArgs) {
+    var and: any = {};
+    and.andArgs = andArgs;
+    and.command = 'AND';
+
+    and.toString = function() {
+        return and.command + ' ' + andArgs.join(', ');
+    }
+
+    return and;
+}
+
+export function T(dst, src) {
+    var t: any = {};
+    t.dst = dst;
+    t.src = src;
+    t.command = 'T';
+
+    t.toString = function() {
+        return t.command + ' ' + [dst, src].join(', ');
+    }
+
+    return t;
+}
+
 
 /*export function Add(...addArgs) {
 	var add: any = {};
@@ -308,6 +335,8 @@ export function Eor(...eorArgs) {
 export var Add = SafeConst('ADD');
 export var Sub = SafeConst('SUB');
 
+export var Bne = modInstr(B, mods.ne);
+export var Bgt = modInstr(B, mods.gt);
 export var Blne = modInstr(Bl, mods.ne);
 export var Bllt = modInstr(Bl, mods.lt);
 export var Blcs = modInstr(Bl, mods.cs);
@@ -322,6 +351,7 @@ export var Movlt = modInstr(Mov, mods.lt);
 export var Movge = modInstr(Mov, mods.ge);
 export var Moveq = modInstr(Mov, mods.eq);
 export var Movne = modInstr(Mov, mods.ne);
+export var Movhi = modInstr(Mov, mods.hi);
 export var Beq = modInstr(B, mods.eq);
 export var Ldrsb = modInstr(Ldr, mods.sb);
 export var Ldrlt = modInstr(Ldr, mods.lt);
@@ -330,6 +360,11 @@ export var Ldrcs = modInstr(Ldr, mods.cs);
 export var Ldrne = modInstr(Ldr, mods.ne);
 export var Rsbs = modInstr(Rsb, mods.s);
 export var Subs = modInstr(Sub, mods.s);
+
+export var Tst = modInstr(T, mods.st);
+export var Teq = modInstr(T, mods.eq);
+
+export var Popne = modInstr(Pop, mods.ne);
 
 // Represents [...]!
 export var MemBang = modInstr(Mem, mods.bang);
