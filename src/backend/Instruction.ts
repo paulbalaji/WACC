@@ -1,4 +1,7 @@
 var _ = require('underscore');
+import NodeType = require('../frontend/NodeType');
+import SemanticUtil = require('../frontend/SemanticUtil');
+
 
 export var mods = {
 	ne: "NE",
@@ -333,4 +336,20 @@ export var MemBang = modInstr(Mem, mods.bang);
 
 export function buildList(...unflattenedList) {
 	return _.flatten(unflattenedList);
+}
+
+export function selectStr(type) {
+    if (SemanticUtil.isType(type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
+        return Strb;
+    } else {
+        return Str;
+    } 
+}
+
+export function selectLdr(type) {
+    if (SemanticUtil.isType(type, NodeType.BOOL_TYPE, NodeType.CHAR_TYPE)) {
+        return Ldrsb;
+    } else {
+        return Ldr;
+    }
 }

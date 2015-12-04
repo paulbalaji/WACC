@@ -1,5 +1,6 @@
 import NodeType = require('../frontend/NodeType');
-import SemanticUtil = require('../frontend/SemanticUtil')
+import SemanticUtil = require('../frontend/SemanticUtil');
+
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import CodeGenUtil = require('./CodeGenUtil');
@@ -242,7 +243,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitAssignNode(node: NodeType.AssignNode): any {
         // TODO JAN Comments
         var rhsIns = node.rhs.visit(this);
-        var strInstruction = CodeGenUtil.selectStr(node.lhs.type)
+        var strInstruction = Instr.selectStr(node.lhs.type)
 
         if (node.lhs instanceof NodeType.IdentNode) {
             return [rhsIns, strInstruction(Reg.R0, 
@@ -289,7 +290,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
             var fetchType = lhs.index === 0 ? type1 : type2;            
             Macros.insertCheckNullPointer();
-        
+            var fetchTypeSize = CodeGenUtil.getByteSizeFromTypeNode(fetchType);
             return [
                 rhsIns,
                 this.pushWithIncrement(Reg.R0),
@@ -305,7 +306,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
-                Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1));
+                Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1))
             ]
         }
 
@@ -414,7 +415,7 @@ export class CodeGenerator implements NodeType.Visitor {
         // Pops from front of byte sizes
         var spOffset = this.currentST.totalByteSize - this.currentST.byteSizes.shift(); 
         // Decide whether to use a Strb instruction or just a str, depending on the type of the node
-        var strInstruction = CodeGenUtil.selectStr(node.type);
+        var strInstruction = Instr.selectStr(node.type);
         return [rhsInstructions,
                 strInstruction(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(spOffset)))];
     }
@@ -435,7 +436,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         _.forEach(node.exprList, function(expr) {
             Macros.insertCheckArrayBounds();
-            var ldrInstruction = CodeGenUtil.selectLdr(node.type);
+            var ldrInstruction = Instr.selectLdr(node.type);
             instrList.push(expr.visit(this),
                            Instr.Bl('p_check_array_bounds'),
                            Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
@@ -466,7 +467,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var size = CodeGenUtil.getByteSizeFromTypeNode(node.argList[i].type);
             argByteSize += size;
             instrList.push(node.argList[i].visit(this));
-            var strInstruction = CodeGenUtil.selectStr(node.argList[i].type);
+            var strInstruction = Instr.selectStr(node.argList[i].type);
             instrList.push(strInstruction(Reg.R0,
                     Instr.MemBang(Reg.SP, Instr.Const(-(size)))));
 
@@ -487,7 +488,7 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIdentNode(node: NodeType.IdentNode): any {
-        var ldrInstruction = CodeGenUtil.selectLdr(node.type);
+        var ldrInstruction = Instr.selectLdr(node.type);
         var constant =  Instr.Const(this.currentST.lookUpOffset(node) + this.identOffset)
         return [ldrInstruction(Reg.R0, Instr.Mem(Reg.SP, constant))]; 
     }
@@ -681,7 +682,7 @@ export class CodeGenerator implements NodeType.Visitor {
             indexInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(4)))];
         }
 
-        var ldrIns = CodeGenUtil.selectLdr(fetchType);
+        var ldrIns = Instr.selectLdr(fetchType);
         var pairElemInstruction = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(node.ident)))),
                                    Instr.Bl('p_check_null_pointer'),
                                    indexInstruction,
