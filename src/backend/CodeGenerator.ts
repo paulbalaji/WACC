@@ -420,7 +420,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
  
     visitFreeNode(node: NodeType.FreeNode): any {
-        // TODO:  ANDREA FIX FORMATING
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
 
@@ -429,7 +428,10 @@ export class CodeGenerator implements NodeType.Visitor {
             Macros.insertFreePair();
         }
         var offset = this.currentST.lookUpOffset(<NodeType.IdentNode>node.expr);
-        return [node.expr.visit(this), Instr.Bl(freeText), Instr.Mov(Reg.R0, Instr.Const(0)), Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(offset)))];
+        return [node.expr.visit(this), 
+                Instr.Bl(freeText), 
+                Instr.Mov(Reg.R0, Instr.Const(0)), 
+                Instr.Str(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(offset)))];
     }
 
     visitPrintNode(node: NodeType.PrintNode): any {

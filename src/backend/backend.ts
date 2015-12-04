@@ -9,5 +9,3 @@ export function generateCode(ast) {
     var code = ast.visit(codeGenerator);
     return code.join('\n') + '\n';
 };
-
-
