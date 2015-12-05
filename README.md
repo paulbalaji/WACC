@@ -9,10 +9,12 @@ WACC Compiler is a compiler for the WACC language.
 
 ### TODO:
  - Allow files to be imported (pre-processor in effect)
- - Extension - Graphics Library
+ - Structs
+ - Graphics Library
  - Implement assembly instructions for "Mailbox" system
  - Implement WACC library that utilises basic WACC instructions
  - Give users access to *WACC X GL*
+ - Pokemon
 
 ### Current Version
 0.0.5
