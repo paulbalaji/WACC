@@ -10,6 +10,7 @@ export class ReturnVisitor implements NodeType.Visitor {
 
     // Checks valid returns in all functions and then check for invalid return in global scope.
     visitProgramNode(node: NodeType.ProgramNode): boolean {
+
         SemanticUtil.visitNodeList(node.functionList, this);
          this.expectedReturnType = null;
          SemanticUtil.visitNodeList(node.statList, this);
@@ -69,6 +70,13 @@ export class ReturnVisitor implements NodeType.Visitor {
         do not return nor they can be an valid ancestor of
         a return node.
     */
+
+    visitStructElemNode(node:NodeType.StructElemNode):boolean { return false; }
+    visitFieldNode(node:NodeType.FieldNode):boolean { return false; }
+    visitStructNode(node:NodeType.StructNode):boolean { return false; }
+    visitStructTypeNode(node:NodeType.StructTypeNode):boolean { return false; }
+    visitNewStructNode(node:NodeType.NewStructNode):boolean { return false; }
+
     visitBinOpExprNode(node: NodeType.BinOpExprNode): boolean { return false; }
     visitStrLiterNode(node: NodeType.StrLiterNode): boolean { return false; }
     visitAssignNode(node: NodeType.AssignNode): boolean { return false; }
@@ -103,4 +111,6 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitCharTypeNode(node: NodeType.CharTypeNode): boolean { return false; }
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode) { return false; }
     visitNullTypeNode(node: NodeType.NullTypeNode): boolean { return false; }
+
+
 }

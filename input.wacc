@@ -6,8 +6,16 @@
 # Program:
 
 begin
-	struct sam {
+	struct andrea {
 		int hi
 	}
-	skip
+	struct sam {
+		struct andrea a,
+		struct sam
+	}
+
+	struct sam samInstance = new sam;
+	struct andrea aInstance = samInstance.b;
+	int i = aInstance.hi
+
 end

@@ -11,8 +11,8 @@ var silence: string = process.argv[3];
 
 function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
-    console.log(util.inspect(ast));
-	//frontend.semanticCheck(ast);
+    //console.log(util.inspect(ast, false, null));
+	frontend.semanticCheck(ast);
     //return backend.generateCode(ast);   
 }
 

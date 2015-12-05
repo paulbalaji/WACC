@@ -53,6 +53,11 @@ export interface Visitor {
     visitCharTypeNode(node:CharTypeNode): any;
     visitEmptyArrayTypeNode(node:EmptyArrayTypeNode): any;
     visitNullTypeNode(node:NullTypeNode): any;
+    visitStructElemNode(node:StructElemNode):any;
+    visitFieldNode(node:FieldNode):any;
+    visitStructNode(node:StructNode):any;
+    visitStructTypeNode(node:StructTypeNode):any;
+    visitNewStructNode(node:NewStructNode):any;
 }
 
 export interface Visitable {
@@ -115,43 +120,7 @@ export class FuncNode extends TreeNode {
     }
 }
 
-export class StructNode extends TreeNode {
-    type: TypeNode;
-    ident: IdentNode;
-    fieldList: [FieldNode];
-    constructor(ident: IdentNode, fieldList: [FieldNode]) {
-        super()
-        this.ident = ident;
-        this.fieldList = fieldList;
-    }
 
-
-}
-
-export class StructTypeNode extends TreeNode {
-    type: TypeNode;
-    ident: IdentNode;
-    constructor(ident: IdentNode) {
-        super()
-        this.ident = ident;
-    }
-
-}
-
-
-
-export class FieldNode extends TreeNode {
-    type: TypeNode;
-    ident: IdentNode;
-    constructor(ident: IdentNode, type:TypeNode) {
-        super()
-        this.ident = ident;
-        this.type = type;
-    }
-
-
-
-}
 
 export class SkipNode extends TreeNode implements StatNode {
     constructor() {
@@ -643,6 +612,77 @@ export class EmptyArrayTypeNode extends TreeNode implements TypeNode {
     constructor() { super(); }
     visit(v: Visitor): any {
         return v.visitEmptyArrayTypeNode(this);
+    }
+}
+
+
+
+export class StructNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    fieldList: [FieldNode];
+    map: any;
+    constructor(ident: IdentNode, fieldList: [FieldNode]) {
+        super()
+        this.ident = ident;
+        this.fieldList = fieldList;
+    }
+
+    visit(v: Visitor): any {
+        return v.visitStructNode(this);
+    }
+}
+
+export class StructTypeNode extends TreeNode {
+    ident: IdentNode;
+    map: any;
+    constructor(ident: IdentNode) {
+        super()
+        this.ident = ident;
+    }
+    visit(v: Visitor): any {
+        return v.visitStructTypeNode(this);
+    }
+}
+
+export class FieldNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    constructor(ident: IdentNode, type: TypeNode) {
+        super()
+        this.ident = ident;
+        this.type = type;
+    }
+    visit(v: Visitor): any {
+        return v.visitFieldNode(this);
+    }
+}
+
+export class StructElemNode extends TreeNode implements ExprNode {
+    type: TypeNode;
+    structIdent: IdentNode;
+    fieldIdent: IdentNode;
+    constructor(structIdent, fieldIdent) {
+        super();
+        this.structIdent = structIdent;
+        this.fieldIdent = fieldIdent;
+    }
+    visit(v: Visitor): any {
+        return v.visitStructElemNode(this);
+    }
+
+
+}
+
+export class NewStructNode extends TreeNode implements AssignRHSNode {
+    type: TypeNode;
+    structIdent: IdentNode;
+    constructor(structIdent) {
+        super();
+        this.structIdent = structIdent;
+    }
+    visit(v: Visitor): any {
+        return v.visitNewStructNode(this);
     }
 }
 

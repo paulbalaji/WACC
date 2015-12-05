@@ -2,12 +2,16 @@ import NodeType = require('./NodeType');
 import CodeGenUtil = require('../backend/CodeGenUtil');
 var _ = require('underscore');
 
-interface typeAndNodeTuple {
+export interface typeAndNodeTuple {
 	type:any;
 	node:any;
     offset: any;
 }
 
+export interface nodeTuple {
+    node: any;
+    offset: any;
+}
 
 
 export class SymbolTable {

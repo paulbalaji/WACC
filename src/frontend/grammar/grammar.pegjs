@@ -48,7 +48,7 @@ Program
   }
 
 Struct
-  = STRUCT _ ident:Ident __ LEFT_CURLY __ fields:FieldList __ RIGHT_CURLY {
+  = STRUCT _ ident:Ident __ LEFT_CURLY __ fields:FieldList __ RIGHT_CURLY __ {
     return new NodeType.StructNode(ident, fields);
   }
 
@@ -62,9 +62,11 @@ FieldList
 
   Field
    = type:Type _ ident:Ident {
-    return new NodeType.FieldNode(type, ident);
-   };
+    return new NodeType.FieldNode(ident, type);
+  };
   
+
+
 Func
   = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
     return new NodeType.FuncNode(type, ident, params ? params : [], stats);
@@ -92,6 +94,12 @@ StatList
   / stat:Stat {
       return generateSingletonListFromRule(stat);
   }
+
+StructElem
+  = structIdent:Ident DOT fieldIdent:Ident {
+    return new NodeType.StructElemNode(structIdent, fieldIdent);
+  }
+
 
 Stat
   = SKIP {
@@ -201,6 +209,7 @@ StructType
 AssignLHS
   = lhs:(ArrayElem
   / PairElem
+  / StructElem
   / &BaseType /* This line is here so that an BaseTypes are NOT recognised as Idents */
   / Ident) {
     if (lhs) {
@@ -208,6 +217,7 @@ AssignLHS
     }
     return lhs;
   }
+
 
 /* AssignRHS */
 AssignRHS
@@ -217,13 +227,19 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
+
+  / NEW _ structIdent:Ident {
+    return new NodeType.NewStructNode(structIdent);
+  } 
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
       var node = new NodeType.NewPairNode(fstExpr, sndExpr);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
+
   / ArrayLiter
+
   / PairElem
   / Expr
 
@@ -289,6 +305,7 @@ FactorExpr
 
 BaseExpr
   = IntLiter
+  / StructElem
   / BoolLiter
   / CharLiter
   / StrLiter
@@ -461,6 +478,7 @@ NEW_PAIR = 'newpair'
 FST      = 'fst'
 SND      = 'snd'
 COMMA    = ','
+DOT      = '.'
 
 STAR             = '*'
 SLASH            = '/'
@@ -508,6 +526,7 @@ EXIT    = 'exit'
 PRINT   = 'print'
 PRINTLN = 'println'
 STRUCT  = 'struct'
+NEW     = 'new'
 
 BEGIN = 'begin'
 END   = 'end'
