@@ -702,10 +702,16 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
     }
 
+
+
     visitStructElemNode(node:NodeType.StructElemNode):any {}
     visitFieldNode(node:NodeType.FieldNode):any {}
-    visitStructNode(node:NodeType.StructNode):any {}
-    visitStructTypeNode(node:NodeType.StructTypeNode):any {}
+    visitStructNode(node:NodeType.StructNode):any {
+        // Does not need to be visited
+    }
+    visitStructTypeNode(node:NodeType.StructTypeNode):any {
+        
+    }
     visitNewStructNode(node:NodeType.NewStructNode):any {}
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {}

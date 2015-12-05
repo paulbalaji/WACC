@@ -11,11 +11,10 @@ begin
 	}
 	struct sam {
 		struct andrea a,
-		struct sam
 	}
 
 	struct sam samInstance = new sam;
-	struct andrea aInstance = samInstance.b;
+	struct andrea aInstance = samInstance.a;
 	int i = aInstance.hi
 
 end
