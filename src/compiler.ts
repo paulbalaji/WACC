@@ -13,8 +13,8 @@ var async = require('async');
 var filename: string = process.argv[2];
 var silence: string = ''; // TODO: Redo silence flag handling, considering header files
 
-function compileStr(programStr) {
-	var ast = frontend.parse(programStr);
+function compileStr(programStr, filename) {
+	var ast = frontend.parse(programStr, filename);
 	frontend.semanticCheck(ast);
     return backend.generateCode(ast);   
 }
@@ -40,7 +40,7 @@ export function compile(mainFilename, headerFilenames, outputFilename) {
     var headerFunctions = [];
     var processHeaderFilename = function(headerFilename, signalDone) {
          readFileWithErrorReport(headerFilename, function (headerStr) {
-            var headerAST = <NodeType.HeaderNode> frontend.parse(headerStr);
+            var headerAST = <NodeType.HeaderNode> frontend.parse(headerStr, headerFilename);
 
             headerFunctions = headerFunctions.concat(headerAST.functionList);
             signalDone();
@@ -52,7 +52,7 @@ export function compile(mainFilename, headerFilenames, outputFilename) {
          if (err) { console.log(' Man async js fucked it.', err);}
 
          readFileWithErrorReport(mainFilename, function (programStr) {
-            var ast = <NodeType.ProgramNode> frontend.parse(programStr);
+            var ast = <NodeType.ProgramNode> frontend.parse(programStr, mainFilename);
             headerFunctions.forEach(function(headerFunc) {
                 ast.functionList.push(headerFunc);
             });
