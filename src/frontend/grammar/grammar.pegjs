@@ -96,10 +96,14 @@ StatList
   }
 
 StructElem
-  = structIdent:Ident DOT fieldIdent:Ident {
-    return new NodeType.StructElemNode(structIdent, fieldIdent);
+  = structIdent:Ident fieldIdents:(StructElemAccess)+  {
+    return new NodeType.StructElemNode(structIdent, fieldIdents);
   }
 
+StructElemAccess
+  = DOT ident:Ident {
+    return ident;
+  }
 
 Stat
   = SKIP {

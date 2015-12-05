@@ -635,13 +635,17 @@ export class StructNode extends TreeNode {
 
 export class StructTypeNode extends TreeNode {
     ident: IdentNode;
-    map: any;
+    st: any;
     constructor(ident: IdentNode) {
         super()
         this.ident = ident;
     }
     visit(v: Visitor): any {
         return v.visitStructTypeNode(this);
+    }
+
+    toString(): String {
+        return 'struct ' + this.ident; 
     }
 }
 
@@ -661,11 +665,11 @@ export class FieldNode extends TreeNode {
 export class StructElemNode extends TreeNode implements ExprNode {
     type: TypeNode;
     structIdent: IdentNode;
-    fieldIdent: IdentNode;
-    constructor(structIdent, fieldIdent) {
+    fieldIdents: [IdentNode];
+    constructor(structIdent, fieldIdents) {
         super();
         this.structIdent = structIdent;
-        this.fieldIdent = fieldIdent;
+        this.fieldIdents = fieldIdents;
     }
     visit(v: Visitor): any {
         return v.visitStructElemNode(this);

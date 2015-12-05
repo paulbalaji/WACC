@@ -6,15 +6,20 @@
 # Program:
 
 begin
+
 	struct andrea {
 		int hi
 	}
 	struct sam {
-		struct andrea a,
+		
+		struct jan j
 	}
-
+	struct jan {
+		struct andrea a,
+		int wowFactor
+	}
+	
 	struct sam samInstance = new sam;
-	struct andrea aInstance = samInstance.a;
-	int i = aInstance.hi
+	struct andrea b = samInstance.j.a.hi
 
 end

@@ -149,6 +149,17 @@ function isSameType(typeObj1, typeObj2):boolean {
         N.B for use on primitive types.
         Special case for matching empty arrays with any array type
     */
+
+    if (typeObj1 instanceof NodeType.StructTypeNode) {
+        console.log('cheeky type comparison');
+        console.log(typeObj2);
+        if (typeObj2 instanceof NodeType.StructTypeNode) {
+            return (<NodeType.StructTypeNode>typeObj1).ident.toString() === (<NodeType.StructTypeNode>typeObj2).ident.toString();
+        } else {
+            return false;
+        }
+    }
+
     if (typeObj1 instanceof NodeType.ArrayTypeNode || typeObj2 instanceof NodeType.ArrayTypeNode) {
         // The case that an array type is being compared with an empty array type -> always equal
         if (typeObj1 instanceof NodeType.EmptyArrayTypeNode || typeObj2 instanceof NodeType.EmptyArrayTypeNode) {
