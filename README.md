@@ -6,6 +6,7 @@ WACC Compiler is a compiler for the WACC language.
   - Front End Code Review COMPLETE
   - Back End Code Review PENDING
   - Extension - IN PROGRESS
+
 ### TODO:
  - Allow files to be imported (pre-processor in effect)
  - Extension - Graphics Library
