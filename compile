@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 var fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+	_ = require('underscore');
+
 var compiler = require('./dist/compiler.js');
 
-var inputFile = process.argv[2];
+var mainFilename = process.argv[2];
+var headerFilenames =  process.argv.slice(3);
+var outputFilename =  path.basename(mainFilename, '.wacc') + '.s';
 
-if (process.argv.length === 3) {
-	var	outputFile = path.basename(inputFile, '.wacc') + '.s';
-} else {
-	var outputFile = process.argv[3];
-	outputFile = outputFile.split(path.extname(outputFile))[0] + '.s';
-}
-
-compiler.compile(inputFile, outputFile);
+compiler.compile(mainFilename, headerFilenames, outputFilename);

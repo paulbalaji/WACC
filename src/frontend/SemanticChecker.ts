@@ -454,4 +454,5 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitCharTypeNode(node: NodeType.CharTypeNode): void {}
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): void {}
     visitNullTypeNode(node: NodeType.NullTypeNode): void {}
+
 }
