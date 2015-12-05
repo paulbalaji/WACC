@@ -42,10 +42,29 @@
 }
 
 Program
-  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {
-    return new NodeType.ProgramNode(functionList, statList);
+  = __ BEGIN _ structList:Struct* __ functionList:Func* statList:StatList _ END __ {
+
+    return new NodeType.ProgramNode(structList, functionList, statList);
   }
 
+Struct
+  = STRUCT _ ident:Ident __ LEFT_CURLY __ fields:FieldList __ RIGHT_CURLY {
+    return new NodeType.StructNode(ident, fields);
+  }
+
+
+FieldList
+  = field:Field __ COMMA __ fields:FieldList {
+    return generateListFromRecursiveRule(field, fields);
+  } / field:Field {
+    return generateSingletonListFromRule(field);
+  }
+
+  Field
+   = type:Type _ ident:Ident {
+    return new NodeType.FieldNode(type, ident);
+   };
+  
 Func
   = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
     return new NodeType.FuncNode(type, ident, params ? params : [], stats);
@@ -129,6 +148,7 @@ Type
   = ArrayType
   / PairType
   / BaseType
+  / StructType
 
 BaseType
   = INT { 
@@ -164,11 +184,17 @@ PairType
       return new NodeType.PairTypeNode(type1, type2);
   }
 
+
 PairElemType
   = (ArrayType 
   / BaseType)
   / PAIR {
     return NodeType.NULL_TYPE;
+  }
+
+StructType
+  = STRUCT _ ident:Ident {
+    return new NodeType.StructTypeNode(ident);
   }
 
 /* AssignLHS */
@@ -456,6 +482,9 @@ RIGHT_PAREN = ')'
 LEFT_SQUARE  = '['
 RIGHT_SQUARE = ']'
 
+LEFT_CURLY  = '{'
+RIGHT_CURLY = '}'
+
 NULL = 'null'
 
 TRUE  = 'true'
@@ -478,6 +507,7 @@ FREE    = 'free'
 EXIT    = 'exit'
 PRINT   = 'print'
 PRINTLN = 'println'
+STRUCT  = 'struct'
 
 BEGIN = 'begin'
 END   = 'end'

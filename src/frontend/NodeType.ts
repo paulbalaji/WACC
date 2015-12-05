@@ -79,11 +79,12 @@ export interface TypeNode extends TreeNode {}
 export class ProgramNode extends TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
-
+    structList: [StructNode];
     st: SemanticUtil.SymbolTable;
 
-    constructor(functionList:[FuncNode], statList:[StatNode]) {
+    constructor(structList: [StructNode], functionList:[FuncNode], statList:[StatNode]) {
         super();
+        this.structList = structList;
         this.functionList = functionList;
         this.statList = statList;
     }
@@ -112,6 +113,44 @@ export class FuncNode extends TreeNode {
     visit(v: Visitor): any {
         return v.visitFuncNode(this);
     }
+}
+
+export class StructNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    fieldList: [FieldNode];
+    constructor(ident: IdentNode, fieldList: [FieldNode]) {
+        super()
+        this.ident = ident;
+        this.fieldList = fieldList;
+    }
+
+
+}
+
+export class StructTypeNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    constructor(ident: IdentNode) {
+        super()
+        this.ident = ident;
+    }
+
+}
+
+
+
+export class FieldNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    constructor(ident: IdentNode, type:TypeNode) {
+        super()
+        this.ident = ident;
+        this.type = type;
+    }
+
+
+
 }
 
 export class SkipNode extends TreeNode implements StatNode {
