@@ -6,6 +6,8 @@
 # Program:
 
 begin
-	int x = 0xFFFFFF;
-	print x + 5
+	bool[] x = new bool[5];
+	x[4] = false;
+	println x[4];
+	println x[3]
 end

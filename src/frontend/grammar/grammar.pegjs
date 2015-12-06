@@ -231,7 +231,25 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
+  / NEW _ type:(INT/BOOL/CHAR) __ LEFT_SQUARE intLiter:IntLiter __ RIGHT_SQUARE {
+    var defaultExpr:NodeType.ExprNode;
+    if (type === 'int') {
+      defaultExpr = new NodeType.IntLiterNode(0);
+    } else if (type === 'bool') {
+      defaultExpr = new NodeType.BoolLiterNode(true);
+    } else if (type === 'char') {
+      defaultExpr = new NodeType.CharLiterNode('\0');
+    }
 
+    var exprs:[NodeType.ExprNode] = [defaultExpr];
+    for (var i = 1; i < intLiter.num; i++) {
+      exprs.push(defaultExpr);
+    }
+
+    var node = new NodeType.ArrayLiterNode(exprs);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
   / NEW _ structIdent:Ident {
     return new NodeType.NewStructNode(structIdent);
   } 
@@ -243,7 +261,6 @@ AssignRHS
   }
 
   / ArrayLiter
-
   / PairElem
   / Expr
 
