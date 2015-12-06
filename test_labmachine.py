@@ -17,7 +17,7 @@ class MySSH:
         client = paramiko.SSHClient()
         client.load_system_host_keys()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect("shell2.doc.ic.ac.uk", username=credentials.username, password=credentials.password)
+        client.connect("matrix29.doc.ic.ac.uk", username=credentials.username, password=credentials.password)
         atexit.register(client.close)
         self.client = client
 
@@ -39,9 +39,8 @@ class MySSH:
 def connect_and_execute(f):
         ssh = MySSH()
         ssh.copy_to_remote(f)
-
-        #ssh.call('arm-linux-gnueabi-gcc -o tmp_exec -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ' + argv[1])
-        #ssh.call('qemu-arm -L /usr/arm-linux-gnueabi/ tmp_exec')
+        ssh.call('arm-linux-gnueabi-gcc -o tmp_exec -mcpu=arm1176jzf-s -mtune=arm1176jzf-s ' + f)
+        ssh.call('qemu-arm -L /usr/arm-linux-gnueabi/ tmp_exec')
 
 
 def main(argv):

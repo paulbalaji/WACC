@@ -41,6 +41,8 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         node.st = this.currentST;
+        node.structST = this.structST;
+        node.functionST = this.functionST;
         var visitStructNodeCallbacks = SemanticUtil.visitNodeList(node.structList, this);
 
         // Finish the visiting of all the function nodes.
@@ -468,17 +470,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitStructElemNode(node:NodeType.StructElemNode):void {
         node.structIdent.visit(this);
-        console.log('---');
-        console.log(node.fieldIdents);
-        console.log('---');
+
 
         var currentType = this.currentST.lookupAll(node.structIdent).type;
         for (var i = 0; i < node.fieldIdents.length; i++) {
             if (!(currentType instanceof NodeType.StructTypeNode)) {
-               
-      
                 throw new Error.SemanticError('Accesing property of something whih is not a struct', node.fieldIdents[i].errorLocation);
-                
             }
             var current = currentType.st.lookupAll(node.fieldIdents[i]);
             if (!current) {
@@ -530,7 +527,6 @@ export class SemanticVisitor implements NodeType.Visitor {
                     var fieldType = this.structST.lookupAll(field.type.ident).type;
 
                 } else {
-
                     var fieldType = field.type;
                 }
                 type.st.insert(field.ident, { type: fieldType, node: field, offset: null });

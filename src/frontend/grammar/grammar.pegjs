@@ -379,13 +379,28 @@ PairLiter
 
 /* IntLiter */
 IntLiter
-  = sign:IntSign? __ digits:Digit+ { 
-    var num = parseInt((sign ? sign : '') + digits.join(''), 10);
+  = sign:IntSign? n:(BinLiter/HexLiter/DecLiter) { 
+    var num = sign === '-' ? -n : n;
     var node = new NodeType.IntLiterNode(num);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
   }
+ BinLiter
+   = BINARY_PREFIX digits:([0-1])+ {
+    return parseInt(digits.join(''), 2);
+   }
 
+ HexLiter
+   = HEX_PREFIX digits:(Digit/[A-F]/[a-f])+ {
+    return parseInt(digits.join(''), 16);
+   }
+
+ DecLiter
+   = digits:Digit+ {
+    return parseInt(digits.join(''), 10);
+   }
+
+   
 Digit
   = [0-9]
 
@@ -497,6 +512,9 @@ DOUBLE_EQUALS    = '=='
 NOT_EQUALS       = '!='
 DOUBLE_AMP       = '&&'
 DOUBLE_PIPE      = '||'
+
+BINARY_PREFIX    = '0b'
+HEX_PREFIX       = '0x'
 
 LEFT_PAREN  = '('
 RIGHT_PAREN = ')'

@@ -151,8 +151,7 @@ function isSameType(typeObj1, typeObj2):boolean {
     */
 
     if (typeObj1 instanceof NodeType.StructTypeNode) {
-        console.log('cheeky type comparison');
-        console.log(typeObj2);
+
         if (typeObj2 instanceof NodeType.StructTypeNode) {
             return (<NodeType.StructTypeNode>typeObj1).ident.toString() === (<NodeType.StructTypeNode>typeObj2).ident.toString();
         } else {

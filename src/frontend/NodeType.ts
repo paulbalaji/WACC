@@ -85,6 +85,9 @@ export class ProgramNode extends TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
     structList: [StructNode];
+    structST: SemanticUtil.SymbolTable;
+    functionST: SemanticUtil.SymbolTable;
+
     st: SemanticUtil.SymbolTable;
 
     constructor(structList: [StructNode], functionList:[FuncNode], statList:[StatNode]) {
@@ -666,6 +669,7 @@ export class StructElemNode extends TreeNode implements ExprNode {
     type: TypeNode;
     structIdent: IdentNode;
     fieldIdents: [IdentNode];
+   
     constructor(structIdent, fieldIdents) {
         super();
         this.structIdent = structIdent;

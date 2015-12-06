@@ -13,7 +13,7 @@ function compileStr(programStr) {
 	var ast = frontend.parse(programStr);
     //console.log(util.inspect(ast, false, null));
 	frontend.semanticCheck(ast);
-    //return backend.generateCode(ast);   
+    return backend.generateCode(ast);   
 }
 
 /*

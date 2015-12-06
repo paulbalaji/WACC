@@ -134,6 +134,18 @@ export var funcDefs = {
                 Instr.Bl('free'),
                 Instr.Pop(Reg.PC)];
     },
+    memset: function() {
+        return [Instr.Label('memset'),
+            Instr.Push(Reg.LR),
+            Instr.Mov(Reg.R2, Instr.Const(0)),
+            Instr.Label('memset_continue'),
+            Instr.Mov(Reg.R3, Instr.Const(0)),
+            Instr.Strb(Reg.R3, Instr.Mem(Reg.R0, Reg.R2)),
+            Instr.Add(Reg.R2, Reg.R2, Instr.Const(1)),
+            Instr.Cmp(Reg.R2, Reg.R1),
+            Instr.Ble('memset_continue'),
+            Instr.Pop(Reg.PC)];
+    },
 
     runtimeError: function() {
         return [Instr.Label('p_throw_runtime_error'),
@@ -167,7 +179,7 @@ export var funcDefs = {
 			// The case for printing a string (array of chars)
 			Macros.insertPrintString();
 			return [exprInstructions, Instr.Bl('p_print_string')];
-		} else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
+		} else if (node.expr.type instanceof NodeType.StructTypeNode || node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
 			|| node.expr.type instanceof NodeType.PairTypeNode) {
 
 			Macros.insertPrintRef();

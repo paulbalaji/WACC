@@ -37,6 +37,13 @@ export var insertCheckNullPointer = _.once(() => {
 	});
 });
 
+export var insertMemset = _.once(() => {	
+
+	closingInsertions.push(function() {
+		sections.sysFuncSection.push(CodeGenUtil.funcDefs.memset());
+	});
+});
+
 export var insertReadInt = _.once(() => {
 	closingInsertions.push(function() {
 		var intFormatLabel = insertStringDataHeader("%d\\0");

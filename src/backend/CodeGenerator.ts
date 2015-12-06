@@ -7,6 +7,7 @@ import CodeGenUtil = require('./CodeGenUtil');
 import Macros = require('./Macros');
 
 var _ = require('underscore');
+var util = require('util');
 
 
 export class CodeGenerator implements NodeType.Visitor {
@@ -15,6 +16,8 @@ export class CodeGenerator implements NodeType.Visitor {
     identOffset: any;
 
     currentST: SemanticUtil.SymbolTable;
+    structST: SemanticUtil.SymbolTable;
+    functionST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
     printNodeLogic: any;
@@ -64,6 +67,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
+        this.structST = node.structST;
+        this.functionST = node.functionST;
 
        
         /* Visit the functions - does not insert any code in main,
@@ -309,6 +314,42 @@ export class CodeGenerator implements NodeType.Visitor {
                 this.popWithDecrement(Reg.R0),
                 Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1))
             ];
+        } else if (node.lhs instanceof NodeType.StructElemNode) {
+            var structElemNode = <NodeType.StructElemNode> node.lhs;      
+
+           /* var st = this.currentST.lookupAll(structElemNode.structIdent).type.st;
+       
+            return [
+                rhsIns,
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(structElemNode.structIdent)))),
+                Instr.Bl("p_check_null_pointer"),
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(st.lookupAll(structElemNode.fieldIdents[0]).offset - 4)),
+                this.popWithDecrement(Reg.R1),
+                Instr.selectStr(node.rhs.type)(Reg.R1, Instr.Mem(Reg.R0))
+            ];*/
+
+            Macros.insertCheckNullPointer();
+            var instructions = [ rhsIns,
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(structElemNode.structIdent)))),
+                Instr.Bl("p_check_null_pointer")];
+
+            var current = this.currentST.lookupAll(structElemNode.structIdent);
+            for (var i = 0; i < structElemNode.fieldIdents.length - 1; i++) {
+                current = current.type.st.lookupAll(structElemNode.fieldIdents[i]);
+                instructions.push([
+                    Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)),
+                    Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                    Instr.Bl('p_check_null_pointer')]
+                );
+            }
+            current = current.type.st.lookupAll(structElemNode.fieldIdents[i]);
+
+            instructions.push(Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)));
+            instructions.push(this.popWithDecrement(Reg.R1));
+            instructions.push(Instr.selectStr(structElemNode.type)(Reg.R1, Instr.Mem(Reg.R0)));
+            return instructions;
         }
 
     }
@@ -702,17 +743,59 @@ export class CodeGenerator implements NodeType.Visitor {
         return [Instr.Mov(Reg.R0, Instr.Const(0))];
     }
 
+    visitStructElemNode(node:NodeType.StructElemNode):any {
+        Macros.insertCheckNullPointer();
+    
+        var identInstr = node.structIdent.visit(this);
+        var instrs = [
+            identInstr,
+            Instr.Bl('p_check_null_pointer')];
 
+        var current = this.currentST.lookupAll(node.structIdent);
+        for (var i = 0; i < node.fieldIdents.length - 1; i++) {
+            current = current.type.st.lookupAll(node.fieldIdents[i]);
+            instrs.push([
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                Instr.Bl('p_check_null_pointer')]
+            );
+        }
 
-    visitStructElemNode(node:NodeType.StructElemNode):any {}
-    visitFieldNode(node:NodeType.FieldNode):any {}
+        current = current.type.st.lookupAll(node.fieldIdents[i]);
+        var ldrInstr = Instr.selectLdr(current.type);
+        instrs.push([
+            ldrInstr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(current.offset - 4)))]);
+
+        return instrs;
+
+    }
+    visitFieldNode(node: NodeType.FieldNode): any {
+        // Does not need to be visited
+        return []
+    }
     visitStructNode(node:NodeType.StructNode):any {
         // Does not need to be visited
+        return []
+
     }
     visitStructTypeNode(node:NodeType.StructTypeNode):any {
+        // Does not need to be visited
+        return []
+
         
     }
-    visitNewStructNode(node:NodeType.NewStructNode):any {}
+    visitNewStructNode(node:NodeType.NewStructNode):any {
+        var st = (<NodeType.StructTypeNode> node.type).st
+        Macros.insertMemset();
+        return [
+            Instr.Mov(Reg.R0, Instr.Const(st.totalByteSize)),
+            Instr.Bl('malloc'),
+            // Set the returned memory to zero to guarantee null safety
+            Instr.Mov(Reg.R1, Instr.Const(st.totalByteSize)),
+            Instr.Bl('memset')
+        ];
+
+    }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {}
     visitBoolTypeNode(node: NodeType.BoolTypeNode): any {}

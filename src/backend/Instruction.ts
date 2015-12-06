@@ -330,6 +330,7 @@ export var Ldrcs = modInstr(Ldr, mods.cs);
 export var Ldrne = modInstr(Ldr, mods.ne);
 export var Rsbs = modInstr(Rsb, mods.s);
 export var Subs = modInstr(Sub, mods.s);
+export var Ble = modInstr(B, mods.le);
 
 // Represents [...]!
 export var MemBang = modInstr(Mem, mods.bang);
