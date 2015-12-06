@@ -37,11 +37,13 @@ function readFileWithErrorReport(filename, cb) {
 */
 export function compile(mainFilename, headerFilenames, outputFilename) {
     var headerFunctions = [];
+    var headerStructs   = [];
     var processHeaderFilename = function(headerFilename, signalDone) {
          readFileWithErrorReport(headerFilename, function (headerStr) {
             var headerAST = <NodeType.HeaderNode> frontend.parse(headerStr, headerFilename);
 
             headerFunctions = headerFunctions.concat(headerAST.functionList);
+            headerStructs   = headerStructs.concat(headerAST.structList);
             signalDone();
         });
     };
@@ -55,6 +57,9 @@ export function compile(mainFilename, headerFilenames, outputFilename) {
             headerFunctions.forEach(function(headerFunc) {
                 ast.functionList.push(headerFunc);
             });
+            headerStructs.forEach(function(headerStruct) {
+                ast.structList.push(headerStruct);
+            })
             frontend.semanticCheck(ast);
             fs.writeFile(outputFilename, backend.generateCode(ast));
          });

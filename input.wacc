@@ -1,0 +1,4 @@
+begin
+	int[] sixes = call initArray(6, 10);
+	int res = call printIntArray(sixes)
+end

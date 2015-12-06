@@ -60,6 +60,18 @@ char[] concatCharArray(char[] x, char[] y) is
 	return output
 end
 
+int[] initArray(int val, int n) is
+	# Fills an int array with 'n' vals
+	int[] xs = new int[n];
+	int i = 0;
+	while (i < n) do
+		xs[i] = val;
+		i = i + 1
+	done;
+
+	return xs
+end
+
 int[] copyIntArray(int[] x) is
 	int[] y = [];
 	int[] copy = call concatIntArray(x, y);

@@ -11,7 +11,6 @@
   }
 
   function generateSingletonListFromRule(elem) {
-
     if (elem === null) {
       return [];
     }
@@ -43,10 +42,10 @@
 
 /* Program is either a normal program or a header description */
 Program
-  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {
-    return new NodeType.ProgramNode(functionList, statList);
-  } / (__ HEADER _ functionList:Func+ END __) {
-    return new NodeType.HeaderNode(functionList);
+  = __ BEGIN _ structList:Struct* functionList:Func* statList:StatList _ END __ {
+    return new NodeType.ProgramNode(structList, functionList, statList);
+  } / (__ HEADER _ structList:Struct* functionList:Func* END __) {
+    return new NodeType.HeaderNode(structList, functionList);
   }
 
 Struct
@@ -165,6 +164,14 @@ Type
   / StructType
 
 BaseType
+  = PrimitiveType
+  / STRING { 
+      var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
+
+PrimitiveType
   = INT { 
       var node = new NodeType.IntTypeNode();
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
@@ -179,11 +186,6 @@ BaseType
       var node = new NodeType.CharTypeNode();
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
-  }
-  / STRING { 
-      var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
-      node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
   }
 
 ArrayType
@@ -233,22 +235,8 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
-  / NEW _ type:(INT/BOOL/CHAR) __ LEFT_SQUARE intLiter:IntLiter __ RIGHT_SQUARE {
-    var defaultExpr:NodeType.ExprNode;
-    if (type === 'int') {
-      defaultExpr = new NodeType.IntLiterNode(0);
-    } else if (type === 'bool') {
-      defaultExpr = new NodeType.BoolLiterNode(true);
-    } else if (type === 'char') {
-      defaultExpr = new NodeType.CharLiterNode('\0');
-    }
-
-    var exprs:[NodeType.ExprNode] = [defaultExpr];
-    for (var i = 1; i < intLiter.num; i++) {
-      exprs.push(defaultExpr);
-    }
-
-    var node = new NodeType.ArrayLiterNode(exprs);
+  / NEW _ type:PrimitiveType __ LEFT_SQUARE lengthExpr:Expr __ RIGHT_SQUARE {
+    var node = new NodeType.NewArrayNode(type, lengthExpr);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
   }

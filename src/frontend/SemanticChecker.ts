@@ -560,4 +560,18 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type.visit(this);
     };
 
+    visitNewArrayNode(node:NodeType.NewArrayNode):void { 
+        node.lengthExpr.visit(this);
+
+        if (!SemanticUtil.isType(node.lengthExpr.type, NodeType.INT_TYPE)) {
+             throw new Error.SemanticError('New array length must be an int.'
+                                         +'Expecting: ' + NodeType.INT_TYPE + ', '
+                                         +'Actual: '    + node.lengthExpr.type + '.'
+                                         , node.errorLocation);
+        }
+
+        node.type = new NodeType.ArrayTypeNode(node.arrayType, 1);
+    }
+
+
 }
