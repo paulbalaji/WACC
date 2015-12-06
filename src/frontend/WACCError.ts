@@ -47,10 +47,10 @@ export class ParserSyntaxError extends Error {
     location: String
     code: number;
 
-    constructor(pegError) {
+    constructor(pegError, filename) {
         super();
-        this.name = 'Syntax Error';
-        this.location = '('
+        this.name = 'Syntax Error in ' + filename;
+        this.location = ' ('
             + pegError.location.start.line + ', '
             + pegError.location.end.line + ') ';
         this.message = '';

@@ -559,4 +559,5 @@ export class SemanticVisitor implements NodeType.Visitor {
         node.type = structInfo.type;
         node.type.visit(this);
     };
+
 }

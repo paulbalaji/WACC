@@ -41,10 +41,12 @@
   }
 }
 
+/* Program is either a normal program or a header description */
 Program
-  = __ BEGIN _ structList:Struct* __ functionList:Func* statList:StatList _ END __ {
-
-    return new NodeType.ProgramNode(structList, functionList, statList);
+  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {
+    return new NodeType.ProgramNode(functionList, statList);
+  } / (__ HEADER _ functionList:Func+ END __) {
+    return new NodeType.HeaderNode(functionList);
   }
 
 Struct
@@ -498,6 +500,8 @@ SourceCharacter
   = .
 
 /* TOKENS */
+
+HEADER = 'header'
 
 IS     = 'is'
 RETURN = 'return'

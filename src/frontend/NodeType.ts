@@ -102,6 +102,19 @@ export class ProgramNode extends TreeNode {
     }
 }
 
+export class HeaderNode extends TreeNode {
+    functionList: [FuncNode];
+
+    constructor(functionList:[FuncNode]) {
+        super();
+        this.functionList = functionList;
+    }
+
+    visit(v: Visitor): any {
+        return undefined;
+    }
+}
+
 export class FuncNode extends TreeNode {
     type:      TypeNode;
     ident:     IdentNode;
