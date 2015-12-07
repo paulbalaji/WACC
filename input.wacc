@@ -6,10 +6,7 @@
 # Program:
 
 begin
-  int a = ( 10 * 1 + 2 * 15 );
-  if a == 40 then
-    println "Correct"
-  else
-    println "Wrong"
-  fi
+  pair(int, int) p = newpair(5, 6);
+  int a = fst p;
+  print a
 end

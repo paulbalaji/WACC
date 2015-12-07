@@ -18,7 +18,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
     getNextLabelName: any; 
     printNodeLogic: any;
-    allocPairElem: any;
 
     constructor() {
         this.userFuncs = [];
@@ -627,12 +626,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
-        function allocPairElem(nodeType) {
+        var allocPairElem = function(nodeType) {
             var str;
             var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
-          
+
             str = Instr.selectStr(nodeType);
- 
+
             return [
                 this.pushWithIncrement(Reg.R0),
                 Instr.Mov(Reg.R0, Instr.Const(elemSize)),
