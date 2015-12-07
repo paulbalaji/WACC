@@ -232,7 +232,6 @@ function SafeConst(cmd) {
 
 		var lastArg = _.last(args);
 
-
 		instrObj.toString = function() {
 			return instrObj.command + ' ' + instrObj.args.join(', ');
 
@@ -312,7 +311,6 @@ export var Blne = modInstr(Bl, mods.ne);
 export var Bllt = modInstr(Bl, mods.lt);
 export var Blcs = modInstr(Bl, mods.cs);
 export var Bleq = modInstr(Bl, mods.eq);
-
 export var Strb = modInstr(Str, mods.b);
 export var Adds = modInstr(Add, mods.s);
 export var Blvs = modInstr(Bl, mods.vs);

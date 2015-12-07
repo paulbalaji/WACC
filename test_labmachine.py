@@ -48,14 +48,6 @@ def main(argv):
         f.write(subprocess.check_output(["./compile", argv[0]]))
     connect_and_execute(TEMP_FNAME)
 
-
-
-
-
-
-    
-    
-
 if __name__ == "__main__":
    main(sys.argv[1:])
 

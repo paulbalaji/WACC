@@ -21,8 +21,6 @@ export class CodeGenerator implements NodeType.Visitor {
     allocPairElem: any;
 
     constructor() {
-        this.defineSystemFunctions();
-
         this.userFuncs = [];
         this.identOffset = 0;
         this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
@@ -38,34 +36,9 @@ export class CodeGenerator implements NodeType.Visitor {
         return Instr.Pop.apply(this, popArgs);
     }
 
-    defineSystemFunctions() {
-        
-
-
-        this.allocPairElem = function(nodeType) {
-            var str;
-            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
-            if(elemSize == 1) {
-                str = Instr.Strb(Reg.R1, Instr.Mem(Reg.R0));
-            } else {
-                str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
-            }
-            return [
-                this.pushWithIncrement(Reg.R0),
-                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
-                Instr.Bl('malloc'),
-                this.popWithDecrement(Reg.R1),
-                str,
-                this.pushWithIncrement(Reg.R0)
-            ];
-        }.bind(this);
-
-    }
-
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
 
-       
         /* Visit the functions - does not insert any code in main,
            but will cause an insertion in this.userFuncs later.
            This is why we just need to visit the function nodes.
@@ -83,7 +56,6 @@ export class CodeGenerator implements NodeType.Visitor {
         var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
-
 
         var byteSize = node.st.totalByteSize;
         return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit,
@@ -242,7 +214,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
-        // TODO JAN Comments
         var rhsIns = node.rhs.visit(this);
         var strInstruction = Instr.selectStr(node.lhs.type)
 
@@ -310,7 +281,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1))
             ];
         }
-
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): any {
@@ -627,7 +597,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
         var exprInstructions = node.predicateExpr.visit(this);
@@ -658,11 +627,27 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
+        function allocPairElem(nodeType) {
+            var str;
+            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
+          
+            str = Instr.selectStr(nodeType);
+ 
+            return [
+                this.pushWithIncrement(Reg.R0),
+                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
+                Instr.Bl('malloc'),
+                this.popWithDecrement(Reg.R1),
+                str,
+                this.pushWithIncrement(Reg.R0)
+            ];
+        }.bind(this);
+
         return [
             node.fstExpr.visit(this),
-            this.allocPairElem(node.fstExpr.type),
+            allocPairElem(node.fstExpr.type),
             node.sndExpr.visit(this),
-            this.allocPairElem(node.sndExpr.type),
+            allocPairElem(node.sndExpr.type),
             Instr.Mov(Reg.R0, Instr.Const(8)),
             Instr.Bl('malloc'),
             this.popWithDecrement(Reg.R1, Reg.R2),
