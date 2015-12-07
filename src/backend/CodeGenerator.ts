@@ -630,7 +630,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var str;
             var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
 
-            str = Instr.selectStr(nodeType);
+            str = Instr.selectStr(nodeType)(Reg.R1, Instr.Mem(Reg.R0));
 
             return [
                 this.pushWithIncrement(Reg.R0),
