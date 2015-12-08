@@ -8,7 +8,6 @@ import Macros = require('./Macros');
 
 var _ = require('underscore');
 
-
 export class CodeGenerator implements NodeType.Visitor {
 
     userFuncs: any;
@@ -62,22 +61,20 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
-
         this.currentST = node.st;
+
         var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
         var labelInstruction = [Instr.Label('f_' + node.ident.toString()), this.pushWithIncrement(Reg.LR)];
-        var funcInstructions = [
-                                statListInstructions,
-                               ];
+        var funcInstructions = [statListInstructions];
         var endFuncInstructions = [Instr.Directive('ltorg')];
 
         var totalByteSize = this.currentST.totalByteSize;                       
         var scopeSub = totalByteSize === 0 ? [] : Instr.Sub(Reg.SP, Reg.SP, Instr.Const(totalByteSize));
+
         this.userFuncs.push([labelInstruction, scopeSub, funcInstructions, endFuncInstructions]);
         this.currentST = node.st.parent;
         return [];
     }
-
    
     scopedInstructions(byteSize, instructions) {
         /* Given the byteSize for the current scope,
@@ -87,13 +84,12 @@ export class CodeGenerator implements NodeType.Visitor {
             return instructions;
         } else {
             return [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(byteSize)),
-                instructions, Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
+                    instructions, Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
         }
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
         var binOpInstructions;
-
         var lhsInstructions = node.leftOperand.visit(this);
 
         switch (node.operator) {
@@ -308,7 +304,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Cmp(Reg.R0, Instr.Const(1)),
                 Instr.Beq(bodyLabel)];
     }
-
 
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
         var instrList = [];

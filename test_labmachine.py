@@ -10,7 +10,6 @@ import atexit
 
 TEMP_FNAME = "tmp.s"
 
-
 class MySSH:
 
     def __init__(self):
@@ -26,7 +25,6 @@ class MySSH:
             scp.put(filename, filename)
 
     def call(self, command):
-      
         stdin,stdout,stderr = self.client.exec_command(command)
         sshdata = stdout.readlines()
         for line in sshdata:
@@ -35,13 +33,11 @@ class MySSH:
         for line in sshdata:
             print(line)
 
-
 def connect_and_execute(f):
         ssh = MySSH()
         ssh.copy_to_remote(f)
         ssh.call('arm-linux-gnueabi-gcc -o tmp_exec -mcpu=arm1176jzf-s -mtune=arm1176jzf-s tmp.s')
         ssh.call('qemu-arm -L /usr/arm-linux-gnueabi/ tmp_exec')
-
 
 def main(argv):
     with open(TEMP_FNAME, 'w') as f:
@@ -50,10 +46,3 @@ def main(argv):
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-
-
-
-
-
-
-
