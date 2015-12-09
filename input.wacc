@@ -1,8 +1,5 @@
 begin
     int[] x = get_frame_buffer;
-    int i = 0;
-    while (i < 2000) do
-        x[i] = 16711680;
-        i = i + 1
-    done 
+    x[0] = 16711680;
+    x[1] = 16711680
 end
