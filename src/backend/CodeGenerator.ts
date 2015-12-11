@@ -807,6 +807,36 @@ export class CodeGenerator implements NodeType.Visitor {
 
     }
 
+    visitNewArrayNode(node:NodeType.NewArrayNode):any { 
+        Macros.insertMemset(); // For memset
+        Macros.insertOverflowError(); // For overflow error
+
+        var instrList = [];
+
+        var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode((<NodeType.ArrayTypeNode>node.type).type);
+
+        // add 4 in front to store the array length
+        var lengthExprInstructions = node.lengthExpr.visit(this); // Leaves length in r0
+        instrList.push(
+                       lengthExprInstructions,
+                       Instr.Mov(Reg.R4, Reg.R0), // R4 = raw length of array
+                       Instr.Mov(Reg.R1, Instr.Const(elemByteSize)),
+                       Instr.Smull(Reg.R0, Reg.R1, Reg.R0, Reg.R1),
+                       Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
+                       Instr.Blne('p_throw_overflow_error'),
+                       Instr.Mov(Reg.R1, Reg.R0),
+                       Instr.Adds(Reg.R1, Instr.Const(4)), // Add 4 for the size
+                       Instr.Bl('malloc'),
+                       // Array address is still in R0 and size is still in R1
+                       Instr.Bl('memset'),
+                       // R4 still contains raw length of array
+                       // R0 contains address of array
+                       Instr.Str(Reg.R4, Instr.Mem(Reg.R0))
+                       );
+
+        return instrList;
+    }
+
     visitIntTypeNode(node: NodeType.IntTypeNode): any {}
     visitBoolTypeNode(node: NodeType.BoolTypeNode): any {}
     visitCharTypeNode(node: NodeType.CharTypeNode): any {}

@@ -11,7 +11,6 @@
   }
 
   function generateSingletonListFromRule(elem) {
-
     if (elem === null) {
       return [];
     }
@@ -41,10 +40,12 @@
   }
 }
 
+/* Program is either a normal program or a header description */
 Program
-  = __ BEGIN _ structList:Struct* __ functionList:Func* statList:StatList _ END __ {
-
+  = __ BEGIN _ structList:Struct* functionList:Func* statList:StatList _ END __ {
     return new NodeType.ProgramNode(structList, functionList, statList);
+  } / (__ HEADER _ structList:Struct* functionList:Func* END __) {
+    return new NodeType.HeaderNode(structList, functionList);
   }
 
 Struct
@@ -163,6 +164,14 @@ Type
   / StructType
 
 BaseType
+  = PrimitiveType
+  / STRING { 
+      var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
+
+PrimitiveType
   = INT { 
       var node = new NodeType.IntTypeNode();
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
@@ -177,11 +186,6 @@ BaseType
       var node = new NodeType.CharTypeNode();
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
-  }
-  / STRING { 
-      var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
-      node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
   }
 
 ArrayType
@@ -231,7 +235,11 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
-
+  / NEW _ type:PrimitiveType __ LEFT_SQUARE lengthExpr:Expr __ RIGHT_SQUARE {
+    var node = new NodeType.NewArrayNode(type, lengthExpr);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
   / NEW _ structIdent:Ident {
     return new NodeType.NewStructNode(structIdent);
   } 
@@ -484,6 +492,8 @@ SourceCharacter
   = .
 
 /* TOKENS */
+
+HEADER = 'header'
 
 IS     = 'is'
 RETURN = 'return'

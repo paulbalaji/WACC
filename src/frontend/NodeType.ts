@@ -60,6 +60,9 @@ export interface Visitor {
     visitStructNode(node:StructNode):any;
     visitStructTypeNode(node:StructTypeNode):any;
     visitNewStructNode(node:NewStructNode):any;
+    
+    visitNewArrayNode(node:NewArrayNode):any;
+
 }
 
 export interface Visitable {
@@ -101,6 +104,21 @@ export class ProgramNode extends TreeNode {
 
     visit(v: Visitor): any {
         return v.visitProgramNode(this);
+    }
+}
+
+export class HeaderNode extends TreeNode {
+    structList: [StructNode];
+    functionList: [FuncNode];
+
+    constructor(structList:[StructNode], functionList:[FuncNode]) {
+        super();
+        this.structList  = structList;
+        this.functionList = functionList;
+    }
+
+    visit(v: Visitor): any {
+        return undefined;
     }
 }
 
@@ -701,6 +719,21 @@ export class NewStructNode extends TreeNode implements AssignRHSNode {
     }
     visit(v: Visitor): any {
         return v.visitNewStructNode(this);
+    }
+}
+
+export class NewArrayNode extends TreeNode implements AssignRHSNode {
+    type: TypeNode;
+    arrayType: TypeNode;
+    lengthExpr: ExprNode;
+    constructor(arrayType, lengthExpr) {
+        super();
+        this.arrayType = arrayType;
+        this.lengthExpr = lengthExpr;
+    }
+
+    visit(v: Visitor): any {
+        return v.visitNewArrayNode(this);
     }
 }
 

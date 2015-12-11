@@ -79,6 +79,8 @@ export class ReturnVisitor implements NodeType.Visitor {
     visitStructTypeNode(node:NodeType.StructTypeNode):boolean { return false; }
     visitNewStructNode(node:NodeType.NewStructNode):boolean { return false; }
 
+    visitNewArrayNode(node:NodeType.NewArrayNode):boolean { return false; }
+
     visitBinOpExprNode(node: NodeType.BinOpExprNode): boolean { return false; }
     visitStrLiterNode(node: NodeType.StrLiterNode): boolean { return false; }
     visitAssignNode(node: NodeType.AssignNode): boolean { return false; }
