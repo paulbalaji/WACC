@@ -777,21 +777,23 @@ export class CodeGenerator implements NodeType.Visitor {
         return instrs;
 
     }
+
     visitFieldNode(node: NodeType.FieldNode): any {
         // Does not need to be visited
         return []
     }
+
     visitStructNode(node:NodeType.StructNode):any {
         // Does not need to be visited
         return []
 
     }
+
     visitStructTypeNode(node:NodeType.StructTypeNode):any {
         // Does not need to be visited
-        return []
-
-        
+        return []      
     }
+    
     visitNewStructNode(node:NodeType.NewStructNode):any {
         var st = (<NodeType.StructTypeNode> node.type).st
         Macros.insertMemset();
