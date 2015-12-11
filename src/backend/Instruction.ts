@@ -51,8 +51,9 @@ export function Directive(name, ...args) {
 export function Push(...rs) {
 	var push: any = {};
 	push.pushRegs = rs;
+    push.command = 'PUSH';
 	push.toString = function() {
-		return 'PUSH ' + '{' + push.pushRegs.join(', ') + '}';
+		return push.command + ' {' + push.pushRegs.join(', ') + '}';
 	}
 	return push;
 }
@@ -60,8 +61,9 @@ export function Push(...rs) {
 export function Pop(...rs) {
 	var pop: any = {};
 	pop.popRegs = rs;
+    pop.command = 'POP';
     pop.toString = function() {
-        return 'POP ' + '{' + pop.popRegs.join(', ') + '}';
+        return pop.command + ' {' + pop.popRegs.join(', ') + '}';
     }
 
 	return pop;
