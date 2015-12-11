@@ -6,6 +6,5 @@
 # Program:
 
 begin
-	int x = 0xFFFFFF;
-	print x + 5
+	int[] x = [1,2,3,4,5]
 end

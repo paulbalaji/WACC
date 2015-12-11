@@ -68,9 +68,10 @@ export class CodeGenerator implements NodeType.Visitor {
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
         var mainLabelInit = [Instr.Label('main'),
-                             Instr.Mov(Reg.SP, Instr.Const(this.startOfStack)),
-                             Instr.Mov(Reg.R5, Instr.Const(this.startOfHeap + 4)),
-                             Instr.Str(Reg.R5, Instr.Mem(this.startOfHeap)),
+                             Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
+                             Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
+                             Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
+                             Instr.Str(Reg.R5, Instr.Mem(Reg.R6)),
                              this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
