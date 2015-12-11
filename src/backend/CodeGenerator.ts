@@ -65,18 +65,29 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var {dataSection: dataSection, sysFuncSection: sysFuncSection} = Macros.runClosingInsertions(); // Run closing insertions on sections.
 
+        var barebonesStackInit;
+        if (Macros.barebones) {
+            barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
+                             Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
+                             Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
+                             Instr.Str(Reg.R5, Instr.Mem(Reg.R6))]
+        } else {
+            barebonesStackInit = [];
+
+        }
+
+
+        
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
         var mainLabelInit = [Instr.Label('main'),
-                             Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
-                             Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
-                             Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
-                             Instr.Str(Reg.R5, Instr.Mem(Reg.R6)),
+                             barebonesStackInit,
                              this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
 
         var byteSize = node.st.totalByteSize;
+
         return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit,
                                this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
     }

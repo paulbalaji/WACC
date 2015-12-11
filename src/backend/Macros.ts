@@ -6,6 +6,8 @@ import GXMacros = require('./GraphicsMacros');
 import Reg = require('./Register');
 var _ = require('underscore');
 
+export var barebones = false;
+
 export var sections = { dataSection: [], sysFuncSection: [] };
 
 var closingInsertions = [];
@@ -180,13 +182,17 @@ export var insertGetFrameBuffer = _.once(() => {
 });
 
 export var insertMalloc = _.once(() => {
-	closingInsertions.push(function() {
-        sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
-	});
+	if (barebones) {
+		closingInsertions.push(function() {
+        	sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
+		});
+	}
 });
 
 export var insertFree = _.once(() => {
-    closingInsertions.push(function() {
-        sections.sysFuncSection.push(CodeGenUtil.funcDefs.free());
-    });
+	if (barebones) {
+	    closingInsertions.push(function() {
+	        sections.sysFuncSection.push(CodeGenUtil.funcDefs.free());
+	    });
+    }
 });
