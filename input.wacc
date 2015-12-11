@@ -1,4 +1,11 @@
 begin
+    int[] x = get_frame_buffer;
+    x[0] = 0;
+    x[1] = 0;
+    x[2] = 0;
+    x[3] = 0;
+    x[900] = 0;
+    x[901] = 0;
 	int[] sixes = call initArray(6, 10);
 	int res = call printIntArray(sixes)
 end

@@ -31,6 +31,7 @@ Because we are using Node.js, we required some additional node modules:
 * [colors] - to throw colourful error messages
 * [spell] - for suggesting variable or function names where none can be found
 * [underscore] - JavaScript library for functional programming helpers
+* [async] - asynchronous JavaScript
 
 And of course our compiler itself is available within a private repository on GitLab.
 
@@ -105,4 +106,5 @@ However, feel free to donate pizza!
    [colors]: <https://github.com/marak/colors.js/>
    [spell]: <https://github.com/dscape/spell>
    [underscore]: <http://underscorejs.org/>
+   [async]: <https://github.com/caolan/async>
    [See here.]: <https://nodejs.org/en/download/package-manager/>
