@@ -55,6 +55,11 @@ export interface Visitor {
     visitNullTypeNode(node:NullTypeNode): any;
 
     visitGetFrameBufferNode(node:GetFrameBufferNode): any;
+    visitStructElemNode(node:StructElemNode):any;
+    visitFieldNode(node:FieldNode):any;
+    visitStructNode(node:StructNode):any;
+    visitStructTypeNode(node:StructTypeNode):any;
+    visitNewStructNode(node:NewStructNode):any;
 }
 
 export interface Visitable {
@@ -81,11 +86,15 @@ export interface TypeNode extends TreeNode {}
 export class ProgramNode extends TreeNode {
     functionList: [FuncNode];
     statList:     [StatNode];
+    structList: [StructNode];
+    structST: SemanticUtil.SymbolTable;
+    functionST: SemanticUtil.SymbolTable;
 
     st: SemanticUtil.SymbolTable;
 
-    constructor(functionList:[FuncNode], statList:[StatNode]) {
+    constructor(structList: [StructNode], functionList:[FuncNode], statList:[StatNode]) {
         super();
+        this.structList = structList;
         this.functionList = functionList;
         this.statList = statList;
     }
@@ -115,6 +124,8 @@ export class FuncNode extends TreeNode {
         return v.visitFuncNode(this);
     }
 }
+
+
 
 export class SkipNode extends TreeNode implements StatNode {
     constructor() {
@@ -619,6 +630,79 @@ export class GetFrameBufferNode extends TreeNode implements AssignRHSNode {
     }
 }
 
+export class StructNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    fieldList: [FieldNode];
+    map: any;
+    constructor(ident: IdentNode, fieldList: [FieldNode]) {
+        super()
+        this.ident = ident;
+        this.fieldList = fieldList;
+    }
+
+    visit(v: Visitor): any {
+        return v.visitStructNode(this);
+    }
+}
+
+export class StructTypeNode extends TreeNode {
+    ident: IdentNode;
+    st: any;
+    constructor(ident: IdentNode) {
+        super()
+        this.ident = ident;
+    }
+    visit(v: Visitor): any {
+        return v.visitStructTypeNode(this);
+    }
+
+    toString(): String {
+        return 'struct ' + this.ident; 
+    }
+}
+
+export class FieldNode extends TreeNode {
+    type: TypeNode;
+    ident: IdentNode;
+    constructor(ident: IdentNode, type: TypeNode) {
+        super()
+        this.ident = ident;
+        this.type = type;
+    }
+    visit(v: Visitor): any {
+        return v.visitFieldNode(this);
+    }
+}
+
+export class StructElemNode extends TreeNode implements ExprNode {
+    type: TypeNode;
+    structIdent: IdentNode;
+    fieldIdents: [IdentNode];
+   
+    constructor(structIdent, fieldIdents) {
+        super();
+        this.structIdent = structIdent;
+        this.fieldIdents = fieldIdents;
+    }
+    visit(v: Visitor): any {
+        return v.visitStructElemNode(this);
+    }
+
+
+}
+
+export class NewStructNode extends TreeNode implements AssignRHSNode {
+    type: TypeNode;
+    structIdent: IdentNode;
+    constructor(structIdent) {
+        super();
+        this.structIdent = structIdent;
+    }
+    visit(v: Visitor): any {
+        return v.visitNewStructNode(this);
+    }
+}
 
 export var INT_TYPE: IntTypeNode = new IntTypeNode();
 export var CHAR_TYPE: CharTypeNode = new CharTypeNode();

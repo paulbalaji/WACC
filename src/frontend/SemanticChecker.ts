@@ -4,21 +4,27 @@ import SemanticUtil = require('./SemanticUtil');
 import Error = require("./WACCError");
 import ReturnChecker = require('./ReturnChecker');
 import OperatorInfo = require('./OperatorInfo');
+var util = require('util')
 
 var _ = require('underscore');
 
 export class SemanticVisitor implements NodeType.Visitor {
-
+    structST: SemanticUtil.SymbolTable;
     currentST: SemanticUtil.SymbolTable;
     functionST: SemanticUtil.SymbolTable;
 
     constructor() {
+
+        // Creating structs symbol table
+        this.structST = new SemanticUtil.SymbolTable(null);
 
         // Creating functions symbol table
         this.functionST = new SemanticUtil.SymbolTable(null);
 
         // Creating the root symbol table
         this.currentST = new SemanticUtil.SymbolTable(null);
+
+
     }
 
     setCurrentScope(newCurrentST: SemanticUtil.SymbolTable): void {
@@ -35,6 +41,12 @@ export class SemanticVisitor implements NodeType.Visitor {
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         node.st = this.currentST;
+        node.structST = this.structST;
+        node.functionST = this.functionST;
+        var visitStructNodeCallbacks = SemanticUtil.visitNodeList(node.structList, this);
+
+        // Finish the visiting of all the function nodes.
+        _.map(visitStructNodeCallbacks, (f) => f());
         /* 
             Partially visit all the functionNodes inserting their idents into the symbol table,
             and returning the rest of the visit as callback functions.
@@ -198,9 +210,9 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitDeclareNode(node: NodeType.DeclareNode): void {
+
         node.type.visit(this);
         node.rhs.visit(this);
-
         var res = this.currentST.lookup(node.ident);
         if (res && !(res.node instanceof NodeType.ParamNode)) {
             throw new Error.SemanticError('Redeclaration of variable "' + node.ident + '".'
@@ -487,4 +499,96 @@ export class SemanticVisitor implements NodeType.Visitor {
     visitCharTypeNode(node: NodeType.CharTypeNode): void {}
     visitEmptyArrayTypeNode(node: NodeType.EmptyArrayTypeNode): void {}
     visitNullTypeNode(node: NodeType.NullTypeNode): void {}
+
+    visitStructElemNode(node:NodeType.StructElemNode):void {
+        node.structIdent.visit(this);
+
+
+        var currentType = this.currentST.lookupAll(node.structIdent).type;
+        for (var i = 0; i < node.fieldIdents.length; i++) {
+            if (!(currentType instanceof NodeType.StructTypeNode)) {
+                throw new Error.SemanticError('Accesing property of something whih is not a struct', node.fieldIdents[i].errorLocation);
+            }
+            var current = currentType.st.lookupAll(node.fieldIdents[i]);
+            if (!current) {
+                throw new Error.SemanticError('Accessing field that does not exist.', node.fieldIdents[i].errorLocation);
+            }
+            currentType = current.type;
+
+        }
+
+        node.type = currentType;
+
+    };
+    visitFieldNode(node:NodeType.FieldNode):void {
+        // Not visiting ident node because it is not 
+        // necessary for it to be defined in current scope
+
+        node.type.visit(this);
+    };
+    visitStructNode(node: NodeType.StructNode): any {
+        // Check for redefinition of the function.
+        
+        if (this.structST.lookupAll(node.ident)) {
+            var message = '';
+            throw new Error.SemanticError('Redefined  struct:'
+                + ' "' + node.ident + '".'
+                , node.ident.errorLocation);
+        }
+        
+        var type = new NodeType.StructTypeNode(node.ident);
+        node.type = type;
+        type.st = new SemanticUtil.SymbolTable(null);
+
+        this.structST.insert(node.ident, {type: type, node: node, offset: null});
+        node.ident.type = type;
+
+        return () => {
+            SemanticUtil.visitNodeList(node.fieldList, this);
+
+            _.map(node.fieldList, function (field) {
+                if (type.st.lookupAll(field.ident)) {
+                    throw new Error.SemanticError('Redefiend field'
+                                         +' "' + field.ident + '" in struct'
+                                         +' "' + node.ident + '".' 
+                                         , node.ident.errorLocation);
+
+                }
+                if (field.type instanceof NodeType.StructTypeNode) {
+
+                    var fieldType = this.structST.lookupAll(field.type.ident).type;
+
+                } else {
+                    var fieldType = field.type;
+                }
+                type.st.insert(field.ident, { type: fieldType, node: field, offset: null });
+                
+            }.bind(this))
+
+
+        };
+
+    };
+
+    visitStructTypeNode(node:NodeType.StructTypeNode):void {
+
+        if (!this.structST.lookupAll(node.ident)) {
+
+            throw new Error.SemanticError('Undefined  struct:'
+                                         +' "' + node.ident + '".'
+                                         , node.ident.errorLocation);
+            }
+        
+    };
+
+    visitNewStructNode(node:NodeType.NewStructNode):void {
+        var structInfo = this.structST.lookupAll(node.structIdent);
+        if (!structInfo) {
+                    throw new Error.SemanticError('Undefined  struct:'
+                                         +' "' + node.structIdent + '".'
+                                        , node.structIdent.errorLocation);            
+            }
+        node.type = structInfo.type;
+        node.type.visit(this);
+    };
 }

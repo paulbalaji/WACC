@@ -1,5 +1,5 @@
 begin
     int[] x = get_frame_buffer;
-    x[0] = 16711680;
-    x[1] = 16711680
+    x[0] = 0xFF0000;
+    x[1] = 0xFF0000
 end

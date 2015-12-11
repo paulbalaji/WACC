@@ -37,6 +37,13 @@ export var insertCheckNullPointer = _.once(() => {
 	});
 });
 
+export var insertMemset = _.once(() => {	
+
+	closingInsertions.push(function() {
+		sections.sysFuncSection.push(CodeGenUtil.funcDefs.memset());
+	});
+});
+
 export var insertReadInt = _.once(() => {
 	closingInsertions.push(function() {
 		var intFormatLabel = insertStringDataHeader("%d\\0");
@@ -159,5 +166,17 @@ export var insertGetFrameBuffer = _.once(() => {
         sections.sysFuncSection.push(GXMacros.GetFrameBuffer());
         insertMailboxWrite();
         insertMailboxRead();
+    });
+});
+
+export var insertMalloc = _.once(() => {
+	closingInsertions.push(function() {
+        sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
+	});
+});
+
+export var insertFree = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(CodeGenUtil.funcDefs.free());
     });
 });

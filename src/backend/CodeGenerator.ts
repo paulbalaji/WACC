@@ -7,7 +7,7 @@ import CodeGenUtil = require('./CodeGenUtil');
 import Macros = require('./Macros');
 
 var _ = require('underscore');
-
+var util = require('util');
 
 export class CodeGenerator implements NodeType.Visitor {
 
@@ -15,17 +15,22 @@ export class CodeGenerator implements NodeType.Visitor {
     identOffset: any;
 
     currentST: SemanticUtil.SymbolTable;
+    structST: SemanticUtil.SymbolTable;
+    functionST: SemanticUtil.SymbolTable;
 
     getNextLabelName: any; 
     printNodeLogic: any;
-    allocPairElem: any;
+
+    startOfStack: number;
+    startOfHeap: number;
 
     constructor() {
-        this.defineSystemFunctions();
-
         this.userFuncs = [];
         this.identOffset = 0;
         this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
+
+        this.startOfStack = 0x80000;
+        this.startOfHeap = 0x80004;
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
@@ -38,34 +43,16 @@ export class CodeGenerator implements NodeType.Visitor {
         return Instr.Pop.apply(this, popArgs);
     }
 
-    defineSystemFunctions() {
-        
-
-
-        this.allocPairElem = function(nodeType) {
-            var str;
-            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
-            if(elemSize == 1) {
-                str = Instr.Strb(Reg.R1, Instr.Mem(Reg.R0));
-            } else {
-                str = Instr.Str(Reg.R1, Instr.Mem(Reg.R0));
-            }
-            return [
-                this.pushWithIncrement(Reg.R0),
-                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
-                Instr.Bl('malloc'),
-                this.popWithDecrement(Reg.R1),
-                str,
-                this.pushWithIncrement(Reg.R0)
-            ];
-        }.bind(this);
-
+    insertMallocInstruction() {
+        Macros.insertMalloc();
+        return [Instr.Bl('malloc')];
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
         this.currentST = node.st;
+        this.structST = node.structST;
+        this.functionST = node.functionST;
 
-       
         /* Visit the functions - does not insert any code in main,
            but will cause an insertion in this.userFuncs later.
            This is why we just need to visit the function nodes.
@@ -80,10 +67,14 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
-        var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
+        var mainLabelInit = [Instr.Label('main'),
+                             Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
+                             Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
+                             Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
+                             Instr.Str(Reg.R5, Instr.Mem(Reg.R6)),
+                             this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
-
 
         var byteSize = node.st.totalByteSize;
         return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit,
@@ -91,22 +82,20 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
-
         this.currentST = node.st;
+
         var statListInstructions = [_.flatten(SemanticUtil.visitNodeList(node.statList, this))];
         var labelInstruction = [Instr.Label('f_' + node.ident.toString()), this.pushWithIncrement(Reg.LR)];
-        var funcInstructions = [
-                                statListInstructions,
-                               ];
+        var funcInstructions = [statListInstructions];
         var endFuncInstructions = [Instr.Directive('ltorg')];
 
         var totalByteSize = this.currentST.totalByteSize;                       
         var scopeSub = totalByteSize === 0 ? [] : Instr.Sub(Reg.SP, Reg.SP, Instr.Const(totalByteSize));
+
         this.userFuncs.push([labelInstruction, scopeSub, funcInstructions, endFuncInstructions]);
         this.currentST = node.st.parent;
         return [];
     }
-
    
     scopedInstructions(byteSize, instructions) {
         /* Given the byteSize for the current scope,
@@ -116,13 +105,12 @@ export class CodeGenerator implements NodeType.Visitor {
             return instructions;
         } else {
             return [Instr.Sub(Reg.SP, Reg.SP, Instr.Const(byteSize)),
-                instructions, Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
+                    instructions, Instr.Add(Reg.SP, Reg.SP, Instr.Const(byteSize))];
         }
     }
 
     visitBinOpExprNode(node: NodeType.BinOpExprNode): any {
         var binOpInstructions;
-
         var lhsInstructions = node.leftOperand.visit(this);
 
         switch (node.operator) {
@@ -242,7 +230,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitAssignNode(node: NodeType.AssignNode): any {
-        // TODO JAN Comments
         var rhsIns = node.rhs.visit(this);
         var strInstruction = Instr.selectStr(node.lhs.type)
 
@@ -291,6 +278,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
             var fetchType = lhs.index === 0 ? type1 : type2;            
             Macros.insertCheckNullPointer();
+            Macros.insertFree();
             var fetchTypeSize = CodeGenUtil.getByteSizeFromTypeNode(fetchType);
             return [
                 rhsIns,
@@ -302,15 +290,50 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
                 Instr.Bl('free'),
                 Instr.Mov(Reg.R0, Instr.Const(fetchTypeSize)),
-                Instr.Bl('malloc'),
+                this.insertMallocInstruction(),
                 this.popWithDecrement(Reg.R1),
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
                 this.popWithDecrement(Reg.R0),
                 Instr.selectStr(fetchType)(Reg.R0, Instr.Mem(Reg.R1))
             ];
-        }
+        } else if (node.lhs instanceof NodeType.StructElemNode) {
+            var structElemNode = <NodeType.StructElemNode> node.lhs;      
 
+           /* var st = this.currentST.lookupAll(structElemNode.structIdent).type.st;
+       
+            return [
+                rhsIns,
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(structElemNode.structIdent)))),
+                Instr.Bl("p_check_null_pointer"),
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(st.lookupAll(structElemNode.fieldIdents[0]).offset - 4)),
+                this.popWithDecrement(Reg.R1),
+                Instr.selectStr(node.rhs.type)(Reg.R1, Instr.Mem(Reg.R0))
+            ];*/
+
+            Macros.insertCheckNullPointer();
+            var instructions = [ rhsIns,
+                this.pushWithIncrement(Reg.R0),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(structElemNode.structIdent)))),
+                Instr.Bl("p_check_null_pointer")];
+
+            var current = this.currentST.lookupAll(structElemNode.structIdent);
+            for (var i = 0; i < structElemNode.fieldIdents.length - 1; i++) {
+                current = current.type.st.lookupAll(structElemNode.fieldIdents[i]);
+                instructions.push([
+                    Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)),
+                    Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                    Instr.Bl('p_check_null_pointer')]
+                );
+            }
+            current = current.type.st.lookupAll(structElemNode.fieldIdents[i]);
+
+            instructions.push(Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)));
+            instructions.push(this.popWithDecrement(Reg.R1));
+            instructions.push(Instr.selectStr(structElemNode.type)(Reg.R1, Instr.Mem(Reg.R0)));
+            return instructions;
+        }
     }
 
     visitBeginEndBlockNode(node: NodeType.BeginEndBlockNode): any {
@@ -340,7 +363,6 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Beq(bodyLabel)];
     }
 
-
     visitArrayLiterNode(node: NodeType.ArrayLiterNode): any {
         var instrList = [];
         var arrayLength = node.exprList ? node.exprList.length : 0;
@@ -354,7 +376,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var offset = 4;
         var size = offset + arrayLength * elemByteSize;
         instrList.push(Instr.Mov(Reg.R0, Instr.Const(size)),
-                       Instr.Bl('malloc'),
+                       this.insertMallocInstruction(),
                        Instr.Mov(Reg.R3, Reg.R0));
 
         if (elemByteSize === 4) {
@@ -387,6 +409,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitFreeNode(node: NodeType.FreeNode): any {
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
+        Macros.insertFree();
 
         if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
@@ -559,6 +582,7 @@ export class CodeGenerator implements NodeType.Visitor {
             
             Macros.insertCheckNullPointer();
             Macros.insertReadInt();
+            Macros.insertFree();
             
             var indexInstruction;
             var readType = target.index === 0 ? type1 : type2;
@@ -573,7 +597,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
                 Instr.Bl('free'),
                 Instr.Mov(Reg.R0, Instr.Const(readTypeSize)),
-                Instr.Bl('malloc'),
+                this.insertMallocInstruction(),
                 this.popWithDecrement(Reg.R1),
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
@@ -627,7 +651,6 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitIfNode(node: NodeType.IfNode): any {
-
         var falseLabel = this.getNextLabelName(),
             afterLabel = this.getNextLabelName();
         var exprInstructions = node.predicateExpr.visit(this);
@@ -658,13 +681,29 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitNewPairNode(node: NodeType.NewPairNode): any {
+        var allocPairElem = function(nodeType) {
+            var str;
+            var elemSize = CodeGenUtil.getByteSizeFromTypeNode(nodeType);
+
+            str = Instr.selectStr(nodeType)(Reg.R1, Instr.Mem(Reg.R0));
+
+            return [
+                this.pushWithIncrement(Reg.R0),
+                Instr.Mov(Reg.R0, Instr.Const(elemSize)),
+                this.insert,
+                this.popWithDecrement(Reg.R1),
+                str,
+                this.pushWithIncrement(Reg.R0)
+            ];
+        }.bind(this);
+
         return [
             node.fstExpr.visit(this),
-            this.allocPairElem(node.fstExpr.type),
+            allocPairElem(node.fstExpr.type),
             node.sndExpr.visit(this),
-            this.allocPairElem(node.sndExpr.type),
+            allocPairElem(node.sndExpr.type),
             Instr.Mov(Reg.R0, Instr.Const(8)),
-            Instr.Bl('malloc'),
+            this.insertMallocInstruction(),
             this.popWithDecrement(Reg.R1, Reg.R2),
             Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
             Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))
@@ -704,12 +743,66 @@ export class CodeGenerator implements NodeType.Visitor {
 
     visitGetFrameBufferNode(node: NodeType.GetFrameBufferNode): any {
         var instrList = [Instr.Mov(Reg.R0, Instr.Const(1024)),
-                         Instr.Mov(Reg.R1, Instr.Const(768)),
-                         Instr.Mov(Reg.R2, Instr.Const(16)),
-                         Instr.Bl('gx_get_frame_buffer'),
-                         Instr.Add(Reg.R0, Reg.R0, Instr.Const(32))];
+            Instr.Mov(Reg.R1, Instr.Const(768)),
+            Instr.Mov(Reg.R2, Instr.Const(16)),
+            Instr.Bl('gx_get_frame_buffer'),
+            Instr.Add(Reg.R0, Reg.R0, Instr.Const(32))];
         Macros.insertGetFrameBuffer();
         return instrList;
+    }
+
+    visitStructElemNode(node:NodeType.StructElemNode):any {
+        Macros.insertCheckNullPointer();
+    
+        var identInstr = node.structIdent.visit(this);
+        var instrs = [
+            identInstr,
+            Instr.Bl('p_check_null_pointer')];
+
+        var current = this.currentST.lookupAll(node.structIdent);
+        for (var i = 0; i < node.fieldIdents.length - 1; i++) {
+            current = current.type.st.lookupAll(node.fieldIdents[i]);
+            instrs.push([
+                Instr.Add(Reg.R0, Reg.R0, Instr.Const(current.offset - 4)),
+                Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
+                Instr.Bl('p_check_null_pointer')]
+            );
+        }
+
+        current = current.type.st.lookupAll(node.fieldIdents[i]);
+        var ldrInstr = Instr.selectLdr(current.type);
+        instrs.push([
+            ldrInstr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(current.offset - 4)))]);
+
+        return instrs;
+
+    }
+    visitFieldNode(node: NodeType.FieldNode): any {
+        // Does not need to be visited
+        return []
+    }
+    visitStructNode(node:NodeType.StructNode):any {
+        // Does not need to be visited
+        return []
+
+    }
+    visitStructTypeNode(node:NodeType.StructTypeNode):any {
+        // Does not need to be visited
+        return []
+
+        
+    }
+    visitNewStructNode(node:NodeType.NewStructNode):any {
+        var st = (<NodeType.StructTypeNode> node.type).st
+        Macros.insertMemset();
+        return [
+            Instr.Mov(Reg.R0, Instr.Const(st.totalByteSize)),
+            this.insertMallocInstruction(),
+            // Set the returned memory to zero to guarantee null safety
+            Instr.Mov(Reg.R1, Instr.Const(st.totalByteSize)),
+            Instr.Bl('memset')
+        ];
+
     }
 
     visitIntTypeNode(node: NodeType.IntTypeNode): any {}

@@ -134,6 +134,18 @@ export var funcDefs = {
                 Instr.Bl('free'),
                 Instr.Pop(Reg.PC)];
     },
+    memset: function() {
+        return [Instr.Label('memset'),
+            Instr.Push(Reg.LR),
+            Instr.Mov(Reg.R2, Instr.Const(0)),
+            Instr.Label('memset_continue'),
+            Instr.Mov(Reg.R3, Instr.Const(0)),
+            Instr.Strb(Reg.R3, Instr.Mem(Reg.R0, Reg.R2)),
+            Instr.Add(Reg.R2, Reg.R2, Instr.Const(1)),
+            Instr.Cmp(Reg.R2, Reg.R1),
+            Instr.Ble('memset_continue'),
+            Instr.Pop(Reg.PC)];
+    },
 
     runtimeError: function() {
         return [Instr.Label('p_throw_runtime_error'),
@@ -166,14 +178,37 @@ export var funcDefs = {
 			// The case for printing a string (array of chars)
 			Macros.insertPrintString();
 			return [exprInstructions, Instr.Bl('p_print_string')];
-		} else if (node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
+		} else if (node.expr.type instanceof NodeType.StructTypeNode || node.expr.type instanceof NodeType.ArrayTypeNode || node.expr.type instanceof NodeType.NullTypeNode
 			|| node.expr.type instanceof NodeType.PairTypeNode) {
 
 			Macros.insertPrintRef();
 			return [exprInstructions, Instr.Bl('p_print_reference')];
 		}
+    },
 
+    malloc: function() {
+        return [Instr.Label('malloc'),
+                Instr.Push(Reg.LR),
+                Instr.Push(Reg.R1),
+                Instr.Push(Reg.R2),
+                Instr.Push(Reg.R3),
+                Instr.Ldr(Reg.R2, Instr.Liter(0x80004)),
+                Instr.Ldr(Reg.R1, Instr.Mem(Reg.R2)),
+                Instr.Ldr(Reg.R3, Instr.Mem(Reg.R1)),
+                Instr.Add(Reg.R0, Reg.R0, Reg.R3),
+                Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
+                Instr.Mov(Reg.R0, Reg.R1),
+                Instr.Pop(Reg.R3),
+                Instr.Pop(Reg.R2),
+                Instr.Pop(Reg.R1),
+                Instr.Pop(Reg.PC)];
+    },
 
+    free: function() {
+        //free does nothing for now
+        return [Instr.Label('free'),
+                Instr.Push(Reg.LR),
+                Instr.Pop(Reg.PC)];
     }
 };
 
@@ -185,4 +220,3 @@ export function genStrDataBlock(len: number, str: string) {
             Instr.Directive('word', len),
             Instr.Directive('ascii', '"' + str + '"')]};
 }
-

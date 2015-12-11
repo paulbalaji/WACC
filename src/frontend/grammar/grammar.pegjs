@@ -42,9 +42,30 @@
 }
 
 Program
-  = __ BEGIN _ functionList:Func* statList:StatList _ END __ {
-    return new NodeType.ProgramNode(functionList, statList);
+  = __ BEGIN _ structList:Struct* __ functionList:Func* statList:StatList _ END __ {
+
+    return new NodeType.ProgramNode(structList, functionList, statList);
   }
+
+Struct
+  = STRUCT _ ident:Ident __ LEFT_CURLY __ fields:FieldList __ RIGHT_CURLY __ {
+    return new NodeType.StructNode(ident, fields);
+  }
+
+
+FieldList
+  = field:Field __ COMMA __ fields:FieldList {
+    return generateListFromRecursiveRule(field, fields);
+  } / field:Field {
+    return generateSingletonListFromRule(field);
+  }
+
+  Field
+   = type:Type _ ident:Ident {
+    return new NodeType.FieldNode(ident, type);
+  };
+  
+
 
 Func
   = type:Type _ ident:Ident __ LEFT_PAREN __ params:ParamList? __ RIGHT_PAREN __ IS __ stats:StatList __ END _ {
@@ -72,6 +93,16 @@ StatList
   }  
   / stat:Stat {
       return generateSingletonListFromRule(stat);
+  }
+
+StructElem
+  = structIdent:Ident fieldIdents:(StructElemAccess)+  {
+    return new NodeType.StructElemNode(structIdent, fieldIdents);
+  }
+
+StructElemAccess
+  = DOT ident:Ident {
+    return ident;
   }
 
 Stat
@@ -129,6 +160,7 @@ Type
   = ArrayType
   / PairType
   / BaseType
+  / StructType
 
 BaseType
   = INT { 
@@ -164,6 +196,7 @@ PairType
       return new NodeType.PairTypeNode(type1, type2);
   }
 
+
 PairElemType
   = (ArrayType 
   / BaseType)
@@ -171,10 +204,16 @@ PairElemType
     return NodeType.NULL_TYPE;
   }
 
+StructType
+  = STRUCT _ ident:Ident {
+    return new NodeType.StructTypeNode(ident);
+  }
+
 /* AssignLHS */
 AssignLHS
   = lhs:(ArrayElem
   / PairElem
+  / StructElem
   / &BaseType /* This line is here so that an BaseTypes are NOT recognised as Idents */
   / Ident) {
     if (lhs) {
@@ -182,6 +221,7 @@ AssignLHS
     }
     return lhs;
   }
+
 
 /* AssignRHS */
 AssignRHS
@@ -191,6 +231,10 @@ AssignRHS
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
   }
+
+  / NEW _ structIdent:Ident {
+    return new NodeType.NewStructNode(structIdent);
+  } 
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {
       var node = new NodeType.NewPairNode(fstExpr, sndExpr);
@@ -268,6 +312,7 @@ FactorExpr
 
 BaseExpr
   = IntLiter
+  / StructElem
   / BoolLiter
   / CharLiter
   / StrLiter
@@ -337,13 +382,28 @@ PairLiter
 
 /* IntLiter */
 IntLiter
-  = sign:IntSign? __ digits:Digit+ { 
-    var num = parseInt((sign ? sign : '') + digits.join(''), 10);
+  = sign:IntSign? n:(BinLiter/HexLiter/DecLiter) { 
+    var num = sign === '-' ? -n : n;
     var node = new NodeType.IntLiterNode(num);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
   }
+ BinLiter
+   = BINARY_PREFIX digits:([0-1])+ {
+    return parseInt(digits.join(''), 2);
+   }
 
+ HexLiter
+   = HEX_PREFIX digits:(Digit/[A-F]/[a-f])+ {
+    return parseInt(digits.join(''), 16);
+   }
+
+ DecLiter
+   = digits:Digit+ {
+    return parseInt(digits.join(''), 10);
+   }
+
+   
 Digit
   = [0-9]
 
@@ -441,6 +501,7 @@ GET_FRAME_BUFFER = 'get_frame_buffer'
 FST      = 'fst'
 SND      = 'snd'
 COMMA    = ','
+DOT      = '.'
 
 STAR             = '*'
 SLASH            = '/'
@@ -456,11 +517,17 @@ NOT_EQUALS       = '!='
 DOUBLE_AMP       = '&&'
 DOUBLE_PIPE      = '||'
 
+BINARY_PREFIX    = '0b'
+HEX_PREFIX       = '0x'
+
 LEFT_PAREN  = '('
 RIGHT_PAREN = ')'
 
 LEFT_SQUARE  = '['
 RIGHT_SQUARE = ']'
+
+LEFT_CURLY  = '{'
+RIGHT_CURLY = '}'
 
 NULL = 'null'
 
@@ -484,6 +551,8 @@ FREE    = 'free'
 EXIT    = 'exit'
 PRINT   = 'print'
 PRINTLN = 'println'
+STRUCT  = 'struct'
+NEW     = 'new'
 
 BEGIN = 'begin'
 END   = 'end'
