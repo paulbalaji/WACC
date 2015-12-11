@@ -198,4 +198,3 @@ export function genStrDataBlock(len: number, str: string) {
             Instr.Directive('word', len),
             Instr.Directive('ascii', '"' + str + '"')]};
 }
-

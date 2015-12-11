@@ -1,16 +1,23 @@
 # WACC Compiler
 
 WACC Compiler is a compiler for the WACC language.
-  - Currently only Front End
-  - Back End IN PRODUCTION
+  - Front End COMPLETE
+  - Back End COMPLETE
   - Front End Code Review COMPLETE
-### TODO:
- - Write Back End Tests
- - Write Back End
- - Discuss and Implement Cool Extension
+  - Back End Code Review PENDING
+  - Extension - IN PROGRESS
 
-### Version
-0.0.2
+### TODO:
+ - Allow files to be imported (pre-processor in effect)
+ - Structs
+ - Graphics Library
+ - Implement assembly instructions for "Mailbox" system
+ - Implement WACC library that utilises basic WACC instructions
+ - Give users access to *WACC X GL*
+ - Pokemon
+
+### Current Version
+0.0.5
 
 ### Tech
 Our compiler uses a number of open source projects to work properly:
@@ -51,23 +58,24 @@ $ make frontend
 ```
 
 ```sh
+# Rebuilding just the backend (if changed since previous make)
+$ make backend
+```
+
+```sh
 # Run the local testing suite
+# Note: local test suite should fail because we are not outputting to a file and not stdout
 $ make test
 ```
 
 ```sh
-# the file input.wacc in the root folder
+# makes compiler (if needed) and then compiles input.wacc in the root folder
 $ make preview
 ```
 
 ```sh
 # Removes all generated files
 $ make clean
-```
-
-```sh
-# Removes all generated files and then makes the compiler afresh
-$ make rebuild
 ```
 
 ### Development

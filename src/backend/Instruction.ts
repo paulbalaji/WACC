@@ -2,7 +2,6 @@ var _ = require('underscore');
 import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil');
 
-
 export var mods = {
 	ne: "NE",
 	eq: "EQ",
@@ -175,27 +174,6 @@ export function Bl(branchLabel) {
 	return bl;
 }
 
-
-/*export function Add(...addArgs) {
-	var add: any = {};
-	add.args = addArgs;
-	add.command = 'ADD';
-    add.toString = function() {
-        return  add.command + ' ' + add.args.join(', ');
-    }
-	return add;
-}
-
-export function Sub(...subArgs) {
-    var sub: any = {};
-    sub.args = subArgs;
-    sub.command = 'SUB';
-    sub.toString = function() {
-        return sub.command + ' ' + sub.args.join(', ');
-    }
-    return sub;
-}*/
-
 function SafeConst(cmd) {
 	function isRepresentable(n) {
 
@@ -231,7 +209,6 @@ function SafeConst(cmd) {
 		instrObj.command = cmd;
 
 		var lastArg = _.last(args);
-
 
 		instrObj.toString = function() {
 			return instrObj.command + ' ' + instrObj.args.join(', ');
@@ -312,7 +289,6 @@ export var Blne = modInstr(Bl, mods.ne);
 export var Bllt = modInstr(Bl, mods.lt);
 export var Blcs = modInstr(Bl, mods.cs);
 export var Bleq = modInstr(Bl, mods.eq);
-
 export var Strb = modInstr(Str, mods.b);
 export var Adds = modInstr(Add, mods.s);
 export var Blvs = modInstr(Bl, mods.vs);
