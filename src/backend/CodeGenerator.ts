@@ -21,10 +21,16 @@ export class CodeGenerator implements NodeType.Visitor {
     getNextLabelName: any; 
     printNodeLogic: any;
 
+    startOfStack: number;
+    startOfHeap: number;
+
     constructor() {
         this.userFuncs = [];
         this.identOffset = 0;
         this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
+
+        this.startOfStack = 0x80000;
+        this.startOfHeap = 0x80004;
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
@@ -35,6 +41,11 @@ export class CodeGenerator implements NodeType.Visitor {
     popWithDecrement(...popArgs) { // Decrements currentST stack offset and returns the push instruction
         this.currentST.stackOffset -= popArgs.length;
         return Instr.Pop.apply(this, popArgs);
+    }
+
+    insertMallocInstruction() {
+        Macros.insertMalloc();
+        return [Instr.Bl('malloc')];
     }
 
     visitProgramNode(node: NodeType.ProgramNode): any {
@@ -56,7 +67,11 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main')];
-        var mainLabelInit = [Instr.Label('main'), this.pushWithIncrement(Reg.LR)];
+        var mainLabelInit = [Instr.Label('main'),
+                             Instr.Mov(Reg.SP, Instr.Const(this.startOfStack)),
+                             Instr.Mov(Reg.R5, Instr.Const(this.startOfHeap + 4)),
+                             Instr.Str(Reg.R5, Instr.Mem(this.startOfHeap)),
+                             this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
 
@@ -273,7 +288,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
                 Instr.Bl('free'),
                 Instr.Mov(Reg.R0, Instr.Const(fetchTypeSize)),
-                Instr.Bl('malloc'),
+                this.insertMallocInstruction(),
                 this.popWithDecrement(Reg.R1),
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
@@ -359,7 +374,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var offset = 4;
         var size = offset + arrayLength * elemByteSize;
         instrList.push(Instr.Mov(Reg.R0, Instr.Const(size)),
-                       Instr.Bl('malloc'),
+                       this.insertMallocInstruction(),
                        Instr.Mov(Reg.R3, Reg.R0));
 
         if (elemByteSize === 4) {
@@ -578,7 +593,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0)),
                 Instr.Bl('free'),
                 Instr.Mov(Reg.R0, Instr.Const(readTypeSize)),
-                Instr.Bl('malloc'),
+                this.insertMallocInstruction(),
                 this.popWithDecrement(Reg.R1),
                 Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
                 Instr.Mov(Reg.R1, Reg.R0),
@@ -671,7 +686,7 @@ export class CodeGenerator implements NodeType.Visitor {
             return [
                 this.pushWithIncrement(Reg.R0),
                 Instr.Mov(Reg.R0, Instr.Const(elemSize)),
-                Instr.Bl('malloc'),
+                this.insert,
                 this.popWithDecrement(Reg.R1),
                 str,
                 this.pushWithIncrement(Reg.R0)
@@ -684,7 +699,7 @@ export class CodeGenerator implements NodeType.Visitor {
             node.sndExpr.visit(this),
             allocPairElem(node.sndExpr.type),
             Instr.Mov(Reg.R0, Instr.Const(8)),
-            Instr.Bl('malloc'),
+            this.insertMallocInstruction(),
             this.popWithDecrement(Reg.R1, Reg.R2),
             Instr.Str(Reg.R2, Instr.Mem(Reg.R0)),
             Instr.Str(Reg.R1, Instr.Mem(Reg.R0, Instr.Const(4)))
@@ -768,7 +783,7 @@ export class CodeGenerator implements NodeType.Visitor {
         Macros.insertMemset();
         return [
             Instr.Mov(Reg.R0, Instr.Const(st.totalByteSize)),
-            Instr.Bl('malloc'),
+            this.insertMallocInstruction(),
             // Set the returned memory to zero to guarantee null safety
             Instr.Mov(Reg.R1, Instr.Const(st.totalByteSize)),
             Instr.Bl('memset')

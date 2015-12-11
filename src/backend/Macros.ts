@@ -139,3 +139,9 @@ export var insertRuntimeError = _.once(() => {
 		insertPrintString();
 	});
 });
+
+export var insertMalloc = _.once(() => {
+	closingInsertions.push(function() {
+        sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
+	});
+});
