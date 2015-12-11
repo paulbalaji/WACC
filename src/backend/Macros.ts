@@ -145,3 +145,9 @@ export var insertMalloc = _.once(() => {
         sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
 	});
 });
+
+export var insertFree = _.once(() => {
+    closingInsertions.push(function() {
+        sections.sysFuncSection.push(CodeGenUtil.funcDefs.free());
+    });
+});

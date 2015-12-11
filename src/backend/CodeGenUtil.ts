@@ -189,11 +189,20 @@ export var funcDefs = {
 
     malloc: function() {
         return [Instr.Label('malloc'),
+                Instr.Push(Reg.LR),
                 Instr.Push(Reg.R1),
                 Instr.Ldr(Reg.R1, Instr.Mem(0x80004)),
                 Instr.Add(Reg.R0, Reg.R0, Instr.Mem(0x80004)),
                 Instr.Str(Reg.R0, Instr.Mem(0x80004)),
-                Instr.Mov(Reg.R0, Reg.R1)];
+                Instr.Mov(Reg.R0, Reg.R1),
+                Instr.Pop(Reg.PC)];
+    },
+
+    free: function() {
+        //free does nothing for now
+        return [Instr.Label('free'),
+                Instr.Push(Reg.LR),
+                Instr.Pop(Reg.PC)];
     }
 };
 

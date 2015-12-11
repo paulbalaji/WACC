@@ -277,6 +277,7 @@ export class CodeGenerator implements NodeType.Visitor {
             var type2 = this.currentST.lookupAll(lhs.ident).type.type2;
             var fetchType = lhs.index === 0 ? type1 : type2;            
             Macros.insertCheckNullPointer();
+            Macros.insertFree();
             var fetchTypeSize = CodeGenUtil.getByteSizeFromTypeNode(fetchType);
             return [
                 rhsIns,
@@ -407,6 +408,7 @@ export class CodeGenerator implements NodeType.Visitor {
     visitFreeNode(node: NodeType.FreeNode): any {
         var instrList = [node.expr.visit(this)];
         var freeText = 'free';
+        Macros.insertFree();
 
         if (node.expr.type instanceof NodeType.PairTypeNode) {
             freeText = 'p_free_pair';
@@ -579,6 +581,7 @@ export class CodeGenerator implements NodeType.Visitor {
             
             Macros.insertCheckNullPointer();
             Macros.insertReadInt();
+            Macros.insertFree();
             
             var indexInstruction;
             var readType = target.index === 0 ? type1 : type2;
