@@ -6,7 +6,7 @@ import GXMacros = require('./GraphicsMacros');
 import Reg = require('./Register');
 var _ = require('underscore');
 
-export var barebones = false;
+export var barebones = true;
 
 export var sections = { dataSection: [], sysFuncSection: [] };
 
@@ -168,16 +168,18 @@ export var insertMailboxWrite = _.once(() => {
 export var insertMailboxRead = _.once(() => {
     closingInsertions.push(function() {
         sections.sysFuncSection.push(GXMacros.MailboxRead());
-        insertMailboxBase();
     });
 });
 
 export var insertGetFrameBuffer = _.once(() => {
     closingInsertions.push(function() {
         sections.sysFuncSection.push(GXMacros.GetFrameBuffer());
+        insertMailboxBase();
         insertMailboxWrite();
         insertMailboxRead();
-        insertMalloc();
+        insertDataLabel();
+        sections.dataSection.push(GXMacros.FrameBufferInfo());
+
     });
 });
 

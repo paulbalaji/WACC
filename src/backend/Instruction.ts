@@ -11,6 +11,7 @@ export var mods = {
     ge: "GE",
     lt: "LT",
     le: "LE",
+    ls: "LS",
     b: "B",
     s: "S",
     sb: "SB",
@@ -363,6 +364,8 @@ export var Tst = modInstr(T, mods.st);
 export var Teq = modInstr(T, mods.eq);
 
 export var Popne = modInstr(Pop, mods.ne);
+
+export var Cmpls = modInstr(Cmp, mods.ls);
 
 // Represents [...]!
 export var MemBang = modInstr(Mem, mods.bang);
