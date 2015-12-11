@@ -3,6 +3,7 @@
 import Instr = require('./Instruction');
 import CodeGenUtil = require('./CodeGenUtil');
 import GXMacros = require('./GraphicsMacros');
+import Reg = require('./Register');
 var _ = require('underscore');
 
 export var sections = { dataSection: [], sysFuncSection: [] };
@@ -136,8 +137,16 @@ export var insertFreePair = _.once(() => {
 
 export var insertRuntimeError = _.once(() => {
 	closingInsertions.push(function() {
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
-		insertPrintString();
+        var barebones = true;
+		if (barebones) {
+            sections.sysFuncSection.push([Instr.Label('p_throw_runtime_error'),
+						                  Instr.Push(Reg.LR),
+						                  Instr.Pop(Reg.PC)]);
+			//do nothing for now
+		} else {
+			sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
+			insertPrintString();
+		}
 	});
 });
 
@@ -166,6 +175,7 @@ export var insertGetFrameBuffer = _.once(() => {
         sections.sysFuncSection.push(GXMacros.GetFrameBuffer());
         insertMailboxWrite();
         insertMailboxRead();
+        insertMalloc();
     });
 });
 
