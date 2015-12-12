@@ -255,7 +255,6 @@ export class CodeGenerator implements NodeType.Visitor {
 
             var findAddress = function(step) {
                 return [
-                    Instr.Mov(Reg.R1, Reg.R4),
                     Instr.Bl('p_check_array_bounds'),
                     Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
                     step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
