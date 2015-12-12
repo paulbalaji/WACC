@@ -249,13 +249,19 @@ export class CodeGenerator implements NodeType.Visitor {
                     Instr.Mem(Reg.SP, Instr.Const(this.currentST.lookUpOffset(<NodeType.IdentNode>node.lhs))))];
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
-            Macros.insertCheckArrayBounds();
+            var checkArrayBounds;
+            if (!Macros.barebones) {
+                Macros.insertCheckArrayBounds();
+                checkArrayBounds = Instr.Bl('p_check_array_bounds');
+            } else {
+                checkArrayBounds = [];
+            }
             
             var elemByteSize = CodeGenUtil.getByteSizeFromTypeNode(node.lhs.type);
 
             var findAddress = function(step) {
                 return [
-                    Instr.Bl('p_check_array_bounds'),
+                    checkArrayBounds,
                     Instr.Add(Reg.R4, Reg.R4, Instr.Const(4)),
                     step == 4 ? Instr.Add(Reg.R4, Reg.R4, Reg.R0, Instr.Lsl(2)) : Instr.Add(Reg.R4, Reg.R4, Reg.R0)
                 ];
