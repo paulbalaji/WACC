@@ -757,7 +757,7 @@ export class CodeGenerator implements NodeType.Visitor {
             Instr.Mov(Reg.R1, Instr.Const(768)),
             Instr.Mov(Reg.R2, Instr.Const(16)),
             Instr.Bl('gx_get_frame_buffer'),
-            Instr.Add(Reg.R0, Reg.R0, Instr.Const(32))];
+            Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(32)))];
         Macros.insertGetFrameBuffer();
         return instrList;
     }
