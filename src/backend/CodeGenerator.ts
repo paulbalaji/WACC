@@ -88,8 +88,8 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var byteSize = node.st.totalByteSize;
 
-        return Instr.buildList(dataSection, mainStart, this.userFuncs, mainLabelInit,
-                               this.scopedInstructions(byteSize, instructionList), mainEnd, sysFuncSection);
+        return Instr.buildList(dataSection, mainStart, mainLabelInit,
+               this.scopedInstructions(byteSize, instructionList), mainEnd, this.userFuncs, sysFuncSection);
     }
 
     visitFuncNode(node: NodeType.FuncNode): any {
