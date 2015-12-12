@@ -192,12 +192,14 @@ export var funcDefs = {
                 Instr.Push(Reg.R1),
                 Instr.Push(Reg.R2),
                 Instr.Push(Reg.R3),
-                Instr.Ldr(Reg.R2, Instr.Liter(0x80004)),
+                Instr.Ldr(Reg.R2, Instr.Liter(0x8004)),
                 Instr.Ldr(Reg.R1, Instr.Mem(Reg.R2)),
-                Instr.Ldr(Reg.R3, Instr.Mem(Reg.R1)),
-                Instr.Add(Reg.R0, Reg.R0, Reg.R3),
-                Instr.Str(Reg.R0, Instr.Mem(Reg.R1)),
-                Instr.Mov(Reg.R0, Reg.R1),
+               
+                Instr.Add(Reg.R3, Reg.R1, Reg.R0), // Next malloc location
+                Instr.Mov(Reg.R0, Reg.R1), // Result of Malloc
+
+                Instr.Str(Reg.R3, Instr.Mem(Reg.R2)), //  Store next malloc location
+
                 Instr.Pop(Reg.R3),
                 Instr.Pop(Reg.R2),
                 Instr.Pop(Reg.R1),

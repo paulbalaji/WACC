@@ -1,5 +1,18 @@
 begin
-    int[] x = get_frame_buffer;
-    x[0] = 0xFFFFFF;
-    x[1] = 0xFFFFFF
+	int[] fb = get_frame_buffer;
+	int[] xs = [0, 50, 100, 150, 200];
+	int[] colours = [0xF69DAF, 0xF67B94, 0xF06783, 0xF65878, 0xED4466];
+	int i = 0;
+	int max = len xs;
+	while (i < max) do
+		int res = call drawRect(fb, xs[i], 0, 50, 50, colours[i]);
+		i = i + 1
+	done;
+
+	while true do
+		
+		
+		int res = call wait(0xFFFFFF)
+	done
+	
 end

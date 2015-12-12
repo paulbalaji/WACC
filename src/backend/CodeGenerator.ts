@@ -67,10 +67,10 @@ export class CodeGenerator implements NodeType.Visitor {
 
         var barebonesStackInit;
         if (Macros.barebones) {
-            barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack))];
-                             // Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
-                             // Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
-                             // Instr.Str(Reg.R5, Instr.Mem(Reg.R6))]
+            barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
+                                Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
+                                Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
+                                Instr.Str(Reg.R5, Instr.Mem(Reg.R6))];
         } else {
             barebonesStackInit = [];
 

@@ -1,0 +1,39 @@
+header
+	int drawRect(int[] fb, int x, int y, int width, int height, int colour) is
+		int row = y;
+		while (row < y + height) do
+			int col = x;
+			while (col < x + width) do
+				fb[row * 1024 + col] = colour;
+				col = col + 1
+			done;
+			row = row + 1
+		done;
+
+		return 0
+	end
+
+	int redDebug() is
+		int[] fb = get_frame_buffer;
+		int res = call drawRect(fb, 0, 0, 500, 500, 0xFF0000);
+		return 0
+	end
+
+	int greenDebug() is
+		int[] fb = get_frame_buffer;
+		int res = call drawRect(fb, 0, 0, 500, 500, 0x00FF00);
+		return 0
+	end
+
+	int wait(int time) is
+		int i = 0;
+
+		while (i < time) do
+			int prevI = i;
+			i = i * 500;
+			i = prevI;
+			i = i + 1
+		done
+
+		return 0
+end
