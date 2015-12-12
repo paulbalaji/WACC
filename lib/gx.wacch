@@ -1,10 +1,19 @@
 header
-	int drawRect(int[] fb, int x, int y, int width, int height, int colour) is
-		int row = y;
-		while (row < y + height) do
-			int col = x;
-			while (col < x + width) do
-				fb[row * 1024 + col] = colour;
+
+	struct Rekt {
+		int x,
+		int y,
+		int width,
+		int height,
+		int colour
+	}
+
+	int drawRect(int[] fb, struct Rekt rekt) is
+		int row = rekt.y;
+		while (row < rekt.y + rekt.height) do
+			int col = rekt.x;
+			while (col < x + rekt.width) do
+				fb[row * 1024 + col] = rekt.colour;
 				col = col + 1
 			done;
 			row = row + 1
@@ -29,11 +38,9 @@ header
 		int i = 0;
 
 		while (i < time) do
-			int prevI = i;
-			i = i * 500;
-			i = prevI;
 			i = i + 1
-		done
+		done;
 
 		return 0
+	end
 end

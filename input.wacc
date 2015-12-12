@@ -1,18 +1,17 @@
 begin
-	int[] fb = get_frame_buffer;
-	int[] xs = [0, 50, 100, 150, 200];
-	int[] colours = [0xF69DAF, 0xF67B94, 0xF06783, 0xF65878, 0xED4466];
-	int i = 0;
-	int max = len xs;
-	while (i < max) do
-		int res = call drawRect(fb, xs[i], 0, 50, 50, colours[i]);
-		i = i + 1
-	done;
+	struct Rekt {
+		int x,
+		int y,
+		int width,
+		int height,
+		int colour
+	}
 
-	while true do
-		
-		
-		int res = call wait(0xFFFFFF)
-	done
-	
+	struct Rekt sprite = new Rekt;
+	sprite.x = 0;
+	sprite.y = 0;
+	sprite.colour = 0x00FF00;
+	spirte.width = 42;
+	sprite.height = 69;
+	skip
 end
