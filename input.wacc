@@ -1,9 +1,4 @@
 begin
-    int[] x = get_frame_buffer;
-    x[0] = 0xFFFFFF;
-    x[1] = 0xFFFFFF;
-    x[2] = 0xFFFFFF;
-    x[3] = 0xFFFFFF;
-    x[900] = 0xFFFFFF;
-    x[901] = 0xFFFFFF
+    int[] x = [1];
+    x[0] = 7
 end
