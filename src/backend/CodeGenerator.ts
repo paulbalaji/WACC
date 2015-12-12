@@ -759,9 +759,12 @@ export class CodeGenerator implements NodeType.Visitor {
     }
 
     visitGetFrameBufferNode(node: NodeType.GetFrameBufferNode): any {
+        // width: 1024
+        // height: 768
+        // colour-depth: 32
         var instrList = [Instr.Mov(Reg.R0, Instr.Const(1024)),
             Instr.Mov(Reg.R1, Instr.Const(768)),
-            Instr.Mov(Reg.R2, Instr.Const(16)),
+            Instr.Mov(Reg.R2, Instr.Const(32)),
             Instr.Bl('gx_get_frame_buffer'),
             Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0, Instr.Const(32)))];
         Macros.insertGetFrameBuffer();
