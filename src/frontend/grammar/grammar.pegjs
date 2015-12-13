@@ -144,12 +144,20 @@ Stat
   / WHILE predicateExpr:Predicate DO _ loopBody:StatList __ DONE { 
     return new NodeType.WhileNode(predicateExpr, loopBody);
   }
+  / lhs:AssignLHS __ op:ArithmeticOp EQUALS __ rhs:AssignRHS {
+    var actualRhs = new NodeType.BinOpExprNode(lhs, rhs, op);
+    return new NodeType.AssignNode(lhs, actualRhs);
+  }
   / lhs:AssignLHS __ EQUALS __ rhs:AssignRHS {
     return new NodeType.AssignNode(lhs,rhs);
   }
   / type:Type _ ident:Ident __ EQUALS __ rhs:AssignRHS {
     return new NodeType.DeclareNode(type, ident, rhs);
   }
+
+
+ArithmeticOp
+  = SLASH / STAR / MODULO / PLUS / MINUS
 
 /* Predicate */
 Predicate

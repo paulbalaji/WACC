@@ -188,7 +188,18 @@ export class SemanticVisitor implements NodeType.Visitor {
     }
 
     visitParamNode(node: NodeType.ParamNode): void {
-        node.type.visit(this);
+
+        if (node.type instanceof NodeType.StructTypeNode) {
+            var structType = <NodeType.StructTypeNode>node.type;
+            var structInfo = this.structST.lookupAll(structType.ident);
+            if (!structInfo) {
+                        throw new Error.SemanticError('Undefined  struct:'
+                    + ' "' + structType.ident + '".'
+                                            , node.ident.errorLocation);            
+                }
+            node.type = structInfo.type;
+        }
+
         this.currentST.insert(node.ident, { type: node.type, node: node, offset: null });
         node.ident.visit(this);
     }

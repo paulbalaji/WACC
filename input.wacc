@@ -1,9 +1,16 @@
 begin
+
+
 	struct Sam {
 		int x
 	}
 
+	int test(struct Sam a) is
+		return a.x
+	end
+
 	struct Sam sprite = new Sam;
-	sprite.x = 10;
-	println sprite.x
+	sprite.x += 10;
+	int a =  call test(sprite);
+	println a
 end
