@@ -266,6 +266,17 @@ export class SemanticVisitor implements NodeType.Visitor {
                 }
             }
         }
+
+        if (node.type instanceof NodeType.StructTypeNode) {
+            var structType = <NodeType.StructTypeNode>node.type;
+            var structInfo = this.structST.lookupAll(structType.ident);
+            if (!structInfo) {
+                        throw new Error.SemanticError('Undefined  struct:'
+                    + ' "' + structType.ident + '".'
+                                            , node.ident.errorLocation);            
+                }
+            node.type = structInfo.type;
+        }
        
 
         this.currentST.insert(node.ident, {type: node.type, node: node, offset : 0});
@@ -507,8 +518,10 @@ export class SemanticVisitor implements NodeType.Visitor {
         var currentType = this.currentST.lookupAll(node.structIdent).type;
         for (var i = 0; i < node.fieldIdents.length; i++) {
             if (!(currentType instanceof NodeType.StructTypeNode)) {
-                throw new Error.SemanticError('Accesing property of something whih is not a struct', node.fieldIdents[i].errorLocation);
+                throw new Error.SemanticError('Accesing property of something which is not a struct', node.fieldIdents[i].errorLocation);
             }
+            
+
             var current = currentType.st.lookupAll(node.fieldIdents[i]);
             if (!current) {
                 throw new Error.SemanticError('Accessing field that does not exist.', node.fieldIdents[i].errorLocation);
@@ -537,11 +550,13 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
         
         var type = new NodeType.StructTypeNode(node.ident);
-        node.type = type;
         type.st = new SemanticUtil.SymbolTable(null);
+        node.type = type;
+        
 
         this.structST.insert(node.ident, {type: type, node: node, offset: null});
         node.ident.type = type;
+
 
         return () => {
             SemanticUtil.visitNodeList(node.fieldList, this);
@@ -589,7 +604,8 @@ export class SemanticVisitor implements NodeType.Visitor {
                                         , node.structIdent.errorLocation);            
             }
         node.type = structInfo.type;
-        node.type.visit(this);
+
+
     };
 
     visitNewArrayNode(node:NodeType.NewArrayNode):void { 

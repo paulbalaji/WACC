@@ -1,17 +1,9 @@
 begin
-	struct Rekt {
-		int x,
-		int y,
-		int width,
-		int height,
-		int colour
+	struct Sam {
+		int x
 	}
 
-	struct Rekt sprite = new Rekt;
-	sprite.x = 0;
-	sprite.y = 0;
-	sprite.colour = 0x00FF00;
-	spirte.width = 42;
-	sprite.height = 69;
-	skip
+	struct Sam sprite = new Sam;
+	sprite.x = 10;
+	println sprite.x
 end

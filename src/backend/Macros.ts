@@ -6,7 +6,7 @@ import GXMacros = require('./GraphicsMacros');
 import Reg = require('./Register');
 var _ = require('underscore');
 
-export var barebones = true;
+export var barebones = false;
 
 export var sections = { dataSection: [], sysFuncSection: [] };
 
