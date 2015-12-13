@@ -174,6 +174,11 @@ Type
 
 BaseType
   = PrimitiveType
+  / VOID STAR {
+     var node = new NodeType.VoidPointerTypeNode();
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
+  }
   / STRING { 
       var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
@@ -508,6 +513,7 @@ HEADER = 'header'
 IS     = 'is'
 RETURN = 'return'
 
+VOID   = 'void'
 INT    = 'int'
 BOOL   = 'bool'
 CHAR   = 'char'

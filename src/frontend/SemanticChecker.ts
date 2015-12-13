@@ -304,7 +304,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         var res = this.currentST.lookupAll(node.ident);
-
+        
         if (!(res.type instanceof NodeType.ArrayTypeNode)) {
             throw new Error.SemanticError('Cannot access index of a non array type variable "' + node.ident + '".'
                                          , node.type.errorLocation);
@@ -317,7 +317,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
 
         /*
-            can be considered as:
+            Can be considered as:
                 res.type.depth - node.exprList.length > 0
 
             The case when we are not accessing the full depth of the array

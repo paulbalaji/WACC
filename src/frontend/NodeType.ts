@@ -680,6 +680,22 @@ export class StructTypeNode extends TreeNode {
     }
 }
 
+export class VoidPointerTypeNode extends TreeNode {
+    type: TypeNode;
+
+    constructor() {
+        super();
+        this.type = new IntTypeNode();
+    }
+    visit(v: Visitor): any {
+        return;
+    }
+
+    toString(): String {
+        return 'VOID*';
+    }
+}
+
 export class FieldNode extends TreeNode {
     type: TypeNode;
     ident: IdentNode;
@@ -743,3 +759,4 @@ export var BOOL_TYPE: BoolTypeNode = new BoolTypeNode();
 export var STRING_TYPE: ArrayTypeNode = new ArrayTypeNode(CHAR_TYPE, 1);
 export var EMPTY_ARRAY_TYPE: EmptyArrayTypeNode = new EmptyArrayTypeNode();
 export var NULL_TYPE: NullTypeNode = new NullTypeNode();
+export var VOID_POINTER_TYPE: VoidPointerTypeNode = new VoidPointerTypeNode();

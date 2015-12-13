@@ -847,7 +847,7 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Cmp(Reg.R1, Reg.R0, Instr.Asr(31)),
                        Instr.Blne('p_throw_overflow_error'),
                        Instr.Mov(Reg.R1, Reg.R0),
-                       Instr.Adds(Reg.R1, Instr.Const(4)), // Add 4 for the size
+                       Instr.Add(Reg.R1, Instr.Const(4)), // Add 4 for the size
                        Instr.Bl('malloc'),
                        // Array address is still in R0 and size is still in R1
                        Instr.Bl('memset'),
