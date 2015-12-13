@@ -120,6 +120,7 @@ Stat
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
   }
+  / FunctionCall
   / FREE _ expr:Expr {
     return new NodeType.FreeNode(expr);
   }
@@ -234,15 +235,16 @@ AssignLHS
     return lhs;
   }
 
-
-/* AssignRHS */
-AssignRHS
-  = 
-    CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
+FunctionCall
+  = CALL _ ident:Ident __ LEFT_PAREN exprList:ExprList? __ RIGHT_PAREN {
       var node = new NodeType.CallNode(ident, exprList ? exprList : []);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
       return node;
-  }
+  };
+
+/* AssignRHS */
+AssignRHS
+  = FunctionCall
   / NEW _ type:PrimitiveType __ LEFT_SQUARE lengthExpr:Expr __ RIGHT_SQUARE {
     var node = new NodeType.NewArrayNode(type, lengthExpr);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));

@@ -7,4 +7,4 @@ export var SEMANTIC_ERROR_CODE = 200;
 export var startOfStack = 0x8000;
 export var startOfHeap = 0x9000;
 
-export var barebones = true;
+export var barebones = false;

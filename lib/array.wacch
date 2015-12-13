@@ -98,6 +98,18 @@ end
 
 # Fills an array with 'n' vals
 
+int[] initIntArray2D(int val, int width, int height) is
+	int[][] result = new int[height];
+	int i = 0;
+	while (i < height) do
+		int[] row = call initIntArray(val, width);
+		result[i] = row;
+		i += 1
+	done;
+
+	return result
+end
+
 int[] initIntArray(int val, int n) is
 	int[] intArray = new int[n];
 	int i = 0;
@@ -199,6 +211,14 @@ end
 
 
 ######## PRINT FUNCTIONS ########
+int printIntArray2D(int[][] grid) is
+	int i = 0;
+	while (i < len grid) do
+		call printIntArray(grid[i]);
+		i += 1
+	done;
+	return 0
+end
 
 int printIntArray(int[] x) is
 	int index = 0;

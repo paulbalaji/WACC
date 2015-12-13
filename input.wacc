@@ -1,16 +1,21 @@
 begin
-	int[] fb = get_frame_buffer;
-	struct Rekt rekt = new Rekt;
-	rekt.x = 0;
-	rekt.y = 0;
-	rekt.height = 50;
-	rekt.width = 50;
-	rekt.colour = 0xFF0000;
+	int[] initRow(int width) is
+		int[] res = call initIntArray(0, width);
+		return res
+	end
+	int gridWidth = 10;
+	int gridHeight = 18;
+	int[][] grid = call initIntArray2D(0, gridWidth, gridHeight);
 
-	int res = call drawRect(fb, rekt);
+	call printIntArray2D(grid);
 
-	while true do
-		skip
-	done
+	skip
+	#int[] fb = get_frame_buffer;
+	#int red = 0xFF0000;
+	#int black = 0x000000;
+	#int green = 0x00FF00;
+	
+
+
 
 end
