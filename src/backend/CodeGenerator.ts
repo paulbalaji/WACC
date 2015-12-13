@@ -1,7 +1,7 @@
 import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil');
 
-import Constants = require('../frontend/constants');
+import Const = require('../frontend/constants');
 
 import Instr = require('./Instruction');
 import Reg = require('./Register');
@@ -31,8 +31,8 @@ export class CodeGenerator implements NodeType.Visitor {
         this.identOffset = 0;
         this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
 
-        this.startOfStack = Constants.startOfStack;
-        this.startOfHeap = Constants.startOfHeap;
+        this.startOfStack = Const.startOfStack;
+        this.startOfHeap = Const.startOfHeap;
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
@@ -68,7 +68,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var {dataSection: dataSection, sysFuncSection: sysFuncSection} = Macros.runClosingInsertions(); // Run closing insertions on sections.
 
         var barebonesStackInit;
-        if (Macros.barebones) {
+        if (Const.barebones) {
             barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
                                 Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
                                 Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
@@ -252,7 +252,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
             var checkArrayBounds;
-            if (!Macros.barebones) {
+            if (!Const.barebones) {
                 Macros.insertCheckArrayBounds();
                 checkArrayBounds = Instr.Bl('p_check_array_bounds');
             } else {

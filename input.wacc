@@ -1,6 +1,13 @@
 begin
 	int[] fb = get_frame_buffer;
-	int res = call drawRect(fb, 0, 0, 50, 50, 0xFF0000);
+	struct Rekt rekt = new Rekt;
+	rekt.x = 0;
+	rekt.y = 0;
+	rekt.height = 50;
+	rekt.width = 50;
+	rekt.colour = 0xFF0000;
+
+	int res = call drawRect(fb, rekt);
 
 	while true do
 		skip

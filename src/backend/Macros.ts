@@ -4,9 +4,11 @@ import Instr = require('./Instruction');
 import CodeGenUtil = require('./CodeGenUtil');
 import GXMacros = require('./GraphicsMacros');
 import Reg = require('./Register');
+import Const = require('../frontend/constants');
+
 var _ = require('underscore');
 
-export var barebones = false;
+var barebones = Const.barebones;
 
 export var sections = { dataSection: [], sysFuncSection: [] };
 
