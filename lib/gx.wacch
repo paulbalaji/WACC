@@ -1,46 +1,38 @@
 header
 
-	struct Rekt {
-		int x,
-		int y,
-		int width,
-		int height,
-		int colour
-	}
+    int drawRect(int[] fb, int x, int y, int width, int height, int colour) is
+        int row = y;
+        while (row < y + height) do
+            int col = x;
+            while (col < x + width) do
+                fb[row * 1024 + col] = colour;
+                col = col + 1
+            done;
+            row = row + 1
+        done;
 
-	int drawRect(int[] fb, struct Rekt rekt) is
-		int row = rekt.y;
-		while (row < rekt.y + rekt.height) do
-			int col = rekt.x;
-			while (col < x + rekt.width) do
-				fb[row * 1024 + col] = rekt.colour;
-				col = col + 1
-			done;
-			row = row + 1
-		done;
+        return 0
+    end
 
-		return 0
-	end
+    int redDebug() is
+        int[] fb = get_frame_buffer;
+        int res = call drawRect(fb, 0, 0, 500, 500, 0xFF0000);
+        return 0
+    end
 
-	int redDebug() is
-		int[] fb = get_frame_buffer;
-		int res = call drawRect(fb, 0, 0, 500, 500, 0xFF0000);
-		return 0
-	end
+    int greenDebug() is
+        int[] fb = get_frame_buffer;
+        int res = call drawRect(fb, 0, 0, 500, 500, 0x00FF00);
+        return 0
+    end
 
-	int greenDebug() is
-		int[] fb = get_frame_buffer;
-		int res = call drawRect(fb, 0, 0, 500, 500, 0x00FF00);
-		return 0
-	end
+    int wait(int time) is
+        int i = 0;
 
-	int wait(int time) is
-		int i = 0;
+        while (i < time) do
+            i = i + 1
+        done;
 
-		while (i < time) do
-			i = i + 1
-		done;
-
-		return 0
-	end
+        return 0
+    end
 end

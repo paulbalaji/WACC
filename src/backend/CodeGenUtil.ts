@@ -2,7 +2,10 @@ import Instr = require('./Instruction');
 import Reg = require('./Register');
 import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil');
+import Constants = require('../frontend/constants');
 import Macros = require('./Macros');
+
+import CodeGen = require('./CodeGenerator')
 
 var printFooter = [Instr.Add(Reg.R0, Reg.R0, Instr.Const(4)),
                    Instr.Bl('printf'),
@@ -192,7 +195,7 @@ export var funcDefs = {
                 Instr.Push(Reg.R1),
                 Instr.Push(Reg.R2),
                 Instr.Push(Reg.R3),
-                Instr.Ldr(Reg.R2, Instr.Liter(0x8004)),
+                Instr.Ldr(Reg.R2, Instr.Liter(Constants.startOfHeap)),
                 Instr.Ldr(Reg.R1, Instr.Mem(Reg.R2)),
                
                 Instr.Add(Reg.R3, Reg.R1, Reg.R0), // Next malloc location

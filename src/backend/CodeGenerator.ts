@@ -1,6 +1,8 @@
 import NodeType = require('../frontend/NodeType');
 import SemanticUtil = require('../frontend/SemanticUtil');
 
+import Constants = require('../frontend/constants');
+
 import Instr = require('./Instruction');
 import Reg = require('./Register');
 import CodeGenUtil = require('./CodeGenUtil');
@@ -29,8 +31,8 @@ export class CodeGenerator implements NodeType.Visitor {
         this.identOffset = 0;
         this.getNextLabelName = CodeGenUtil.counterWithStrPrefix('L', 0);
 
-        this.startOfStack = 0x8000;
-        this.startOfHeap = 0x8004;
+        this.startOfStack = Constants.startOfStack;
+        this.startOfHeap = Constants.startOfHeap;
     }
 
     pushWithIncrement(...pushArgs) { // Increments currentST stack offset and returns the push instruction
