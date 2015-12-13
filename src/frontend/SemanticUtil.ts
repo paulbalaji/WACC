@@ -151,7 +151,7 @@ function isSameType(typeObj1, typeObj2):boolean {
             return true;
         } else if (typeObj1 instanceof NodeType.ArrayTypeNode && typeObj2 instanceof NodeType.ArrayTypeNode) {
             // The case we are comparing two arrays
-            return isSameType(typeObj1.type, typeObj2.type);
+            return isSameType(typeObj1.type, typeObj2.type) && typeObj1.depth === typeObj2.depth;
         } else {
             /*
                 The case that an array type is being compared with any other type.

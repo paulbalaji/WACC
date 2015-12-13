@@ -6,7 +6,6 @@
 # Program:
 
 begin
-  pair(int, int) p = newpair(5, 6);
-  int a = fst p;
-  print a
+  int[][] xs = [];
+  xs = [1,2]
 end
