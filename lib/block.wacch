@@ -1,0 +1,47 @@
+header
+	int[][] squareBlock() is
+		int[][] res = call initIntArray2D(1, 2, 2);
+		return res
+	end
+
+	int[][] LBlock() is
+		int[][] res = call initIntArray2D(0, 3, 3);
+		res[2][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
+		return res
+
+	end
+
+
+	int[][] TBlock() is
+		int[][] res = call initIntArray2D(0, 3, 3);
+		res[1][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
+		return res
+	end
+
+
+	int[][] SBlock() is
+		int[][] res = call initIntArray2D(0, 3, 3);
+		res[0][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[1][2] = 1;
+		return res
+	end
+
+
+	int[][] IBlock() is
+		int[][] res = call initIntArray2D(0, 4, 4);
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
+		res[3][1] = 1;
+		return res
+	end
+end
+
