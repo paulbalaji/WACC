@@ -1,0 +1,34 @@
+begin
+    
+    #initialise board
+    int[][] initialiseBoard(int width, int height) is
+        int[][] board = new int[width][height];
+        return board
+    end
+
+    #pass in width, height
+    int[][] board = call initialiseBoard(10, 20);
+
+    #simple test to fill in the array with random stuff
+    int i = 0;
+    int j = 0;
+    while (i < width) do
+        while (j < height) do
+            board[i][j] = i*j;
+            j = j + 1
+        done;
+        i = i + 1
+    done;
+
+    #simple test to check that when I print out, it's all cool
+    int k = 0;
+    int l = 0;
+    while (k < width) do
+        while (l < height) do
+            print board[k][l];
+            l = l + 1
+        done;
+        println "";
+        k = k + 1
+    done
+end
