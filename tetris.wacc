@@ -2,47 +2,59 @@ begin
     
     #initialise board
     int[][] initialiseBoard(int width, int height) is
-        int[][] board = initIntArray2D(0, width, height);
+        int[][] board = call initIntArray2D(0, width, height);
         return board
     end
 
+    #initialise colours
     int[] initialiseColours() is
+        int empty = 0x000000;
         int red = 0xFF0000;
         int orange = 0xFFA500;
         int yellow = 0xFFFF00;
         int green = 0x00FF00;
         int blue = 0x0000FF;
         int purple = 0x551A8B;
-        int[] colours = [red, orange, yellow, green, blue, purple];
+        int[] colours = [empty, red, orange, yellow, green, blue, purple];
         return colours
-    done
+    end
+
+    #simple test to check that when I print out, it's all cool
+    int showBoard(int[][] board) is
+        int j = 0;
+        while (j < len board[0]) do
+            int i = 0;
+            while (i < len board) do
+                print board[i][j];
+                print "\t";
+                i += 1
+            done;
+            println "";
+            j += 1
+        done;
+        return 0
+    end
 
     #get all the colours
     int[] colours = call initialiseColours();
 
     #pass in width, height
-    int[][] board = call initialiseBoard(10, 20);
+    int width = 10;
+    int height = 20;
+    int[][] board = call initialiseBoard(height, width);
 
     #simple test to fill in the array with random stuff
     int i = 0;
-    int j = 0;
     while (i < width) do
+        int j = 0;
         while (j < height) do
-            board[i][j] = i*j;
-            j = j + 1
+            board[i][j] = j;
+            j += 1
         done;
-        i = i + 1
+        i += 1
     done;
 
-    #simple test to check that when I print out, it's all cool
-    int k = 0;
-    int l = 0;
-    while (k < width) do
-        while (l < height) do
-            print board[k][l];
-            l = l + 1
-        done;
-        println "";
-        k = k + 1
-    done
+    call showBoard(board);
+
+    skip
 end
