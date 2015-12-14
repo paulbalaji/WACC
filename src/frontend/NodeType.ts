@@ -680,6 +680,8 @@ export class StructTypeNode extends TreeNode {
     }
 }
 
+
+
 export class FieldNode extends TreeNode {
     type: TypeNode;
     ident: IdentNode;

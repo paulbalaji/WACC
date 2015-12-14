@@ -99,8 +99,9 @@ end
 # Fills an array with 'n' vals
 
 int[][] initIntArray2D(int val, int width, int height) is
-	int[][] result = new int[height];
+	int[][] result = new int[][height];
 	int i = 0;
+	
 	while (i < height) do
 		int[] row = call initIntArray(val, width);
 		result[i] = row;

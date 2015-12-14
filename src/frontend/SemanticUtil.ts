@@ -144,11 +144,13 @@ export function getType(obj):string {
     return obj.constructor.name;
 }
 
+
 function isSameType(typeObj1, typeObj2):boolean {
     /*
         N.B for use on primitive types.
         Special case for matching empty arrays with any array type
     */
+
 
     if (typeObj1 instanceof NodeType.StructTypeNode) {
 
