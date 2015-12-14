@@ -16,6 +16,7 @@ function OpInfo(types, returnType) {
 */
 var _unOpMap = {};
 
+_unOpMap['gpio'] = new OpInfo(NodeType.INT_TYPE, NodeType.BOOL_TYPE);
 _unOpMap['-']   = new OpInfo(NodeType.INT_TYPE, NodeType.INT_TYPE);
 _unOpMap['!']   = new OpInfo(NodeType.BOOL_TYPE, NodeType.BOOL_TYPE);
 _unOpMap['ord'] = new OpInfo(NodeType.CHAR_TYPE, NodeType.INT_TYPE);
