@@ -72,18 +72,42 @@ export class CodeGenerator implements NodeType.Visitor {
             barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
                                 Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
                                 Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
-                                Instr.Str(Reg.R5, Instr.Mem(Reg.R6))];
+                                Instr.Str(Reg.R5, Instr.Mem(Reg.R6)),
+                                ];
         } else {
             barebonesStackInit = [];
+
 
         }
 
 
-        
+    ldr r0,=0x20200004
+    mov r1,#0
+    str r1,[r0]
+        var barebonesGpioInit;
+        if (Const.barebones) {
+            barebonesGpioInit = [
+                Instr.Ldr(Reg.R0, Instr.Liter(0x20200004)),
+                Instr.Mov(Reg.R1, Instr.Const(0)),
+                Instr.Str(Reg.R1, Instr.Mem(Reg.R0))
+            ];
+        } else {
+            barebonesGpioInit = [];
+
+        }
+
+       
+
+
+
+
         var mainStart = [Instr.Directive('text'),
-            Instr.Directive('global', 'main')];
+            Instr.Directive('global', 'main'),
+            ];
         var mainLabelInit = [Instr.Label('main'),
+
                              barebonesStackInit,
+                             barebonesGpioInit,
                              this.pushWithIncrement(Reg.LR)];
         var mainEnd = [Instr.Mov(Reg.R0, Instr.Const(0)),
             this.popWithDecrement(Reg.PC)];
@@ -654,6 +678,19 @@ export class CodeGenerator implements NodeType.Visitor {
             case 'len':
                 unOpInstructions = [Instr.Ldr(Reg.R0, Instr.Mem(Reg.R0))];
                 break;
+            case 'gpio':
+                var gpioNum = <NodeType.IntLiterNode> node.expr;
+                var mask = 1 << gpioNum.num;
+                Macros.insertGpio()
+
+                unOpInstructions = [
+                    Instr.Ldr(Reg.R1, Instr.Liter(0x20200034)),
+                    Instr.Ldr(Reg.R7, Instr.Mem(Reg.R6)),
+                    Instr.Tst(Reg.R7, Instr.Const(mask)),
+                    Instr.Movne(Reg.R0, Instr.Const(1)),
+                    Instr.Moveq(Reg.R0, Instr.Const(0))
+                ]
+
         }
 
         var exprInstructions = node.expr.visit(this);

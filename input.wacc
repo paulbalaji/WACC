@@ -1,8 +1,49 @@
 begin
-	int[][] block = call squareBlock();
-	call printIntArray2D(block);
-	skip
+	int startX = 4;
+	int startY = 0;
 
+	int[][] block = call squareBlock();
+	int[][] grid = call initIntArray2D(0, 10, 18);
+	int x = startX;
+	int y = startY;
+
+	bool collision = call isColliding(block, grid, x, y);
+	bool keepLooping = true;
+	int count = 0;
+	int in = 1;
+	while (keepLooping) do
+		
+		in = 1;
+		collision = call isColliding(block, grid, x + in, y);
+		if collision then
+			in = 0
+		else skip fi;
+		x += in;
+		collision = call isColliding(block, grid, x, y + 1);
+		if (collision) then
+			count += 1;
+			call copyBlockToGrid(block, grid, x, y);
+			block = call squareBlock();
+			x = startX;
+			y = startY;
+
+			collision = call isColliding(block, grid, x, y);
+			if (collision) then keepLooping = false else skip fi; # Gameover in the true branch of this if
+			skip
+		else
+			y += 1
+		fi;
+		skip
+	done;
+
+	println "Mate shit collided, shit went down, and now we\'re terminating.  The final block position is:";
+	print "x:";
+	println x;
+	print "y:";
+	println y;
+	call printIntArray2D(grid);
+	skip
+	
 
 
 end
