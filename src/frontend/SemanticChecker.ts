@@ -437,6 +437,14 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          , node.expr.errorLocation);
         }
 
+        if (node.operator === 'gpio') { // The case that it is a gpio unary op
+            // We know the expression must be an int literal in this case
+            var intLiter: NodeType.IntLiterNode = <NodeType.IntLiterNode> node.expr;
+            if (constants.validGPIOPins.indexOf(intLiter.num) === -1) { // The case that the pin number given is not valid
+                throw new Error.SemanticError('Unary operator gpio must be given a valid pin number.  Expecting a pin number from the set {' + constants.validGPIOPins.join(',') + '}.', node.expr.errorLocation);
+            } 
+        }
+
         node.type = OperatorInfo.unOpMap[node.operator].returnType;
     }
 

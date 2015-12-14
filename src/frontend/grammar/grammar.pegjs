@@ -337,6 +337,7 @@ BaseExpr
   / StrLiter
   / PairLiter
   / ArrayElem
+  / gpio:GPIO _ pinNum: IntLiter { return new NodeType.UnOpNode(gpio, pinNum); }
   / unOp:UnaryOp __ expr:Expr { return new NodeType.UnOpNode(unOp, expr); }
   / Ident
   / LEFT_PAREN __ expr:Expr __ RIGHT_PAREN { return expr; }
@@ -503,6 +504,8 @@ SourceCharacter
   = .
 
 /* TOKENS */
+GPIO   = 'gpio'
+
 
 HEADER = 'header'
 
