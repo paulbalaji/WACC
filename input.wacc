@@ -1,10 +1,12 @@
 
 begin
-
 	
 	while (true) do
-		call greenDebug(fb);
-
+		if (gpio 27) then 
+			call greenDebug()
+		else 
+			call redDebug()
+		fi
 	done
 
 
