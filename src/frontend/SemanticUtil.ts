@@ -144,9 +144,6 @@ export function getType(obj):string {
     return obj.constructor.name;
 }
 
-function isHeapType(typeObj): boolean {
-    return typeObj instanceof NodeType.VoidPointerTypeNode || typeObj instanceof NodeType.StructTypeNode || typeObj instanceof NodeType.ArrayTypeNode || typeObj instanceof NodeType.PairTypeNode;
-}
 
 function isSameType(typeObj1, typeObj2):boolean {
     /*
@@ -154,13 +151,6 @@ function isSameType(typeObj1, typeObj2):boolean {
         Special case for matching empty arrays with any array type
     */
 
-    if (typeObj1 instanceof NodeType.VoidPointerTypeNode) {
-        return isHeapType(typeObj2);
-    }
-
-    if (typeObj2 instanceof NodeType.VoidPointerTypeNode) {
-        return isHeapType(typeObj1);
-    }
 
     if (typeObj1 instanceof NodeType.StructTypeNode) {
 

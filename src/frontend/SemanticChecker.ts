@@ -628,8 +628,13 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +'Actual: '    + node.lengthExpr.type + '.'
                                          , node.errorLocation);
         }
-
-        node.type = new NodeType.ArrayTypeNode(node.arrayType, 1);
+        var current = node.arrayType;
+        var depth = 1;
+        if (current instanceof NodeType.ArrayTypeNode) {
+            depth += 1;
+            current = (<NodeType.ArrayTypeNode> current).type;
+        }
+        node.type = new NodeType.ArrayTypeNode(current, depth);
     }
 
 
