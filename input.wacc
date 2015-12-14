@@ -1,5 +1,8 @@
 begin
+	int[][] block = call squareBlock();
+	call printIntArray2D(block);
+	skip
 
-	int[][] block = call getSBlock()
+
 
 end

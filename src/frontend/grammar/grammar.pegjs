@@ -174,11 +174,7 @@ Type
 
 BaseType
   = PrimitiveType
-  / VOID STAR {
-     var node = new NodeType.VoidPointerTypeNode();
-    node.setErrorLocation(new WACCError.ErrorLocation(location()));
-    return node;
-  }
+
   / STRING { 
       var node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, 1);
       node.setErrorLocation(new WACCError.ErrorLocation(location()));
@@ -250,7 +246,7 @@ FunctionCall
 /* AssignRHS */
 AssignRHS
   = FunctionCall
-  / NEW _ type:PrimitiveType __ LEFT_SQUARE lengthExpr:Expr __ RIGHT_SQUARE {
+  / NEW _ type:Type __ LEFT_SQUARE lengthExpr:Expr __ RIGHT_SQUARE {
     var node = new NodeType.NewArrayNode(type, lengthExpr);
     node.setErrorLocation(new WACCError.ErrorLocation(location()));
     return node;
@@ -513,7 +509,6 @@ HEADER = 'header'
 IS     = 'is'
 RETURN = 'return'
 
-VOID   = 'void'
 INT    = 'int'
 BOOL   = 'bool'
 CHAR   = 'char'
