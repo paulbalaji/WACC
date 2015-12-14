@@ -64,41 +64,73 @@ export var insertReadChar = _.once(() => {
 });
 
 export var insertPrintString = _.once(() => {
-	closingInsertions.push(function() {
-		var message = '%.*s\\0';
-		var dataLabel = insertStringDataHeader(message);
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printString(dataLabel));
-	});
+    if (!barebones) {
+        closingInsertions.push(function() {
+            var message = '%.*s\\0';
+            var dataLabel = insertStringDataHeader(message);
+            sections.sysFuncSection.push(CodeGenUtil.funcDefs.printString(dataLabel));
+        });
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_print_string'),
+            Instr.Push(Reg.LR),
+            Instr.Pop(Reg.PC)]);
+    }   
+	
 });
 
 export var insertPrintBool = _.once(() => {
-	closingInsertions.push(function() {
-		var trueLabel = insertStringDataHeader("true\\0");
-		var falseLabel = insertStringDataHeader("false\\0");
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
-	});
+    if (!barebones) {
+        closingInsertions.push(function() {
+            var trueLabel = insertStringDataHeader("true\\0");
+            var falseLabel = insertStringDataHeader("false\\0");
+            sections.sysFuncSection.push(CodeGenUtil.funcDefs.printBool(trueLabel, falseLabel));
+        });
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_print_bool'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }   
 });
 
 export var insertPrintInt = _.once(() => {
-	closingInsertions.push(function() {
-		var intFormatLabel = insertStringDataHeader("%d\\0");
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
-	});
+    if (!barebones) {
+    	closingInsertions.push(function() {
+    		var intFormatLabel = insertStringDataHeader("%d\\0");
+    		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
+    	});
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_print_int'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }
 });
 
 export var insertPrintRef = _.once(() => {
-	closingInsertions.push(function() {
-		var refFormatLabel = insertStringDataHeader('%p\\0');
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
-                //insertPrintInt();
-	});
+    if (!barebones) {
+        closingInsertions.push(function() {
+            var refFormatLabel = insertStringDataHeader('%p\\0');
+            sections.sysFuncSection.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
+            //insertPrintInt();
+        });
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_print_string'),
+            Instr.Push(Reg.LR),
+            Instr.Pop(Reg.PC)]);
+    }
+	
 });
 
 export var insertPrintLn = _.once(() => {
-	closingInsertions.push(function() {
-		var terminatorLabel = insertStringDataHeader('\\0');
-		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
-	});
+    if (!barebones) {
+        closingInsertions.push(function() {
+            var terminatorLabel = insertStringDataHeader('\\0');
+            sections.sysFuncSection.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
+        });
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_print_ln'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }
 });
 
 export var insertOverflowError = _.once(() => {
@@ -140,18 +172,16 @@ export var insertFreePair = _.once(() => {
 });
 
 export var insertRuntimeError = _.once(() => {
-	closingInsertions.push(function() {
-        var barebones = true;
-		if (barebones) {
-            sections.sysFuncSection.push([Instr.Label('p_throw_runtime_error'),
-						                  Instr.Push(Reg.LR),
-						                  Instr.Pop(Reg.PC)]);
-			//do nothing for now
-		} else {
-			sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
-			insertPrintString();
-		}
-	});
+    if (!barebones) {
+        closingInsertions.push(function() {
+            sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
+            insertPrintString();
+        });
+    } else {
+        sections.sysFuncSection.push([Instr.Label('p_throw_runtime_error'),
+            Instr.Push(Reg.LR),
+            Instr.Pop(Reg.PC)]);
+    }
 });
 
 export var insertMailboxBase = _.once(() => {
@@ -202,3 +232,28 @@ export var insertFree = _.once(() => {
 	    });
     }
 });
+
+export var insertPutChar = _.once(() => {
+    if (barebones) {
+        sections.sysFuncSection.push([Instr.Label('putchar'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }
+});
+
+export var insertDiv = _.once(() => {
+    if (barebones) {
+        sections.sysFuncSection.push([Instr.Label('__aeabi_idiv'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }
+});
+
+export var insertDivMod = _.once(() => {
+    if (barebones) {
+        sections.sysFuncSection.push([Instr.Label('__aeabi_idivmod'),
+                                      Instr.Push(Reg.LR),
+                                      Instr.Pop(Reg.PC)]);
+    }
+});
+

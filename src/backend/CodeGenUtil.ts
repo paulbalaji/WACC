@@ -175,6 +175,7 @@ export var funcDefs = {
 			Macros.insertPrintInt();
 			return [exprInstructions, Instr.Bl('p_print_int')]
 		} else if (node.expr.type instanceof NodeType.CharTypeNode) {
+            Macros.insertPutChar();
 			return [exprInstructions, Instr.Bl('putchar')]
 		} else if (node.expr.type instanceof NodeType.ArrayTypeNode
 			&& (<NodeType.ArrayTypeNode>node.expr.type).type instanceof NodeType.CharTypeNode) {
