@@ -2,9 +2,23 @@ begin
     
     #initialise board
     int[][] initialiseBoard(int width, int height) is
-        int[][] board = new int[width][height];
+        int[][] board = initIntArray2D(0, width, height);
         return board
     end
+
+    int[] initialiseColours() is
+        int red = 0xFF0000;
+        int orange = 0xFFA500;
+        int yellow = 0xFFFF00;
+        int green = 0x00FF00;
+        int blue = 0x0000FF;
+        int purple = 0x551A8B;
+        int[] colours = [red, orange, yellow, green, blue, purple];
+        return colours
+    done
+
+    #get all the colours
+    int[] colours = call initialiseColours();
 
     #pass in width, height
     int[][] board = call initialiseBoard(10, 20);
