@@ -81,9 +81,6 @@ export class CodeGenerator implements NodeType.Visitor {
         }
 
 
-    ldr r0,=0x20200004
-    mov r1,#0
-    str r1,[r0]
         var barebonesGpioInit;
         if (Const.barebones) {
             barebonesGpioInit = [
@@ -681,7 +678,6 @@ export class CodeGenerator implements NodeType.Visitor {
             case 'gpio':
                 var gpioNum = <NodeType.IntLiterNode> node.expr;
                 var mask = 1 << gpioNum.num;
-                Macros.insertGpio()
 
                 unOpInstructions = [
                     Instr.Ldr(Reg.R1, Instr.Liter(0x20200034)),
