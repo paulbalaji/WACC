@@ -1,8 +1,12 @@
-begin
-	int[][] block = call squareBlock();
-	call printIntArray2D(block);
-	skip
 
+begin
+
+	
+	while (true) do
+		call greenDebug(fb);
+
+	done
 
 
 end
+
