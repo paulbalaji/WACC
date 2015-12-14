@@ -171,6 +171,7 @@ export class CodeGenerator implements NodeType.Visitor {
                 binOpInstructions = [Instr.Bl('p_check_divide_by_zero'),
                                      Instr.Bl('__aeabi_idiv')];
                 Macros.insertCheckDivideByZero();
+                Macros.insertDiv();
                 break;
 
             case '%':
@@ -178,6 +179,7 @@ export class CodeGenerator implements NodeType.Visitor {
                                      Instr.Bl('__aeabi_idivmod'),
                                      Instr.Mov(Reg.R0, Reg.R1)];
                 Macros.insertCheckDivideByZero();
+                Macros.insertDivMod();
                 break;
 
             case '>':

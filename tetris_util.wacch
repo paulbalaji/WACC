@@ -1,0 +1,90 @@
+header
+
+    #initialise board
+    int[][] initialiseBoard(int width, int height) is
+        int[][] board = call initIntArray2D(0, width, height);
+        return board
+    end
+
+    #initialise colours
+    int[] initialiseColours() is
+        int empty = 0x000000;
+        int brown = 0xF4A460;
+        int red = 0xFF0000;
+        int orange = 0xFFA500;
+        int yellow = 0xFFFF00;
+        int lime = 0x32CD32;
+        int green = 0x00FF00;
+        int blue = 0x0000FF;
+        int purple = 0x551A8B;
+        int pink = 0xFF69B4;
+        int[] colours = [brown, red, orange, yellow, lime, green, blue, purple, pink];
+        return colours
+    end
+
+    int showBoard(int[][] board) is
+        int j = 0;
+        while (j < len board[0]) do
+            int i = 0;
+            while (i < len board) do
+                print board[i][j];
+                print "\t";
+                i += 1
+            done;
+            println "";
+            j += 1
+        done;
+        return 0
+    end
+
+    int drawBoard(int[] fb, int[] colours, int[][] board) is
+        #width and height
+        int width = len board;
+        int height = len board[0];
+
+        #margins from top and bottom
+        int x_offset = 312;
+        int y_offset = 24;
+
+        #just for fun
+        int boxNum = 0;
+
+        #struct for the squares to be drawn
+        struct Rekt rekt = new Rekt;
+        rekt.width = 40;
+        rekt.height = rekt.width;
+        rekt.colour = 0x000000;
+
+        int j = 0;
+        while (j < height) do
+            #start new row
+            rekt.y = (j * rekt.width) + y_offset;
+
+            int i = 0;
+            while (i < width) do
+                #move to next box
+                rekt.x = (i * rekt.width) + x_offset;
+
+                #switch colour for banter
+                rekt.colour = colours[boxNum];
+
+                #draw rectangle
+                call drawRect(fb, rekt);
+
+                #increment box counter but do modulus as well
+                boxNum += 1;
+                if (boxNum == len colours) then
+                    boxNum = 0
+                else
+                    boxNum = boxNum
+                fi;
+
+                #increment loop variant
+                i += 1
+            done;
+            j += 1
+        done;
+        return 0
+    end
+
+end

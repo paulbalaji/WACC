@@ -26,11 +26,11 @@ src/frontend/grammar/grammar.ts: src/frontend/grammar/grammar.pegjs
 	@echo "Compiling Grammar to TypeScript..."
 	@$(PEGJS) src/frontend/grammar/grammar.pegjs src/frontend/grammar/grammar.ts
 
-tetris:
-	./compileRunTetris.sh
-
 test: compiler
 	python ./runTests.py
+
+tetris:
+	./compileRunTetris.sh
 
 preview: compiler
 	@./compile input.wacc
