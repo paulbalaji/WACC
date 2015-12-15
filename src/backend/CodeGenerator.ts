@@ -82,7 +82,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
         var barebonesGpioInit;
-        if (Const.barebones) {
+        if (false && Const.barebones) {
             barebonesGpioInit = [
                 Instr.Ldr(Reg.R0, Instr.Liter(0x20200004)),
                 Instr.Mov(Reg.R1, Instr.Const(0)),
