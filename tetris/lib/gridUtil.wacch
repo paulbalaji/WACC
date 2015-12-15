@@ -1,0 +1,38 @@
+header
+	int copyBlockToGrid(int[][] block, int[][] grid, int x, int y) is
+		# PRE: The block is in a valid position to be written to the grid, and will not overwrrite  anything
+		int i = 0;
+		while i <  len block do
+			int j = 0; 
+			while j < len block[0] do
+				if (block[j][i] != 0) then 
+					grid[y + i][x + j] = block[j][i]
+				else
+					skip
+				fi;
+				j += 1
+			done;
+			i += 1
+		done;
+		return 0
+	end
+
+
+	bool isColliding(int[][] block, int[][] grid, int x, int y) is
+		int i = 0;
+		while i <  len block do
+			int j = 0; 
+			while j < len block[0] do
+				if (block[i][j] != 0) && ((y + i < 0) || (y + i >= len grid )|| (x + j < 0) || (x + j >= len grid[0]) || grid[y + i][x + j] != 0)
+				then
+					return true
+				else
+					skip
+				fi;
+				j += 1
+			done;
+			i += 1
+		done;
+		return false
+	end 
+end

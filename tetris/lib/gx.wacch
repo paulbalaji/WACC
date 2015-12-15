@@ -1,0 +1,55 @@
+header
+
+    struct Rekt {
+        int x,
+        int y,
+        int width,
+        int height,
+        int colour
+    }
+
+    int drawRect(int[] fb, struct Rekt rekt) is
+        int row = rekt.y;
+        while (row < rekt.y + rekt.height) do
+            int col = rekt.x;
+            while (col < rekt.x + rekt.width) do
+                fb[row * 1024 + col] = rekt.colour;
+                col = col + 1
+            done;
+            row = row + 1
+        done;
+
+        return 0
+    end
+
+    int debug(int colour) is
+    	 int[] fb = get_frame_buffer;
+        struct Rekt r = new Rekt;
+        r.x = 0;
+        r.y = 0;
+        r.width = 500;
+        r.height = 500;
+        r.colour = colour;
+        int res = call drawRect(fb, r);
+    	return 0
+    end
+    int redDebug() is
+       	call debug(0xFF0000);
+        return 0
+    end
+
+    int greenDebug() is
+       	call debug(0x00FF00);
+        return 0
+    end
+
+    int wait(int time) is
+        int i = 0;
+
+        while (i < time) do
+            i = i + 1
+        done;
+
+        return 0
+    end
+end
