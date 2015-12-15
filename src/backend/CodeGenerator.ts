@@ -744,7 +744,7 @@ export class CodeGenerator implements NodeType.Visitor {
             return [
                 this.pushWithIncrement(Reg.R0),
                 Instr.Mov(Reg.R0, Instr.Const(elemSize)),
-                this.insert,
+                this.insertMallocInstruction(),
                 this.popWithDecrement(Reg.R1),
                 str,
                 this.pushWithIncrement(Reg.R0)
@@ -884,7 +884,7 @@ export class CodeGenerator implements NodeType.Visitor {
                        Instr.Mov(Reg.R1, Reg.R0),
                        Instr.Add(Reg.R0, Instr.Const(4)), // Add 4 for the size
                        Instr.Add(Reg.R1, Instr.Const(4)), // Add 4 for the size
-                       Instr.Bl('malloc'),
+                       this.insertMallocInstruction(),
                        // Array address is still in R0 and size is still in R1
                        Instr.Bl('memset'),
                        // R4 still contains raw length of array
