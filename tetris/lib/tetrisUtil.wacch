@@ -37,6 +37,24 @@ header
         return 0
     end
 
+    int drawGridSquare(int[] fb, int x, int y, int colour) is
+        #margins from top and bottom
+        int x_offset = 312;
+        int y_offset = 24;
+#        int square_size = 40;
+
+        #struct for the squares to be drawn
+        struct Rekt rekt = new Rekt;
+        rekt.x = (x * 40) + x_offset;
+        rekt.y = (y * 40) + y_offset;
+        rekt.width = 40;
+        rekt.height = 40;
+        rekt.colour = colour;
+
+        call drawRect(fb, rekt);
+        return 0
+    end
+
     int drawBoard(int[] fb, int[] colours, int[][] board) is
         #width and height
         int width = len board;
