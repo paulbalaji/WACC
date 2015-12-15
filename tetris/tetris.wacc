@@ -19,8 +19,11 @@ begin
     #get the frame buffer
     int[] fb = get_frame_buffer;
 
+    int[][][] blocks = call Blocks();
+
     #initilise first block
-    int[][] block = call LBlock(colours[colourIndex]);
+    int blockIndex = 0;
+    int[][] block = blocks[blockIndex];
 
     call drawBlock(fb, block, x, y, colours[colourIndex]);
 
@@ -30,11 +33,51 @@ begin
     int keepLooping = 1;
     int count = 0;
     int in = 1;
+    int horizontal = 1;
 
     while (keepLooping == 1) do
         in = 0;
+        horizontal = 0;
 
-        call wait(1000000);
+        int count = 0;
+        while (count < 10000) do
+            in = gpio 27;
+            if (in == 1) then
+                #erase square, 0 means black
+                call drawBlock(fb, block, x, y, 0);
+
+                #move block horizontally
+                call rotate2(block);
+
+                #draw updated square
+                call drawBlock(fb, block, x, y, colours[colourIndex])
+            else
+                skip
+            fi;
+
+            in = gpio 24;
+            if (in == 1) then
+                horizontal = -1
+            else
+                skip
+            fi;
+
+            collision = call isColliding(block, grid, x + horizontal, y);
+            if (horizontal != 0 && collision == 0) then
+                #erase square, 0 means black
+                call drawBlock(fb, block, x, y, 0);
+
+                #move block horizontally
+                x += horizontal;
+
+                #draw updated square
+                call drawBlock(fb, block, x, y, colours[colourIndex])
+            else
+                skip
+            fi;
+
+            count += 1
+        done;
 
         collision = call isColliding(block, grid, x, y + 1);
 
@@ -49,9 +92,18 @@ begin
                 colourIndex = colourIndex
             fi;
 
+            blockIndex += 1;
+            if (blockIndex == len blocks) then
+                blockIndex = 0
+            else
+                blockIndex = blockIndex
+            fi;
+            
+            block = blocks[blockIndex];
+
             x = startX;
             y = startY;
-            block = call LBlock(colours[colourIndex]);
+
             call drawBlock(fb, block, x, y, colours[colourIndex]);
 
             collision = call isColliding(block, grid, x, y);

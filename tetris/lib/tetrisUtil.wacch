@@ -6,6 +6,51 @@ header
         return grid
     end
 
+    int rotate2(int[][] block) is
+        int layer = 0;
+        int n = len block;
+        while (layer < (n / 2)-1) do
+            int first = layer;
+            int last = n - 1 - layer;
+            int i = first;
+            while (i < last) do
+                int offset = i - first;
+                int top = block[first][i];
+                block[first][i] = block[last - offset][first];
+                block[last - offset][first] = block[last][last - offset];
+                block[last][last - offset] = block[i][last];
+                block[i][last] = top;
+                i += 1
+            done;
+            layer += 1
+        done;
+        return 0
+    end
+
+    int rotate(int[][] block) is
+        int n = len block;
+        int f = 0;
+        int c = 0;
+        if (n == 2) then return 0 else skip fi;
+        if (n == 3) then f = 1; c = 2 else skip fi;
+        if (n == 4) then f = 2; c = 2 else skip fi;
+        int x = 0;
+        while x < f do
+            int y = 0;
+            while y < c do
+                int temp = block[x][y];
+                block[x][y] = block[y][n - 1 - x];
+                block[y][n - 1 - x] = block[n - 1 - x][n - 1 - y];
+                block[n - 1 - x][n - 1 - y] = block[n - 1 - y][x];
+                block[n - 1 - y][x] = temp;
+                y += 1
+            done;
+            x += 1
+        done;
+        return 0
+
+    end
+
     #initialise colours
     int[] initialiseColours() is
         int empty = 0x000000;

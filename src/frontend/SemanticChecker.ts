@@ -242,12 +242,12 @@ export class SemanticVisitor implements NodeType.Visitor {
                 arrayLiter.type = node.type;
             }
         }
-        if (!SemanticUtil.isType(node.type, node.rhs.type)) {
+        /*if (!SemanticUtil.isType(node.type, node.rhs.type)) {
             throw new Error.SemanticError('Declaration expression must be of correct type.  '
                                          +'Expecting: ' + node.type     + ', '
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
-        }
+        }*/
 
         if (node.type instanceof NodeType.ArrayTypeNode) {
 
@@ -638,7 +638,7 @@ export class SemanticVisitor implements NodeType.Visitor {
         }
         var current = node.arrayType;
         var depth = 1;
-        if (current instanceof NodeType.ArrayTypeNode) {
+        while (current instanceof NodeType.ArrayTypeNode) {
             depth += 1;
             current = (<NodeType.ArrayTypeNode> current).type;
         }

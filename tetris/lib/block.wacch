@@ -1,48 +1,58 @@
 header
-	int[][] singletonBlock(int colour) is
-		int[][] res = call initIntArray2D(colour, 1, 1);
+	int[][] singletonBlock() is
+		int[][] res = call initIntArray2D(1, 1, 1);
 		return res
 	end
 
-	int[][] squareBlock(int colour) is
-		int[][] res = call initIntArray2D(colour, 2, 2);
+	int[][] squareBlock() is
+		int[][] res = call initIntArray2D(1, 2, 2);
 		return res
 	end
 
-	int[][] LBlock(int colour) is
+	int[][] LBlock() is
 		int[][] res = call initIntArray2D(0, 3, 3);
-		res[2][0] = colour;
-		res[0][1] = colour;
-		res[1][1] = colour;
-		res[2][1] = colour;
+		res[2][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
 		return res
 	end
 
-	int[][] TBlock(int colour) is
+	int[][] TBlock() is
 		int[][] res = call initIntArray2D(0, 3, 3);
-		res[1][0] = colour;
-		res[0][1] = colour;
-		res[1][1] = colour;
-		res[2][1] = colour;
+		res[1][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
 		return res
 	end
 
-	int[][] SBlock(int colour) is
+	int[][] SBlock() is
 		int[][] res = call initIntArray2D(0, 3, 3);
-		res[0][0] = colour;
-		res[0][1] = colour;
-		res[1][1] = colour;
-		res[1][2] = colour;
+		res[0][0] = 1;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[1][2] = 1;
 		return res
 	end
 
-	int[][] IBlock(int colour) is
+	int[][] IBlock() is
 		int[][] res = call initIntArray2D(0, 4, 4);
-		res[0][1] = colour;
-		res[1][1] = colour;
-		res[2][1] = colour;
-		res[3][1] = colour;
+		res[0][1] = 1;
+		res[1][1] = 1;
+		res[2][1] = 1;
+		res[3][1] = 1;
 		return res
+	end
+
+	int[][][] Blocks() is
+		int[][][] blocks = new int[][][5];
+		blocks[0] = call LBlock();
+		blocks[1] = call TBlock();
+		blocks[2] = call SBlock();
+		blocks[3] = call IBlock();
+		blocks[4] = call squareBlock();
+		return blocks
 	end
 end
 
