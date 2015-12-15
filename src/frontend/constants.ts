@@ -10,3 +10,4 @@ export var startOfHeap = 0xfffffd;
 export var barebones = true;
 
 export var validGPIOPins = [11, 22, 23, 24, 25, 27];
+
