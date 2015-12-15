@@ -1,9 +1,9 @@
 header
 
-    #initialise board
-    int[][] initialiseBoard(int width, int height) is
-        int[][] board = call initIntArray2D(0, width, height);
-        return board
+    #initialise grid
+    int[][] initialiseGrid(int width, int height) is
+        int[][] grid = call initIntArray2D(0, width, height);
+        return grid
     end
 
     #initialise colours
@@ -22,12 +22,12 @@ header
         return colours
     end
 
-    int showBoard(int[][] board) is
+    int showGrid(int[][] grid) is
         int j = 0;
-        while (j < len board[0]) do
+        while (j < len grid[0]) do
             int i = 0;
-            while (i < len board) do
-                print board[i][j];
+            while (i < len grid) do
+                print grid[i][j];
                 print "\t";
                 i += 1
             done;
@@ -38,10 +38,12 @@ header
     end
 
     int drawGridSquare(int[] fb, int x, int y, int colour) is
+        #length of each grid square
+        #int square_size = 40;
+
         #margins from top and bottom
         int x_offset = 312;
         int y_offset = 24;
-#        int square_size = 40;
 
         #struct for the squares to be drawn
         struct Rekt rekt = new Rekt;
@@ -55,48 +57,21 @@ header
         return 0
     end
 
-    int drawBoard(int[] fb, int[] colours, int[][] board) is
+    int drawBlock(int[] fb, int[][] block, int x, int y, int colour) is
         #width and height
-        int width = len board;
-        int height = len board[0];
-
-        #margins from top and bottom
-        int x_offset = 312;
-        int y_offset = 24;
-
-        #just for fun
-        int boxNum = 0;
-
-        #struct for the squares to be drawn
-        struct Rekt rekt = new Rekt;
-        rekt.width = 40;
-        rekt.height = rekt.width;
-        rekt.colour = 0x000000;
+        int width = len block;
+        int height = len block[0];
 
         int j = 0;
         while (j < height) do
-            #start new row
-            rekt.y = (j * rekt.width) + y_offset;
-
             int i = 0;
             while (i < width) do
-                #move to next box
-                rekt.x = (i * rekt.width) + x_offset;
-
-                #switch colour for banter
-                rekt.colour = colours[boxNum];
-
                 #draw rectangle
-                call drawRect(fb, rekt);
-
-                #increment box counter but do modulus as well
-                boxNum += 1;
-                if (boxNum == len colours) then
-                    boxNum = 0
+                if (block[i][j] != 0) then
+                    call drawGridSquare(fb, x+i, y+j, colour)
                 else
-                    boxNum = boxNum
+                    skip
                 fi;
-
                 #increment loop variant
                 i += 1
             done;
@@ -104,5 +79,44 @@ header
         done;
         return 0
     end
+
+    int copyBlockToGrid(int[][] block, int[][] grid, int y, int x) is
+        # PRE: The block is in a valid position to be written to the grid, and will not overwrrite  anything
+        int i = 0;
+        while i <  len block do
+            int j = 0; 
+            while j < len block[0] do
+                if (block[i][j] != 0) then 
+                    grid[y + i][x + j] = block[i][j]
+                else
+                    skip
+                fi;
+                j += 1
+            done;
+            i += 1
+        done;
+        return 0
+    end
+
+    int isColliding(int[][] block, int[][] grid, int y, int x) is
+        int i = 0;
+        while i <  len block do
+            int j = 0; 
+            while j < len block[0] do
+                if (block[i][j] != 0)
+                    && ((y + i < 0) || (y + i >= len grid) 
+                    || (x + j < 0) || (x + j >= len grid[0])
+                    || grid[y + i][x + j] != 0)
+                then
+                    return 1
+                else
+                    skip
+                fi;
+                j += 1
+            done;
+            i += 1
+        done;
+        return 0
+    end 
 
 end

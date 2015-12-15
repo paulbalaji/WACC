@@ -1,5 +1,29 @@
 header 
 
+int[][] initIntArray2D(int val, int width, int height) is
+	int[][] result = new int[][height];
+	int i = 0;
+	
+	while (i < height) do
+		int[] row = call initIntArray(val, width);
+		result[i] = row;
+		i += 1
+	done;
+
+	return result
+end
+
+int[] initIntArray(int val, int n) is
+	int[] intArray = new int[n];
+	int i = 0;
+	while (i < n) do
+		intArray[i] = val;
+		i = i + 1
+	done;
+
+	return intArray
+end
+
 ######## CONTAIN FUNCTIONS ######## 
 
 bool containInt(int[] array, int x) is
@@ -98,29 +122,7 @@ end
 
 # Fills an array with 'n' vals
 
-int[][] initIntArray2D(int val, int width, int height) is
-	int[][] result = new int[][height];
-	int i = 0;
-	
-	while (i < height) do
-		int[] row = call initIntArray(val, width);
-		result[i] = row;
-		i += 1
-	done;
 
-	return result
-end
-
-int[] initIntArray(int val, int n) is
-	int[] intArray = new int[n];
-	int i = 0;
-	while (i < n) do
-		intArray[i] = val;
-		i = i + 1
-	done;
-
-	return intArray
-end
 
 bool[] initBoolArray(bool val, int n) is
 	bool[] boolArray = new bool[n];

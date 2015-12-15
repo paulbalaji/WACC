@@ -44,10 +44,8 @@ header
     end
 
     int wait(int time) is
-        int i = 0;
-
-        while (i < time) do
-            i = i + 1
+        while (time > 0) do
+            time -= 1
         done;
 
         return 0

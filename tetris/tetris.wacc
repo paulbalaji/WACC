@@ -1,16 +1,77 @@
 begin
+    #starting location for all new blocks
+    int startX = 4;
+    int startY = 0;
     
     #get all the colours
     int[] colours = call initialiseColours();
 
-    #pass in height, width
+    #pass in height, width to initilise grid
     int height = 18;
     int width = 10;
-    int[][] board = call initialiseBoard(height, width);
+    int[][] grid = call initIntArray2D(0, height, width);
 
+    int x = startX;
+    int y = startY;
+
+    int colourIndex = 0;
+
+    #get the frame buffer
     int[] fb = get_frame_buffer;
 
-    call drawGridSquare(fb, 1, 1, 0xFF0000);
+    #initilise first block
+    int[][] block = call LBlock(colours[colourIndex]);
+
+    call drawBlock(fb, block, x, y, colours[colourIndex]);
+
+    int blah = 12;
+
+    int collision = 0;
+    int keepLooping = 1;
+    int count = 0;
+    int in = 1;
+
+    while (keepLooping == 1) do
+        in = 0;
+
+        call wait(1000000);
+
+        collision = call isColliding(block, grid, x, y + 1);
+
+        if (collision == 1) then
+            call copyBlockToGrid(block, grid, x, y);
+            
+            colourIndex += 1;
+
+            if (colourIndex == len colours) then
+                colourIndex = 0
+            else
+                colourIndex = colourIndex
+            fi;
+
+            x = startX;
+            y = startY;
+            block = call LBlock(colours[colourIndex]);
+            call drawBlock(fb, block, x, y, colours[colourIndex]);
+
+            collision = call isColliding(block, grid, x, y);
+            if (collision == 1) then keepLooping = 0 else skip fi;
+            # Gameover in the true branch of this if
+            skip
+        else
+            #erase square, 0 means black
+            call drawBlock(fb, block, x, y, 0);
+
+            #move block down
+            y += 1;
+
+            #draw updated square
+            call drawBlock(fb, block, x, y, colours[colourIndex])
+        fi;
+        skip
+    done;
+
+    
 
     while (true) do
         skip
