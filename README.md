@@ -8,6 +8,8 @@ WACC Compiler is a compiler for the WACC language.
   - Extension - IN PROGRESS
 
 ### TODO:
+ - LINES 245-250 SemanticChecker!!!!!! REMEMBER TO RE-COMMENT
+ - FIX THE ABOVE
  - Allow files to be imported (pre-processor in effect)
  - Structs
  - Graphics Library
