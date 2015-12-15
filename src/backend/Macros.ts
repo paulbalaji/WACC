@@ -216,7 +216,7 @@ export var insertGetFrameBuffer = _.once(() => {
 });
 
 export var insertMalloc = _.once(() => {
-	if (barebones) {
+    if (barebones) {
 		closingInsertions.push(function() {
         	sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
 		});
