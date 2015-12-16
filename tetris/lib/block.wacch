@@ -18,25 +18,25 @@ header
 		r0[1][1] = 1;
 		r0[2][1] = 1;
 
-		int[][] r1 = call initIntArray2d(0, 3,3)
+		int[][] r1 = call initIntArray2D(0, 3,3);
  		r1[0][0] = 1;
- 		r1[1][0] = 1;
- 		r1[2][0] = 1;
-	    r1[2][1] = 1;
+ 		r1[0][1] = 1;
+ 		r1[0][2] = 1;
+	    r1[1][2] = 1;
 
-	    int[][] r2 = call initIntArray2d(0, 3,3)
+	    int[][] r2 = call initIntArray2D(0, 3,3);
      	r2[0][0] = 1;
-		r2[1][0] = 1;
 		r2[0][1] = 1;
-		r2[0][2] = 1;
+		r2[1][0] = 1;
+		r2[2][0] = 1;
 
-		int[][] r3 = call initIntArray2d(0, 3,3)
-		r3[0][1] = 1;
-		r3[0][2] = 1;
-		r3[1][2] = 1;
+		int[][] r3 = call initIntArray2D(0, 3,3);
+		r3[1][0] = 1;
+		r3[2][0] = 1;
+		r3[2][1] = 1;
 		r3[2][2] = 1;
 
-        int[][][][] res = [r0, r1, r2, r3];
+        int[][][] res = [r0, r1, r2, r3];
 
 		return res
 	end
@@ -48,25 +48,25 @@ header
 		r0[1][1] = 1;
 		r0[1][2] = 1;
 
-    	int[][] r1 = call initIntArray2d(0, 3,3)
+    	int[][] r1 = call initIntArray2D(0, 3,3);
         r1[1][0] = 1;
         r1[1][1] = 1;
         r1[2][1] = 1;
         r1[1][2] = 1;
 
-        int[][] r2 = call initIntArray2d(0, 3,3)
+        int[][] r2 = call initIntArray2D(0, 3,3);
         r2[0][1] = 1;
         r2[1][1] = 1;
         r2[2][1] = 1;
         r2[1][2] = 1;
 
-        int[][] r3 = call initIntArray2d(0, 3,3)
+        int[][] r3 = call initIntArray2D(0, 3,3);
         r3[1][0] = 1;
         r3[0][1] = 1;
         r3[1][1] = 1;
         r3[1][2] = 1;
 
-        int[][][][] res = [r0, r1, r2, r3];
+        int[][][] res = [r0, r1, r2, r3];
 
 		return res
 	end
@@ -75,28 +75,28 @@ header
 	
 		int[][] r0 = call initIntArray2D(0, 3, 3);
 		r0[0][0] = 1;
-		r1[0][1] = 1;
-		r2[1][1] = 1;
-		r3[1][2] = 1;
+		r0[0][1] = 1;
+		r0[1][1] = 1;
+		r0[1][2] = 1;
 
-        int[][] r1 = call initIntArray2d(0, 3,3)
-        r0[0][1] = 1;
-        r0[1][0] = 1;
-        r0[1][1] = 1;
-        r0[2][0] = 1;
-
-        int[][] r2 = call initIntArray2d(0, 3,3)
+        int[][] r1 = call initIntArray2D(0, 3,3);
+        r1[0][1] = 1;
         r1[1][0] = 1;
         r1[1][1] = 1;
-        r1[2][1] = 1;
-        r1[2][2] = 1;
+        r1[2][0] = 1;
 
-
-        int[][] r3 = call initIntArray2d(0, 3,3)
-        r2[0][2] = 1;
+        int[][] r2 = call initIntArray2D(0, 3,3);
+        r2[1][0] = 1;
         r2[1][1] = 1;
-        r2[1][2] = 1;
         r2[2][1] = 1;
+        r2[2][2] = 1;
+
+
+        int[][] r3 = call initIntArray2D(0, 3,3);
+        r3[0][2] = 1;
+        r3[1][1] = 1;
+        r3[1][2] = 1;
+        r3[2][1] = 1;
 
 		int[][][] res = [r0, r1, r2, r3];
 
@@ -111,19 +111,19 @@ header
         r0[2][1] = 1;
         r0[3][1] = 1;
 
-		int[][] r1 = call initIntArray2d(0, 4,4)
+		int[][] r1 = call initIntArray2D(0, 4,4);
         r1[2][0] = 1;
         r1[2][1] = 1;
         r1[2][2] = 1;
         r1[2][3] = 1;
 
-        int[][] r2 = call initIntArray2d(0, 4,4)
+        int[][] r2 = call initIntArray2D(0, 4,4);
         r2[0][2] = 1;
         r2[1][2] = 1;
         r2[2][2] = 1;
         r2[3][2] = 1;
 
-        int[][] r3 = call initIntArray2d(0, 4,4)
+        int[][] r3 = call initIntArray2D(0, 4,4);
         r3[1][0] = 1;
         r3[1][1] = 1;
         r3[1][2] = 1;

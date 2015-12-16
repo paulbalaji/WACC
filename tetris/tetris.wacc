@@ -19,11 +19,12 @@ begin
     #get the frame buffer
     int[] fb = get_frame_buffer;
 
-    int[][][] blocks = call Blocks();
+    int[][][][] blocks = call Blocks();
 
     #initilise first block
     int blockIndex = 0;
-    int[][] block = blocks[blockIndex];
+    int rotationIndex = 0;
+    int[][] block = blocks[blockIndex][rotationIndex];
 
     call drawBlock(fb, block, x, y, colours[colourIndex]);
 
@@ -43,15 +44,36 @@ begin
         while (count < 10000) do
             in = gpio 27;
             if (in == 1) then
-                horizontal = 1
+                #horizontal = 1
                 #erase square, 0 means black
-                #call drawBlock(fb, block, x, y, 0);
+                call drawBlock(fb, block, x, y, 0);
 
                 #move block horizontally
                 #call rotate2(block);
 
+                int savedRotationIndex = rotationIndex;
+
+                #rotate
+                rotationIndex += 1;
+                if (rotationIndex == 4) then
+                    rotationIndex = 0
+                else
+                    rotationIndex = rotationIndex
+                fi;
+                
+                block = blocks[blockIndex][rotationIndex];
+
+                #if collision don't rotate, else keep rotated shape
+                collision = call isColliding(block, grid, x, y);
+                if (collision == 1) then
+                    rotationIndex = savedRotationIndex;
+                    block = blocks[blockIndex][rotationIndex]
+                else
+                    skip
+                fi;
+
                 #draw updated square
-                #call drawBlock(fb, block, x, y, colours[colourIndex])
+                call drawBlock(fb, block, x, y, colours[colourIndex])
             else
                 skip
             fi;
@@ -84,9 +106,17 @@ begin
 
         if (collision == 1) then
             call copyBlockToGrid(block, grid, x, y);
-            
-            colourIndex += 1;
 
+            #get info on what rows need to be shifted down
+            int[] rowInfo = call detectRows(grid);
+
+            #while we can still shift down, keep shifting down
+            while (rowInfo[0] != 0) do
+                call shiftDown(grid, rowInfo);
+                rowInfo = call detectRows(grid);
+            done;
+
+            colourIndex += 1;
             if (colourIndex == len colours) then
                 colourIndex = 0
             else
@@ -99,8 +129,15 @@ begin
             else
                 blockIndex = blockIndex
             fi;
+
+            rotationIndex += 1;
+            if (rotationIndex == 4) then
+                rotationIndex = 0
+            else
+                rotationIndex = rotationIndex
+            fi;
             
-            block = blocks[blockIndex];
+            block = blocks[blockIndex][rotationIndex];
 
             x = startX;
             y = startY;
