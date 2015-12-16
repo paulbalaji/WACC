@@ -113,7 +113,7 @@ begin
             #while we can still shift down, keep shifting down
             while (rowInfo[0] != 0) do
                 call shiftDown(grid, rowInfo);
-                rowInfo = call detectRows(grid);
+                rowInfo = call detectRows(grid)
             done;
 
             colourIndex += 1;

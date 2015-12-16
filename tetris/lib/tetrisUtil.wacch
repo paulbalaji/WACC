@@ -165,8 +165,8 @@ header
     end 
 
     int shiftDown(int[][] grid, int[] rowsToRemove) is
-        int shiftAmount = 0
-        int y = len grid - 1;
+        int shiftAmount = 0;
+        int y = (len grid) - 1;
             while (y >= 0) do
                 # first check we are on a square bounds
                 if (rowsToRemove[y + 1] == 1) then 
@@ -184,25 +184,23 @@ header
         return 0
     end
 
-    int shiftRowDown(grid, y, amount) is
-        if y + amount < len grid then # Check valid index
-            call copyRow(grid, y, y + amount)
-            call fillIntArray(0, grid[y]);
-        else skip fi
-
-
+    int shiftRowDown(int[][] grid, int y, int amount) is
+        if (y + amount) < len grid then # Check valid index
+            call copyRow(grid, y, y + amount);
+            call fillIntArray(0, grid[y])
+        else skip fi;
         return 0
-    done
+    end
 
     int copyRow(int[][] grid, int rowSrc, int rowDst) is
         int x = 0;
-        while (x < len grid[y]) do
+        while (x < len grid[rowDst]) do
             grid[rowDst][x] = grid[rowSrc][x];
             x += 1
-        done
+        done;
 
         return 0
-    done
+    end
 
     int[] detectRows(int[][] grid) is
         int[] res = call initIntArray(0, 19);
