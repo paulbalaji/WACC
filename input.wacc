@@ -1,13 +1,6 @@
 
 begin
-	
-	while (true) do
-		if (gpio 27) then 
-			call greenDebug()
-		else 
-			call redDebug()
-		fi
-	done
+	int[][][] xs = new int[][][5]
 
 
 end
