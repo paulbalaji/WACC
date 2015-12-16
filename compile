@@ -1,11 +1,24 @@
 #!/usr/bin/env node
 var fs = require('fs'),
-	path = require('path');
+	path = require('path'),
+	_  = require('underscore');
 
 var compiler = require('./dist/compiler.js');
 
-var mainFilename = process.argv[2];
-var headerFilenames = process.argv.slice(3);
-var outputFilename = path.basename(mainFilename, '.wacc') + '.s';
+// Split the args into compiler flags and source filenames
+var groupedArgs = _.groupBy(process.argv.slice(2), function(arg) {
+	return (arg.trim()[0] === '-') ? 'flags' : 'filenames';
+});
 
-compiler.compile(mainFilename, headerFilenames, outputFilename);
+// Process flag arguments
+var flags = _.groupBy(groupedArgs.flags, function (flag) {
+	// PRE: Flag starts with a -
+	return flag.substr(1);
+});
+
+// Process source file arguments
+var mainFilename = _.first(groupedArgs.filenames);
+var headerFilenames = _.tail(groupedArgs.filenames);
+var outputFilename = path.basename(mainFilename, '.wacc') + '.s';
+console.log(flags);
+compiler.compile(mainFilename, headerFilenames, outputFilename, flags.barebones);
