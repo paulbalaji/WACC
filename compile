@@ -22,5 +22,4 @@ _.forEach(groupedArgs.flags, function(flag) {
 var mainFilename = _.first(groupedArgs.filenames);
 var headerFilenames = _.tail(groupedArgs.filenames);
 var outputFilename = path.basename(mainFilename, '.wacc') + '.s';
-console.log(flags);
 compiler.compile(mainFilename, headerFilenames, outputFilename, flags.barebones);
