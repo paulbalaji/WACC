@@ -23,7 +23,8 @@ begin
 
     #initilise first block
     int blockIndex = 0;
-    int[][] block = blocks[blockIndex];
+    int rotationIndex[] = 0;
+    int[][] block = blocks[blockIndex][rotationIndex];
 
     call drawBlock(fb, block, x, y, colours[colourIndex]);
 
@@ -43,15 +44,25 @@ begin
         while (count < 10000) do
             in = gpio 27;
             if (in == 1) then
-                horizontal = 1
+                #horizontal = 1
                 #erase square, 0 means black
-                #call drawBlock(fb, block, x, y, 0);
+                call drawBlock(fb, block, x, y, 0);
 
                 #move block horizontally
                 #call rotate2(block);
 
+                #rotate
+                rotationIndex += 1;
+                if (rotationIndex == 4) then
+                    rotationIndex = 0
+                else
+                    rotationIndex = rotationIndex
+                fi;
+                
+                block = blocks[blockIndex][rotationIndex];
+
                 #draw updated square
-                #call drawBlock(fb, block, x, y, colours[colourIndex])
+                call drawBlock(fb, block, x, y, colours[colourIndex])
             else
                 skip
             fi;
@@ -86,7 +97,6 @@ begin
             call copyBlockToGrid(block, grid, x, y);
             
             colourIndex += 1;
-
             if (colourIndex == len colours) then
                 colourIndex = 0
             else
@@ -99,8 +109,15 @@ begin
             else
                 blockIndex = blockIndex
             fi;
+
+            rotationIndex += 1;
+            if (rotationIndex == 4) then
+                rotationIndex = 0
+            else
+                rotationIndex = rotationIndex
+            fi;
             
-            block = blocks[blockIndex];
+            block = blocks[blockIndex][rotationIndex];
 
             x = startX;
             y = startY;
