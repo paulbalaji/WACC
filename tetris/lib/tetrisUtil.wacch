@@ -190,8 +190,6 @@ header
             call copyRow(grid, y, y + amount);
             call fillIntArray(0, grid[y])
         else skip fi;
-
-
         return 0
     end
 

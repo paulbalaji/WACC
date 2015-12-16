@@ -11,14 +11,15 @@ var groupedArgs = _.groupBy(process.argv.slice(2), function(arg) {
 });
 
 // Process flag arguments
-var flags = _.groupBy(groupedArgs.flags, function (flag) {
-	// PRE: Flag starts with a -
-	return flag.substr(1);
-});
+var flags = {};
+// Fill in flags by going through array;
+_.forEach(groupedArgs.flags, function(flag) {
+	// PRE: flags start with -
+	flags[flag.subStr(1)] = true;
+})
 
 // Process source file arguments
 var mainFilename = _.first(groupedArgs.filenames);
 var headerFilenames = _.tail(groupedArgs.filenames);
 var outputFilename = path.basename(mainFilename, '.wacc') + '.s';
-console.log(flags);
 compiler.compile(mainFilename, headerFilenames, outputFilename, flags.barebones);
