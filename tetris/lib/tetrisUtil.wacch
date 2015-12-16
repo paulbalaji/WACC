@@ -9,7 +9,7 @@ header
     int rotate2(int[][] block) is
         int layer = 0;
         int n = len block;
-        while (layer < (n / 2)-1) do
+        while (layer < (n / 2)) do
             int first = layer;
             int last = n - 1 - layer;
             int i = first;

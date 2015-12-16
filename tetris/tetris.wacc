@@ -43,14 +43,15 @@ begin
         while (count < 10000) do
             in = gpio 27;
             if (in == 1) then
+                horizontal = 1
                 #erase square, 0 means black
-                call drawBlock(fb, block, x, y, 0);
+                #call drawBlock(fb, block, x, y, 0);
 
                 #move block horizontally
-                call rotate2(block);
+                #call rotate2(block);
 
                 #draw updated square
-                call drawBlock(fb, block, x, y, colours[colourIndex])
+                #call drawBlock(fb, block, x, y, colours[colourIndex])
             else
                 skip
             fi;
