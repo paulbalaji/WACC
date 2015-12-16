@@ -164,4 +164,32 @@ header
         return 0
     end 
 
+    int[] detectRows(int[][] grid) is
+        int[] res = call initIntArray(0, 19);
+        int j = 0;
+        int breakOuter = 0;
+        int breakInner = 0;
+        while ((j < len grid[0]) && (breakOuter != 1)) do
+            int i = 0;
+            breakInner = 0;
+            while ((i < len grid) && (breakInner != 1)) do
+                if (grid[i][j] == 0) then
+                    if (i == ((len grid) - 1)) then
+                        res[i] = 1;
+                        breakInner = 1;
+                        res[0] = 1
+                    else
+                        skip
+                    fi
+                else
+                    breakInner = 1
+                fi;
+                i += 1
+            done;
+            j += 1
+        done;
+
+        return res
+    end
+
 end

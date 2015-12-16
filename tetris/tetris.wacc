@@ -19,11 +19,11 @@ begin
     #get the frame buffer
     int[] fb = get_frame_buffer;
 
-    int[][][] blocks = call Blocks();
+    int[][][][] blocks = call Blocks();
 
     #initilise first block
     int blockIndex = 0;
-    int rotationIndex[] = 0;
+    int rotationIndex = 0;
     int[][] block = blocks[blockIndex][rotationIndex];
 
     call drawBlock(fb, block, x, y, colours[colourIndex]);
@@ -51,6 +51,8 @@ begin
                 #move block horizontally
                 #call rotate2(block);
 
+                int savedRotationIndex = rotationIndex;
+
                 #rotate
                 rotationIndex += 1;
                 if (rotationIndex == 4) then
@@ -60,6 +62,15 @@ begin
                 fi;
                 
                 block = blocks[blockIndex][rotationIndex];
+
+                #if collision don't rotate, else keep rotated shape
+                collision = call isColliding(block, grid, x, y);
+                if (collision == 1) then
+                    rotationIndex = savedRotationIndex;
+                    block = blocks[blockIndex][rotationIndex]
+                else
+                    skip
+                fi;
 
                 #draw updated square
                 call drawBlock(fb, block, x, y, colours[colourIndex])
@@ -95,7 +106,16 @@ begin
 
         if (collision == 1) then
             call copyBlockToGrid(block, grid, x, y);
-            
+
+            #get info on what rows need to be shifted down
+            int[] rowInfo = call detectRows(grid);
+
+            #while we can still shift down, keep shifting down
+            while (rowInfo[0] != 0) do
+                call shiftDown(grid, rowInfo);
+                rowInfo = call detectRows(grid);
+            done;
+
             colourIndex += 1;
             if (colourIndex == len colours) then
                 colourIndex = 0
