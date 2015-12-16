@@ -104,28 +104,29 @@ header
 
     int drawBlock(int[] fb, int[][] block, int x, int y, int colour) is
         #width and height
-        int width = len block;
-        int height = len block[0];
+        int height = len block;
+        int width = len block[0];
 
-        int j = 0;
-        while (j < height) do
-            int i = 0;
-            while (i < width) do
+        int i = 0;
+        while (i < height) do
+            int j = 0;
+            while (j < width) do
                 #draw rectangle
                 if (block[i][j] != 0) then
-                    call drawGridSquare(fb, x+i, y+j, colour)
+                    call drawGridSquare(fb, x+j, y+i, colour)
                 else
                     skip
                 fi;
                 #increment loop variant
-                i += 1
+                j += 1
             done;
-            j += 1
+            i += 1
         done;
+
         return 0
     end
 
-    int copyBlockToGrid(int[][] block, int[][] grid, int y, int x) is
+    int copyBlockToGrid(int[][] block, int[][] grid, int x, int y) is
         # PRE: The block is in a valid position to be written to the grid, and will not overwrrite  anything
         int i = 0;
         while i <  len block do
@@ -143,7 +144,7 @@ header
         return 0
     end
 
-    int isColliding(int[][] block, int[][] grid, int y, int x) is
+    int isColliding(int[][] block, int[][] grid, int x, int y) is
         int i = 0;
         while i <  len block do
             int j = 0; 
@@ -165,57 +166,56 @@ header
     end 
 
     int shiftDown(int[][] grid, int[] rowsToRemove) is
-        int shiftAmount = 0
-        int y = len grid - 1;
-            while (y >= 0) do
-                # first check we are on a square bounds
-                if (rowsToRemove[y + 1] == 1) then 
-                    #This is a row to remove
-                    #Empty the row
-                    call fillIntArray(0, grid[y]);
-                    shiftAmount += 1
-                else 
-                    call shiftRowDown(grid, y, shiftAmount)
-                 fi;                
-                
-                y -= 1
-            done;
+        int shiftAmount = 0;
+        int y = (len grid) - 1;
+        while (y >= 0) do
+            # first check we are on a square bounds
+            if (rowsToRemove[y + 1] == 1) then 
+                #This is a row to remove
+                #Empty the row
+                call fillIntArray(0, grid[y]);
+                shiftAmount += 1
+            else 
+                call shiftRowDown(grid, y, shiftAmount)
+             fi;                
+            
+            y -= 1
+        done;
          
         return 0
     end
 
-    int shiftRowDown(grid, y, amount) is
-        if y + amount < len grid then # Check valid index
-            call copyRow(grid, y, y + amount)
-            call fillIntArray(0, grid[y]);
-        else skip fi
+    int shiftRowDown(int[][] grid, int y, int amount) is
+        if (y + amount) < (len grid) then # Check valid index
+            call copyRow(grid, y, y + amount);
+            call fillIntArray(0, grid[y])
+        else skip fi;
 
 
         return 0
-    done
+    end
 
     int copyRow(int[][] grid, int rowSrc, int rowDst) is
         int x = 0;
-        while (x < len grid[y]) do
+        while (x < len grid[rowDst]) do
             grid[rowDst][x] = grid[rowSrc][x];
             x += 1
-        done
+        done;
 
         return 0
-    done
+    end
 
     int[] detectRows(int[][] grid) is
         int[] res = call initIntArray(0, 19);
-        int j = 0;
+        int i = 0;
         int breakOuter = 0;
-        int breakInner = 0;
-        while ((j < len grid[0]) && (breakOuter != 1)) do
-            int i = 0;
-            breakInner = 0;
-            while ((i < len grid) && (breakInner != 1)) do
+        while ((i < len grid) && breakOuter != 1) do
+            int j = 0;
+            int breakInner = 0;
+            while ((j < len grid[0]) && (breakInner != 1)) do
                 if (grid[i][j] == 0) then
-                    if (i == ((len grid) - 1)) then
-                        res[i] = 1;
+                    if (j == ((len grid[0]) - 1)) then
+                        res[j] = 1;
                         breakInner = 1;
                         res[0] = 1
                     else
@@ -224,9 +224,9 @@ header
                 else
                     breakInner = 1
                 fi;
-                i += 1
+                j += 1
             done;
-            j += 1
+            i += 1
         done;
 
         return res

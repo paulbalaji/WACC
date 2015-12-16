@@ -9,7 +9,7 @@ begin
     #pass in height, width to initilise grid
     int height = 18;
     int width = 10;
-    int[][] grid = call initIntArray2D(0, height, width);
+    int[][] grid = call initIntArray2D(0, width, height);
 
     int x = startX;
     int y = startY;
@@ -113,7 +113,7 @@ begin
             #while we can still shift down, keep shifting down
             while (rowInfo[0] != 0) do
                 call shiftDown(grid, rowInfo);
-                rowInfo = call detectRows(grid);
+                rowInfo = call detectRows(grid)
             done;
 
             colourIndex += 1;
