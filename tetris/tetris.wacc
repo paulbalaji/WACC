@@ -24,6 +24,9 @@ begin
     #initilise first block
     int blockIndex = 0;
     int rotationIndex = 0;
+
+    int currentBlockRotationIndex = rotationIndex;
+
     int[][] block = blocks[blockIndex][rotationIndex];
 
     call drawBlock(fb, block, x, y, colours[colourIndex]);
@@ -44,43 +47,55 @@ begin
         while (count < 10000) do
             in = gpio 27;
             if (in == 1) then
-                horizontal = 1
-                #erase square, 0 means black
-                #call drawBlock(fb, block, x, y, 0);
-
-                #move block horizontally
-                #call rotate2(block);
-
-                #int savedRotationIndex = rotationIndex;
-
-                #rotate
-                #rotationIndex += 1;
-                #if (rotationIndex == 4) then
-                #    rotationIndex = 0
-                #else
-                #    rotationIndex = rotationIndex
-                #fi;
-                
-                #block = blocks[blockIndex][rotationIndex];
-
-                #if collision don't rotate, else keep rotated shape
-                #collision = call isColliding(block, grid, x, y);
-                #if (collision == 1) then
-                #    rotationIndex = savedRotationIndex;
-                #    block = blocks[blockIndex][rotationIndex]
-                #else
-                #    skip
-                #fi;
-
-                #draw updated square
-                #call drawBlock(fb, block, x, y, colours[colourIndex])
+                horizontal = 1;
+                call wait(2000)
             else
                 skip
             fi;
 
             in = gpio 24;
             if (in == 1) then
-                horizontal = -1
+                horizontal = -1;
+                call wait(2000)
+            else
+                skip
+            fi;
+
+
+            # Rotating the current block
+            in = gpio 25;
+            if (in == 1) then
+
+                #erase square, 0 means black
+                call drawBlock(fb, block, x, y, 0);
+
+                #move block horizontally
+                
+
+                int savedRotationIndex = rotationIndex;
+
+                #rotate
+                rotationIndex += 1;
+                if (rotationIndex == 4) then
+                    rotationIndex = 0
+                else
+                    rotationIndex = rotationIndex
+                fi;
+                
+                block = blocks[blockIndex][rotationIndex];
+
+                #if collision don't rotate, else keep rotated shape
+                collision = call isColliding(block, grid, x, y);
+                if (collision == 1) then
+                    rotationIndex = savedRotationIndex;
+                    block = blocks[blockIndex][rotationIndex]
+                else
+                    skip
+                fi;
+
+                #draw updated square
+                call drawBlock(fb, block, x, y, colours[colourIndex]);
+                call wait(2000)
             else
                 skip
             fi;
@@ -143,7 +158,6 @@ begin
             fi;
             
             block = blocks[blockIndex][rotationIndex];
-
             x = startX;
             y = startY;
 
