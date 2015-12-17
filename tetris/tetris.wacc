@@ -9,7 +9,7 @@ begin
     #pass in height, width to initilise grid
     int height = 18;
     int width = 10;
-    int[][] grid = call initIntArray2D(0, height, width);
+    int[][] grid = call initIntArray2D(0, width, height);
 
     int x = startX;
     int y = startY;
@@ -44,36 +44,36 @@ begin
         while (count < 10000) do
             in = gpio 27;
             if (in == 1) then
-                #horizontal = 1
+                horizontal = 1
                 #erase square, 0 means black
-                call drawBlock(fb, block, x, y, 0);
+                #call drawBlock(fb, block, x, y, 0);
 
                 #move block horizontally
                 #call rotate2(block);
 
-                int savedRotationIndex = rotationIndex;
+                #int savedRotationIndex = rotationIndex;
 
                 #rotate
-                rotationIndex += 1;
-                if (rotationIndex == 4) then
-                    rotationIndex = 0
-                else
-                    rotationIndex = rotationIndex
-                fi;
+                #rotationIndex += 1;
+                #if (rotationIndex == 4) then
+                #    rotationIndex = 0
+                #else
+                #    rotationIndex = rotationIndex
+                #fi;
                 
-                block = blocks[blockIndex][rotationIndex];
+                #block = blocks[blockIndex][rotationIndex];
 
                 #if collision don't rotate, else keep rotated shape
-                collision = call isColliding(block, grid, x, y);
-                if (collision == 1) then
-                    rotationIndex = savedRotationIndex;
-                    block = blocks[blockIndex][rotationIndex]
-                else
-                    skip
-                fi;
+                #collision = call isColliding(block, grid, x, y);
+                #if (collision == 1) then
+                #    rotationIndex = savedRotationIndex;
+                #    block = blocks[blockIndex][rotationIndex]
+                #else
+                #    skip
+                #fi;
 
                 #draw updated square
-                call drawBlock(fb, block, x, y, colours[colourIndex])
+                #call drawBlock(fb, block, x, y, colours[colourIndex])
             else
                 skip
             fi;
@@ -105,16 +105,21 @@ begin
         collision = call isColliding(block, grid, x, y + 1);
 
         if (collision == 1) then
-            call copyBlockToGrid(block, grid, x, y);
+            call copyBlockToGrid(block, grid, x, y, colours[colourIndex]);
 
             #get info on what rows need to be shifted down
             int[] rowInfo = call detectRows(grid);
 
             #while we can still shift down, keep shifting down
-            while (rowInfo[0] != 0) do
+            if (rowInfo[0] == 1) then
                 call shiftDown(grid, rowInfo);
-                rowInfo = call detectRows(grid)
-            done;
+                skip
+            else
+                skip
+            fi;
+
+
+            call drawGrid(fb, grid);
 
             colourIndex += 1;
             if (colourIndex == len colours) then
