@@ -1,0 +1,21 @@
+begin
+	struct Coord {
+		int x,
+		int y
+	}
+	# Demonstrating run-time length array lengths
+
+	# Usage on RHS: new type[Int Expression]
+	# All arrays created with this construct have their contents initialised to 0
+
+	int n = 20;
+
+	# Int array of length n
+	int[] xs = new int[n];
+
+	# 2D Char array of length n + 5
+	char[][] xs2D = new char[][(len xs) + 5];
+
+	# An array of Coords, of length n.  The structs are initialised to null
+	struct Coord[] cs = new struct Coord[n]
+end

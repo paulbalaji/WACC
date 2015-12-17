@@ -199,11 +199,15 @@ PrimitiveType
   }
 
 ArrayType
-  = type:(BaseType / PairType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
+  = type:(BaseType / PairType / StructType) __ array:(LEFT_SQUARE RIGHT_SQUARE)+ {
+      var node;
       if (type instanceof NodeType.ArrayTypeNode) { // The case that base type of array is a string
-          return new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+          node = new NodeType.ArrayTypeNode(NodeType.CHAR_TYPE, array.length + 1);
+      } else {
+        node = new NodeType.ArrayTypeNode(type, array.length);
       }
-      return new NodeType.ArrayTypeNode(type, array.length);
+      node.setErrorLocation(new WACCError.ErrorLocation(location()));
+      return node;
   }
 PairType
   = PAIR __ LEFT_PAREN __ type1:PairElemType __ COMMA __ type2:PairElemType __ RIGHT_PAREN {
@@ -220,7 +224,9 @@ PairElemType
 
 StructType
   = STRUCT _ ident:Ident {
-    return new NodeType.StructTypeNode(ident);
+    var node = new NodeType.StructTypeNode(ident);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   }
 
 /* AssignLHS */
@@ -252,7 +258,9 @@ AssignRHS
     return node;
   }
   / NEW _ structIdent:Ident {
-    return new NodeType.NewStructNode(structIdent);
+    var node = new NodeType.NewStructNode(structIdent);
+    node.setErrorLocation(new WACCError.ErrorLocation(location()));
+    return node;
   } 
   / NEW_PAIR __ LEFT_PAREN __ fstExpr:Expr __
                      COMMA __ sndExpr:Expr __ RIGHT_PAREN {

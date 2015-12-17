@@ -1,0 +1,10 @@
+begin
+	# Hex Int literals
+	int red   = 0xFF0000;
+	int green = 0x00FF00;
+	int blue  = 0x0000FF;
+
+	# Binary Int literals
+	int three   = 0b11;
+	int fifteen = 0b1111
+end

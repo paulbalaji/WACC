@@ -15,11 +15,10 @@ var flags = {};
 // Fill in flags by going through array;
 _.forEach(groupedArgs.flags, function(flag) {
 	// PRE: flags start with -
-	flags[flag.subStr(1)] = true;
+	flags[flag.substr(1)] = true;
 })
-
 // Process source file arguments
 var mainFilename = _.first(groupedArgs.filenames);
 var headerFilenames = _.tail(groupedArgs.filenames);
 var outputFilename = path.basename(mainFilename, '.wacc') + '.s';
-compiler.compile(mainFilename, headerFilenames, outputFilename, flags.barebones);
+compiler.compile(mainFilename, headerFilenames, outputFilename, flags);

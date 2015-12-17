@@ -1,7 +1,7 @@
 import frontend = require('./frontend/frontend');
 import backend = require('./backend/backend');
 import NodeType = require('./frontend/NodeType');
-
+import Constants = require('./frontend/constants');
 var rootProcess = process;
 var colors = require('colors');
 
@@ -35,7 +35,12 @@ function readFileWithErrorReport(filename, cb) {
     Given a filename, it throws an error if the program can't be found, is semantically 
     or syntactically incorrect it throws an error object.
 */
-export function compile(mainFilename, headerFilenames, outputFilename) {
+export function compile(mainFilename, headerFilenames, outputFilename, flags) {
+    Constants.flags = flags;
+    
+    // TODO: Refactor usages of Constants.barebones to use Constants.flag.barebones
+    Constants.barebones = flags.barebones;
+
     var headerFunctions = [];
     var headerStructs   = [];
     var processHeaderFilename = function(headerFilename, signalDone) {
