@@ -18,8 +18,6 @@ _.forEach(groupedArgs.flags, function(flag) {
 	flags[flag.substr(1)] = true;
 })
 
-process.flags = flags;
-
 // Process source file arguments
 var mainFilename = _.first(groupedArgs.filenames);
 var headerFilenames = _.tail(groupedArgs.filenames);
