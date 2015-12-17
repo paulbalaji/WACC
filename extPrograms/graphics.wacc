@@ -1,0 +1,18 @@
+begin
+	# IMPORTANT: For use only on Raspberry Pi.  Must be compiled with -barebones flag
+	# so that system function implementations are provided.
+
+	# Compile with: ./compile graphics.wacc -barebones
+	# Assemble to kernel.img and replace kernel.img on Raspberry Pi.
+
+	int[] fb = get_frame_buffer;
+	# fb is now an int array directly mapping to the frame buffer in the Raspi Memory
+
+	# Set top left pixel to red
+	fb[0] = 0xFF0000;
+
+	# Set next pixel to green
+	fb[1] = 0x00FF00
+
+	# See Tetris for a complete example using both frame buffer and GPIO input.
+end

@@ -1,7 +1,6 @@
-
 begin
-	int[][][] xs = new int[][][5]
-
+	bool b = true;
+	print b
 
 end
 

@@ -11,4 +11,4 @@ export var startOfHeap = 0xffff0;
 export var flags = {};
 export var barebones = false;
 
-export var validGPIOPins = [11, 22, 23, 24, 25, 27];
+export var validGPIOPins = [11, 21, 22, 23, 24, 25, 27];

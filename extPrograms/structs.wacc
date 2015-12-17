@@ -1,0 +1,27 @@
+begin
+	struct Tuple {
+		int x,
+		int y
+	}
+
+	# Represents a rectangle
+	struct Rectangle {
+		struct Tuple position,
+		struct Tuple dimensions,
+		int colour
+	}
+
+	struct Rectangle rect = new Rectangle;
+
+	struct Tuple pos = new Tuple;
+	pos.x = 50;
+	pos.y = 50;
+
+	struct Tuple dims = new Tuple;
+	dims.x = 100;
+	dims.y = 150;
+
+	rect.position = pos;
+	rect.dimensions = dims;
+	rect.colour = 0xFF0000
+end

@@ -1,0 +1,14 @@
+begin
+	# IMPORTANT: For use only on Raspberry Pi.  Must be compiled with -barebones flag
+	# so that system function implementations are provided.
+
+	# Compile with: ./compile gpio.wacc -barebones
+	# Assemble to kernel.img and replace kernel.img on Raspberry Pi.
+
+	# gpio is a unary operator, which is given the GPIO pin number to read
+	bool input1 = gpio 27;
+	bool input2 = gpio 21;
+	bool bothPressed = input1 && input2
+
+	# See Tetris for a complete example using both frame buffer and GPIO input.
+end

@@ -16,7 +16,7 @@ class MySSH:
         client = paramiko.SSHClient()
         client.load_system_host_keys()
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect("192.168.1.24", username=credentials.username, password=credentials.password)
+        client.connect("matrix29.doc.ic.ac.uk", username=credentials.username, password=credentials.password)
         atexit.register(client.close)
         self.client = client
 

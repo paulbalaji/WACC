@@ -210,8 +210,8 @@ export class SemanticVisitor implements NodeType.Visitor {
         if (node.expr instanceof NodeType.IdentNode) {
             var exprType = this.currentST.lookupAll(<NodeType.IdentNode> node.expr).type;
 
-            if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode)) {
-                throw new Error.SemanticError('Free statement must be given an array type or pair type.'
+            if (!(exprType instanceof NodeType.ArrayTypeNode || exprType instanceof NodeType.PairTypeNode || exprType instanceof NodeType.StructTypeNode)) {
+                throw new Error.SemanticError('Free statement must be given an array type, pair type or struct type.'
                                              , node.expr.errorLocation);
             }
         } else {
@@ -436,7 +436,6 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +'given invalid expression of type ' + node.expr.type + '.'
                                          , node.expr.errorLocation);
         }
-
         if (node.operator === 'gpio') { // The case that it is a gpio unary op
             // We know the expression must be an int literal in this case
             var intLiter: NodeType.IntLiterNode = <NodeType.IntLiterNode> node.expr;
@@ -444,7 +443,6 @@ export class SemanticVisitor implements NodeType.Visitor {
                 throw new Error.SemanticError('Unary operator gpio must be given a valid pin number.  Expecting a pin number from the set {' + constants.validGPIOPins.join(',') + '}.', node.expr.errorLocation);
             } 
         }
-
         node.type = OperatorInfo.unOpMap[node.operator].returnType;
     }
 
