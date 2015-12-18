@@ -237,8 +237,16 @@ export class SemanticVisitor implements NodeType.Visitor {
          This is because an ArrayLiterNode, [] cannot know its type and so cannot fill it in.
         */
         if(node.rhs instanceof NodeType.ArrayLiterNode) {
+            if (!(node.type instanceof NodeType.ArrayTypeNode)) {
+                 throw new Error.SemanticError('Declaration expression must be of correct type.  '
+                                         +'Expecting: ' + node.type     + ', '
+                                         +'Actual: []'
+                                         , node.rhs.errorLocation);
+            }
+
             var arrayLiter:NodeType.ArrayLiterNode = <NodeType.ArrayLiterNode>node.rhs;
             if(_.isEmpty(arrayLiter.exprList)) {
+               
                 arrayLiter.type = node.type;
             }
         }

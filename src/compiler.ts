@@ -60,13 +60,14 @@ export function compile(mainFilename, headerFilenames, outputFilename, flags) {
          readFileWithErrorReport(headerFilename, function (headerStr) {
             var rootAST = frontend.parse(headerStr, headerFilename);
             if (!(rootAST instanceof NodeType.HeaderNode)) {
-                // The case that the header file is not a valid header declaration
+                // The case that the header file is not a valid header declaration.
                 throw { code: 1,
                         name:'Invalid Header File',
                         location: headerFilename,
                         message: 'WACC header files must begin with header token.'
-                };
+                     };
             }
+            
             var headerAST: NodeType.HeaderNode = <NodeType.HeaderNode> rootAST;
 
             headerFunctions = headerFunctions.concat(headerAST.functionList);
