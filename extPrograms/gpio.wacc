@@ -6,9 +6,7 @@ begin
 	# Assemble to kernel.img and replace kernel.img on Raspberry Pi.
 
 	# gpio is a unary operator, which is given the GPIO pin number to read
-	bool input1 = gpio 27;
-	bool input2 = gpio 21;
-	bool bothPressed = input1 && input2
-
+	int input1 = gpio 27;
+	int input2 = gpio 21
 	# See Tetris for a complete example using both frame buffer and GPIO input.
 end

@@ -6,29 +6,17 @@ msg_1:
 .word 0
 .ascii ""
 msg_2:
-.word 82
-.ascii "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\n"
-msg_3:
-.word 44
-.ascii "ArrayIndexOutOfBoundsError: negative index\n\0"
-msg_4:
-.word 45
-.ascii "ArrayIndexOutOfBoundsError: index too large\n\0"
-msg_5:
-.word 3
-.ascii "%d\0"
-msg_6:
-.word 1
-.ascii "\0"
-msg_7:
-.word 5
-.ascii "true\0"
-msg_8:
-.word 6
-.ascii "false\0"
-msg_9:
 .word 50
 .ascii "NullReferenceError: dereference a null reference\n\0"
+msg_3:
+.word 82
+.ascii "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\n"
+msg_4:
+.word 44
+.ascii "ArrayIndexOutOfBoundsError: negative index\n\0"
+msg_5:
+.word 45
+.ascii "ArrayIndexOutOfBoundsError: index too large\n\0"
 .align 12
 gx_frame_buffer_info:
 .int 1024
@@ -41,150 +29,139 @@ gx_frame_buffer_info:
 .int 0
 .int 0
 .int 0
-msg_10:
+msg_6:
 .word 45
 .ascii "DivideByZeroError: divide or modulo by zero\n\0"
-msg_11:
-.word 5
-.ascii "%.*s\0"
 .text 
 .global main
 main:
+LDR sp, =32768
+LDR r5, =1048564
+LDR r6, =1048560
+STR r5, [r6]
+LDR r0, =538968068
+MOV r1, #0
+STR r1, [r0]
 PUSH {lr}
-SUB sp, sp, #84
+SUB sp, sp, #96
+LDR r0, =560000
+STR r0, [sp, #92]
+LDR r0, =10000
+STR r0, [sp, #88]
 LDR r0, =4
-STR r0, [sp, #80]
+STR r0, [sp, #84]
 LDR r0, =0
-STR r0, [sp, #76]
+STR r0, [sp, #80]
 BL f_initialiseColours
-STR r0, [sp, #72]
+STR r0, [sp, #76]
 LDR r0, =18
-STR r0, [sp, #68]
+STR r0, [sp, #72]
 LDR r0, =10
-STR r0, [sp, #64]
-LDR r0, [sp, #68]
+STR r0, [sp, #68]
+LDR r0, [sp, #72]
 STR r0, [sp, #-4]!
-LDR r0, [sp, #68]
+LDR r0, [sp, #72]
 STR r0, [sp, #-4]!
 LDR r0, =0
 STR r0, [sp, #-4]!
 BL f_initIntArray2D
 ADD sp, sp, #12
+STR r0, [sp, #64]
+LDR r0, [sp, #84]
 STR r0, [sp, #60]
 LDR r0, [sp, #80]
 STR r0, [sp, #56]
-LDR r0, [sp, #76]
-STR r0, [sp, #52]
 LDR r0, =0
-STR r0, [sp, #48]
+STR r0, [sp, #52]
 MOV r0, #1024
 MOV r1, #768
 MOV r2, #32
 BL gx_get_frame_buffer
 LDR r0, [r0, #32]
-STR r0, [sp, #44]
+STR r0, [sp, #48]
 BL f_Blocks
+STR r0, [sp, #44]
+LDR r0, =0
 STR r0, [sp, #40]
 LDR r0, =0
 STR r0, [sp, #36]
-LDR r0, =0
+LDR r0, [sp, #36]
 STR r0, [sp, #32]
-LDR r0, [sp, #32]
+LDR r0, [sp, #44]
+PUSH {r4}
+MOV r4, r0
+LDR r0, [sp, #44]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+LDR r0, [sp, #40]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
 STR r0, [sp, #28]
-LDR r0, [sp, #40]
-PUSH {r4}
-MOV r4, r0
-LDR r0, [sp, #40]
-BL p_check_array_bounds
-ADD r4, r4, #4
-ADD r4, r4, r0, LSL #2
-LDR r4, [r4]
-LDR r0, [sp, #36]
-BL p_check_array_bounds
-ADD r4, r4, #4
-ADD r4, r4, r0, LSL #2
-LDR r4, [r4]
-MOV r0, r4
-POP {r4}
+MOV r0, #16
+BL malloc
+MOV r1, #16
+BL memset
 STR r0, [sp, #24]
-LDR r0, [sp, #72]
+LDR r0, [sp, #76]
 PUSH {r4}
 MOV r4, r0
-LDR r0, [sp, #52]
+LDR r0, [sp, #56]
 BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 MOV r0, r4
 POP {r4}
-STR r0, [sp, #-4]!
-LDR r0, [sp, #56]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #64]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #36]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #60]
 STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
 BL f_drawBlock
 ADD sp, sp, #20
-LDR r0, =12
+LDR r0, =0
 STR r0, [sp, #20]
-LDR r0, =0
+LDR r0, =1
 STR r0, [sp, #16]
-LDR r0, =1
+LDR r0, =0
 STR r0, [sp, #12]
-LDR r0, =0
-STR r0, [sp, #8]
 LDR r0, =1
-STR r0, [sp, #4]
-LDR r0, =1
-STR r0, [sp]
-B L125
-L124:
-SUB sp, sp, #4
-LDR r0, =0
 STR r0, [sp, #8]
 LDR r0, =0
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L127
-L126:
-LDR r0, =27
-LDR r1, =538968116
-LDR r7, [r1]
-TST r7, #134217728
-MOVNE r0, #1
-MOVEQ r0, #0
+B L157
+L156:
+LDR r0, =0
 STR r0, [sp, #8]
-LDR r0, [sp, #8]
-PUSH {r0}
-LDR r0, =1
-MOV r1, r0
-POP {r0}
-CMP r0, r1
-MOVEQ r0, #1
-MOVNE r0, #0
-CMP r0, #0
-BEQ L128
-LDR r0, =1
+LDR r0, =0
 STR r0, [sp, #4]
-LDR r0, =2000
+LDR r0, =0
+STR r0, [sp]
+LDR r0, =0
+STR r0, [sp, #12]
+B L159
+L158:
+LDR r0, [sp, #88]
 STR r0, [sp, #-4]!
-BL f_wait
-ADD sp, sp, #4
-B L129
-L128:
-L129:
-LDR r0, =24
-LDR r1, =538968116
-LDR r7, [r1]
-TST r7, #16777216
-MOVNE r0, #1
-MOVEQ r0, #0
-STR r0, [sp, #8]
-LDR r0, [sp, #8]
+LDR r0, [sp, #28]
+STR r0, [sp, #-4]!
+BL f_pollBtns
+ADD sp, sp, #8
+LDR r0, [sp, #24]
+BL p_check_null_pointer
+LDR r0, [r0]
 PUSH {r0}
 LDR r0, =1
 MOV r1, r0
@@ -193,24 +170,84 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L130
-LDR r0, =-1
-STR r0, [sp, #4]
-LDR r0, =2000
+BEQ L160
+LDR r0, [sp, #56]
 STR r0, [sp, #-4]!
-BL f_wait
-ADD sp, sp, #4
-B L131
-L130:
-L131:
-LDR r0, =25
-LDR r1, =538968116
-LDR r7, [r1]
-TST r7, #33554432
-MOVNE r0, #1
-MOVEQ r0, #0
-STR r0, [sp, #8]
-LDR r0, [sp, #8]
+LDR r0, [sp, #64]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #-4]!
+LDR r0, [sp, #72]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+BL f_isColliding
+ADD sp, sp, #16
+STR r0, [sp, #20]
+LDR r0, [sp, #20]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L162
+LDR r0, =0
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+LDR r0, [sp, #60]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+SUBS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #60]
+LDR r0, [sp, #76]
+PUSH {r4}
+MOV r4, r0
+LDR r0, [sp, #56]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+B L163
+L162:
+L163:
+B L161
+L160:
+L161:
+LDR r0, [sp, #24]
+BL p_check_null_pointer
+LDR r0, [r0, #4]
 PUSH {r0}
 LDR r0, =1
 MOV r1, r0
@@ -219,7 +256,179 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L132
+BEQ L164
+LDR r0, [sp, #56]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #-4]!
+LDR r0, [sp, #72]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+BL f_isColliding
+ADD sp, sp, #16
+STR r0, [sp, #20]
+LDR r0, [sp, #20]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L166
+LDR r0, =0
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+LDR r0, [sp, #60]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #60]
+LDR r0, [sp, #76]
+PUSH {r4}
+MOV r4, r0
+LDR r0, [sp, #56]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+B L167
+L166:
+L167:
+B L165
+L164:
+L165:
+LDR r0, [sp, #24]
+BL p_check_null_pointer
+LDR r0, [r0, #12]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L168
+LDR r0, [sp, #56]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #72]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+BL f_isColliding
+ADD sp, sp, #16
+STR r0, [sp, #20]
+LDR r0, [sp, #20]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L170
+LDR r0, =0
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+LDR r0, [sp, #56]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #56]
+LDR r0, [sp, #76]
+PUSH {r4}
+MOV r4, r0
+LDR r0, [sp, #56]
+BL p_check_array_bounds
+ADD r4, r4, #4
+ADD r4, r4, r0, LSL #2
+LDR r4, [r4]
+MOV r0, r4
+POP {r4}
+STR r0, [sp, #-4]!
+LDR r0, [sp, #60]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #68]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #40]
+STR r0, [sp, #-4]!
+LDR r0, [sp, #64]
+STR r0, [sp, #-4]!
+BL f_drawBlock
+ADD sp, sp, #20
+B L171
+L170:
+L171:
+B L169
+L168:
+L169:
+LDR r0, [sp, #24]
+BL p_check_null_pointer
+LDR r0, [r0, #8]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L172
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp, #-4]!
@@ -252,14 +461,14 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L134
+BEQ L174
 LDR r0, =0
 STR r0, [sp, #40]
-B L135
-L134:
+B L175
+L174:
 LDR r0, [sp, #40]
 STR r0, [sp, #40]
-L135:
+L175:
 LDR r0, [sp, #48]
 PUSH {r4}
 MOV r4, r0
@@ -296,7 +505,7 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L136
+BEQ L176
 LDR r0, [sp]
 STR r0, [sp, #40]
 LDR r0, [sp, #48]
@@ -315,9 +524,9 @@ LDR r4, [r4]
 MOV r0, r4
 POP {r4}
 STR r0, [sp, #32]
-B L137
-L136:
-L137:
+B L177
+L176:
+L177:
 LDR r0, [sp, #80]
 PUSH {r4}
 MOV r4, r0
@@ -339,115 +548,29 @@ LDR r0, [sp, #68]
 STR r0, [sp, #-4]!
 BL f_drawBlock
 ADD sp, sp, #20
-LDR r0, =2000
-STR r0, [sp, #-4]!
-BL f_wait
 ADD sp, sp, #4
-ADD sp, sp, #4
-B L133
-L132:
-L133:
-LDR r0, [sp, #56]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #64]
-PUSH {r0}
+B L173
+L172:
+L173:
 LDR r0, [sp, #12]
-MOV r1, r0
-POP {r0}
-ADDS r0, r0, r1
-BLVS p_throw_overflow_error
-STR r0, [sp, #-4]!
-LDR r0, [sp, #72]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #40]
-STR r0, [sp, #-4]!
-BL f_isColliding
-ADD sp, sp, #16
-STR r0, [sp, #20]
-LDR r0, [sp, #4]
-PUSH {r0}
-LDR r0, =0
-MOV r1, r0
-POP {r0}
-CMP r0, r1
-MOVNE r0, #1
-MOVEQ r0, #0
-CMP r0, #0
-BEQ L140
-LDR r0, [sp, #20]
-PUSH {r0}
-LDR r0, =0
-MOV r1, r0
-POP {r0}
-CMP r0, r1
-MOVEQ r0, #1
-MOVNE r0, #0
-L140:
-CMP r0, #0
-BEQ L138
-LDR r0, =0
-STR r0, [sp, #-4]!
-LDR r0, [sp, #60]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #68]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #40]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #64]
-STR r0, [sp, #-4]!
-BL f_drawBlock
-ADD sp, sp, #20
-LDR r0, [sp, #60]
-PUSH {r0}
-LDR r0, [sp, #8]
-MOV r1, r0
-POP {r0}
-ADDS r0, r0, r1
-BLVS p_throw_overflow_error
-STR r0, [sp, #60]
-LDR r0, [sp, #76]
-PUSH {r4}
-MOV r4, r0
-LDR r0, [sp, #56]
-BL p_check_array_bounds
-ADD r4, r4, #4
-ADD r4, r4, r0, LSL #2
-LDR r4, [r4]
-MOV r0, r4
-POP {r4}
-STR r0, [sp, #-4]!
-LDR r0, [sp, #60]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #68]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #40]
-STR r0, [sp, #-4]!
-LDR r0, [sp, #64]
-STR r0, [sp, #-4]!
-BL f_drawBlock
-ADD sp, sp, #20
-B L139
-L138:
-L139:
-LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
 MOV r1, r0
 POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-STR r0, [sp]
-L127:
-LDR r0, [sp]
+STR r0, [sp, #12]
+L159:
+LDR r0, [sp, #12]
 PUSH {r0}
-LDR r0, =10000
+LDR r0, [sp, #92]
 MOV r1, r0
 POP {r0}
 CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L126
+BEQ L158
 LDR r0, [sp, #56]
 PUSH {r0}
 LDR r0, =1
@@ -474,7 +597,7 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L141
+BEQ L178
 SUB sp, sp, #4
 LDR r0, [sp, #80]
 PUSH {r4}
@@ -520,16 +643,16 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L143
+BEQ L180
 LDR r0, [sp]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #72]
 STR r0, [sp, #-4]!
 BL f_shiftDown
 ADD sp, sp, #8
-B L144
-L143:
-L144:
+B L181
+L180:
+L181:
 LDR r0, [sp, #68]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #56]
@@ -554,14 +677,14 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L145
+BEQ L182
 LDR r0, =0
 STR r0, [sp, #56]
-B L146
-L145:
+B L183
+L182:
 LDR r0, [sp, #56]
 STR r0, [sp, #56]
-L146:
+L183:
 LDR r0, [sp, #44]
 PUSH {r0}
 LDR r0, =1
@@ -580,14 +703,14 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L147
+BEQ L184
 LDR r0, =0
 STR r0, [sp, #44]
-B L148
-L147:
+B L185
+L184:
 LDR r0, [sp, #44]
 STR r0, [sp, #44]
-L148:
+L185:
 LDR r0, [sp, #40]
 PUSH {r0}
 LDR r0, =1
@@ -605,14 +728,14 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L149
+BEQ L186
 LDR r0, =0
 STR r0, [sp, #40]
-B L150
-L149:
+B L187
+L186:
 LDR r0, [sp, #40]
 STR r0, [sp, #40]
-L150:
+L187:
 LDR r0, [sp, #48]
 PUSH {r4}
 MOV r4, r0
@@ -674,15 +797,15 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L151
+BEQ L188
 LDR r0, =0
 STR r0, [sp, #20]
-B L152
-L151:
-L152:
+B L189
+L188:
+L189:
 ADD sp, sp, #4
-B L142
-L141:
+B L179
+L178:
 LDR r0, =0
 STR r0, [sp, #-4]!
 LDR r0, [sp, #60]
@@ -724,10 +847,9 @@ LDR r0, [sp, #64]
 STR r0, [sp, #-4]!
 BL f_drawBlock
 ADD sp, sp, #20
-L142:
-ADD sp, sp, #4
-L125:
-LDR r0, [sp, #12]
+L179:
+L157:
+LDR r0, [sp, #16]
 PUSH {r0}
 LDR r0, =1
 MOV r1, r0
@@ -736,16 +858,482 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #1
-BEQ L124
-B L154
-L153:
-L154:
+BEQ L156
+B L191
+L190:
+L191:
 MOV r0, #1
 CMP r0, #1
-BEQ L153
-ADD sp, sp, #84
+BEQ L190
+ADD sp, sp, #96
 MOV r0, #0
 POP {pc}
+f_pollBtns:
+PUSH {lr}
+SUB sp, sp, #8
+LDR r0, =0
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #0
+POP {r1}
+STR r1, [r0]
+LDR r0, =0
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #4
+POP {r1}
+STR r1, [r0]
+LDR r0, =0
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #8
+POP {r1}
+STR r1, [r0]
+LDR r0, =0
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #12
+POP {r1}
+STR r1, [r0]
+LDR r0, =0
+STR r0, [sp, #4]
+LDR r0, =0
+STR r0, [sp]
+B L1
+L0:
+LDR r0, =24
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #16777216
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L2
+LDR r0, =1
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #0
+POP {r1}
+STR r1, [r0]
+B L3
+L2:
+L3:
+LDR r0, =27
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #134217728
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L6
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+L6:
+CMP r0, #0
+BEQ L4
+LDR r0, =1
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #4
+POP {r1}
+STR r1, [r0]
+B L5
+L4:
+L5:
+LDR r0, =22
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #4194304
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L9
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L10
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0, #4]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+L10:
+L9:
+CMP r0, #0
+BEQ L7
+LDR r0, =1
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #8
+POP {r1}
+STR r1, [r0]
+B L8
+L7:
+L8:
+LDR r0, =23
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #8388608
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L13
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L14
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0, #4]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L15
+LDR r0, [sp, #12]
+BL p_check_null_pointer
+LDR r0, [r0, #8]
+PUSH {r0}
+LDR r0, =0
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+L15:
+L14:
+L13:
+CMP r0, #0
+BEQ L11
+LDR r0, =1
+PUSH {r0}
+LDR r0, [sp, #16]
+BL p_check_null_pointer
+ADD r0, r0, #12
+POP {r1}
+STR r1, [r0]
+B L12
+L11:
+L12:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+L1:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, [sp, #20]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L0
+LDR r0, =0
+ADD sp, sp, #8
+POP {pc}
+.ltorg 
+f_pollLeftBtn:
+PUSH {lr}
+SUB sp, sp, #4
+LDR r0, =0
+STR r0, [sp]
+B L17
+L16:
+SUB sp, sp, #4
+LDR r0, =24
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #16777216
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L18
+LDR r0, =1
+ADD sp, sp, #8
+POP {pc}
+B L19
+L18:
+L19:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+ADD sp, sp, #4
+L17:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L16
+LDR r0, =0
+ADD sp, sp, #4
+POP {pc}
+.ltorg 
+f_pollRightBtn:
+PUSH {lr}
+SUB sp, sp, #4
+LDR r0, =0
+STR r0, [sp]
+B L21
+L20:
+SUB sp, sp, #4
+LDR r0, =27
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #134217728
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L22
+LDR r0, =1
+ADD sp, sp, #8
+POP {pc}
+B L23
+L22:
+L23:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+ADD sp, sp, #4
+L21:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L20
+LDR r0, =0
+ADD sp, sp, #4
+POP {pc}
+.ltorg 
+f_pollUpBtn:
+PUSH {lr}
+SUB sp, sp, #4
+LDR r0, =0
+STR r0, [sp]
+B L25
+L24:
+SUB sp, sp, #4
+LDR r0, =22
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #4194304
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L26
+LDR r0, =1
+ADD sp, sp, #8
+POP {pc}
+B L27
+L26:
+L27:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+ADD sp, sp, #4
+L25:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L24
+LDR r0, =0
+ADD sp, sp, #4
+POP {pc}
+.ltorg 
+f_pollDownBtn:
+PUSH {lr}
+SUB sp, sp, #4
+LDR r0, =0
+STR r0, [sp]
+B L29
+L28:
+SUB sp, sp, #4
+LDR r0, =23
+LDR r1, =538968116
+LDR r7, [r1]
+TST r7, #8388608
+MOVNE r0, #1
+MOVEQ r0, #0
+STR r0, [sp]
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVEQ r0, #1
+MOVNE r0, #0
+CMP r0, #0
+BEQ L30
+LDR r0, =1
+ADD sp, sp, #8
+POP {pc}
+B L31
+L30:
+L31:
+LDR r0, [sp, #4]
+PUSH {r0}
+LDR r0, =1
+MOV r1, r0
+POP {r0}
+ADDS r0, r0, r1
+BLVS p_throw_overflow_error
+STR r0, [sp, #4]
+ADD sp, sp, #4
+L29:
+LDR r0, [sp]
+PUSH {r0}
+LDR r0, [sp, #12]
+MOV r1, r0
+POP {r0}
+CMP r0, r1
+MOVLT r0, #1
+MOVGE r0, #0
+CMP r0, #1
+BEQ L28
+LDR r0, =0
+ADD sp, sp, #4
+POP {pc}
+.ltorg 
 f_initIntArray2D:
 PUSH {lr}
 SUB sp, sp, #8
@@ -762,8 +1350,8 @@ STR r4, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L1
-L0:
+B L33
+L32:
 SUB sp, sp, #4
 LDR r0, [sp, #20]
 STR r0, [sp, #-4]!
@@ -776,7 +1364,6 @@ LDR r0, [sp]
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, [sp, #12]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -791,7 +1378,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L1:
+L33:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #24]
@@ -801,7 +1388,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L0
+BEQ L32
 LDR r0, [sp, #4]
 ADD sp, sp, #8
 POP {pc}
@@ -822,13 +1409,12 @@ STR r4, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L3
-L2:
+B L35
+L34:
 LDR r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -842,7 +1428,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L3:
+L35:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #20]
@@ -852,7 +1438,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L2
+BEQ L34
 LDR r0, [sp, #4]
 ADD sp, sp, #8
 POP {pc}
@@ -865,8 +1451,8 @@ STR r0, [sp, #4]
 LDR r0, [sp, #12]
 LDR r0, [r0]
 STR r0, [sp]
-B L5
-L4:
+B L37
+L36:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -885,12 +1471,12 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L6
+BEQ L38
 MOV r0, #1
 ADD sp, sp, #8
 POP {pc}
-B L7
-L6:
+B L39
+L38:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -899,8 +1485,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L7:
-L5:
+L39:
+L37:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -910,7 +1496,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #1
-BEQ L4
+BEQ L36
 MOV r0, #0
 ADD sp, sp, #8
 POP {pc}
@@ -923,8 +1509,8 @@ STR r0, [sp, #4]
 LDR r0, [sp, #12]
 LDR r0, [r0]
 STR r0, [sp]
-B L9
-L8:
+B L41
+L40:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -943,12 +1529,12 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L10
+BEQ L42
 MOV r0, #1
 ADD sp, sp, #8
 POP {pc}
-B L11
-L10:
+B L43
+L42:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -957,8 +1543,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L11:
-L9:
+L43:
+L41:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -968,7 +1554,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #1
-BEQ L8
+BEQ L40
 MOV r0, #0
 ADD sp, sp, #8
 POP {pc}
@@ -981,8 +1567,8 @@ STR r0, [sp, #4]
 LDR r0, [sp, #12]
 LDR r0, [r0]
 STR r0, [sp]
-B L13
-L12:
+B L45
+L44:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -1001,12 +1587,12 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L14
+BEQ L46
 MOV r0, #1
 ADD sp, sp, #8
 POP {pc}
-B L15
-L14:
+B L47
+L46:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -1015,8 +1601,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L15:
-L13:
+L47:
+L45:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -1026,7 +1612,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #1
-BEQ L12
+BEQ L44
 MOV r0, #0
 ADD sp, sp, #8
 POP {pc}
@@ -1059,8 +1645,8 @@ LDR r0, =0
 STR r0, [sp, #8]
 LDR r0, =0
 STR r0, [sp, #4]
-B L17
-L16:
+B L49
+L48:
 LDR r0, [sp, #24]
 PUSH {r4}
 MOV r4, r0
@@ -1074,7 +1660,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -1096,7 +1681,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L17:
+L49:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #28]
@@ -1107,11 +1692,11 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L16
+BEQ L48
 LDR r0, =0
 STR r0, [sp]
-B L19
-L18:
+B L51
+L50:
 LDR r0, [sp, #28]
 PUSH {r4}
 MOV r4, r0
@@ -1125,7 +1710,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -1147,7 +1731,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L19:
+L51:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #32]
@@ -1158,7 +1742,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L18
+BEQ L50
 LDR r0, [sp, #12]
 ADD sp, sp, #20
 POP {pc}
@@ -1191,8 +1775,8 @@ LDR r0, =0
 STR r0, [sp, #8]
 LDR r0, =0
 STR r0, [sp, #4]
-B L21
-L20:
+B L53
+L52:
 LDR r0, [sp, #24]
 PUSH {r4}
 MOV r4, r0
@@ -1206,7 +1790,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1228,7 +1811,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L21:
+L53:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #28]
@@ -1239,11 +1822,11 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L20
+BEQ L52
 LDR r0, =0
 STR r0, [sp]
-B L23
-L22:
+B L55
+L54:
 LDR r0, [sp, #28]
 PUSH {r4}
 MOV r4, r0
@@ -1257,7 +1840,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1279,7 +1861,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L23:
+L55:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #32]
@@ -1290,7 +1872,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L22
+BEQ L54
 LDR r0, [sp, #12]
 ADD sp, sp, #20
 POP {pc}
@@ -1323,8 +1905,8 @@ LDR r0, =0
 STR r0, [sp, #8]
 LDR r0, =0
 STR r0, [sp, #4]
-B L25
-L24:
+B L57
+L56:
 LDR r0, [sp, #24]
 PUSH {r4}
 MOV r4, r0
@@ -1338,7 +1920,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1360,7 +1941,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L25:
+L57:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #28]
@@ -1371,11 +1952,11 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L24
+BEQ L56
 LDR r0, =0
 STR r0, [sp]
-B L27
-L26:
+B L59
+L58:
 LDR r0, [sp, #28]
 PUSH {r4}
 MOV r4, r0
@@ -1389,7 +1970,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1411,7 +1991,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
-L27:
+L59:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #32]
@@ -1422,7 +2002,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L26
+BEQ L58
 LDR r0, [sp, #12]
 ADD sp, sp, #20
 POP {pc}
@@ -1443,13 +2023,12 @@ STR r4, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L29
-L28:
+B L61
+L60:
 LDRSB r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1463,7 +2042,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L29:
+L61:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #17]
@@ -1473,7 +2052,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L28
+BEQ L60
 LDR r0, [sp, #4]
 ADD sp, sp, #8
 POP {pc}
@@ -1494,13 +2073,12 @@ STR r4, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L31
-L30:
+B L63
+L62:
 LDRSB r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -1514,7 +2092,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L31:
+L63:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #17]
@@ -1524,7 +2102,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L30
+BEQ L62
 LDR r0, [sp, #4]
 ADD sp, sp, #8
 POP {pc}
@@ -1654,7 +2232,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, [sp, #20]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -1664,7 +2241,6 @@ LDR r0, [sp]
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, [sp, #24]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -1692,8 +2268,8 @@ LDR r0, [sp, #24]
 STR r0, [sp, #8]
 LDR r0, [sp, #24]
 STR r0, [sp, #4]
-B L33
-L32:
+B L65
+L64:
 LDR r0, [sp, #20]
 PUSH {r4}
 MOV r4, r0
@@ -1712,7 +2288,7 @@ CMP r0, r1
 MOVLE r0, #1
 MOVGT r0, #0
 CMP r0, #0
-BEQ L34
+BEQ L66
 SUB sp, sp, #4
 LDR r0, [sp, #8]
 STR r0, [sp, #-4]!
@@ -1732,9 +2308,9 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #12]
 ADD sp, sp, #4
-B L35
-L34:
-L35:
+B L67
+L66:
+L67:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -1743,7 +2319,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L33:
+L65:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #32]
@@ -1759,7 +2335,7 @@ CMP r0, r1
 MOVLE r0, #1
 MOVGT r0, #0
 CMP r0, #1
-BEQ L32
+BEQ L64
 LDR r0, [sp, #4]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #12]
@@ -1785,13 +2361,13 @@ CMP r0, r1
 MOVGE r0, #1
 MOVLT r0, #0
 CMP r0, #0
-BEQ L36
+BEQ L68
 LDR r0, =0
 ADD sp, sp, #8
 POP {pc}
-B L37
-L36:
-L37:
+B L69
+L68:
+L69:
 LDR r0, [sp, #20]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #20]
@@ -1840,8 +2416,8 @@ PUSH {lr}
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L39
-L38:
+B L71
+L70:
 LDR r0, [sp, #8]
 PUSH {r4}
 MOV r4, r0
@@ -1863,7 +2439,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L39:
+L71:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -1874,7 +2450,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L38
+BEQ L70
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -1905,8 +2481,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-B L41
-L40:
+B L73
+L72:
 MOV r0, #','
 BL putchar
 MOV r0, #' '
@@ -1930,7 +2506,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L41:
+L73:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -1941,7 +2517,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L40
+BEQ L72
 MOV r0, #']'
 BL putchar
 MOV r0, #' '
@@ -1977,8 +2553,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-B L43
-L42:
+B L75
+L74:
 MOV r0, #','
 BL putchar
 MOV r0, #' '
@@ -2002,7 +2578,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L43:
+L75:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -2013,7 +2589,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L42
+BEQ L74
 MOV r0, #']'
 BL putchar
 MOV r0, #' '
@@ -2049,8 +2625,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-B L45
-L44:
+B L77
+L76:
 MOV r0, #','
 BL putchar
 MOV r0, #' '
@@ -2074,7 +2650,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L45:
+L77:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -2085,7 +2661,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L44
+BEQ L76
 MOV r0, #']'
 BL putchar
 MOV r0, #' '
@@ -2103,13 +2679,12 @@ LDR r0, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L47
-L46:
+B L79
+L78:
 LDR r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2123,7 +2698,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L47:
+L79:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -2133,7 +2708,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L46
+BEQ L78
 LDR r0, [sp, #16]
 ADD sp, sp, #8
 POP {pc}
@@ -2146,13 +2721,12 @@ LDR r0, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L49
-L48:
+B L81
+L80:
 LDRSB r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #21]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -2166,7 +2740,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L49:
+L81:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -2176,7 +2750,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L48
+BEQ L80
 LDR r0, [sp, #13]
 ADD sp, sp, #8
 POP {pc}
@@ -2189,13 +2763,12 @@ LDR r0, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L51
-L50:
+B L83
+L82:
 LDRSB r0, [sp, #12]
 PUSH {r0, r4}
 LDR r4, [sp, #21]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0
 MOV r1, r4
@@ -2209,7 +2782,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L51:
+L83:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -2219,7 +2792,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L50
+BEQ L82
 LDR r0, [sp, #13]
 ADD sp, sp, #8
 POP {pc}
@@ -2302,12 +2875,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2317,12 +2888,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2332,12 +2901,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2347,12 +2914,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2371,12 +2936,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2386,12 +2949,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2401,12 +2962,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2416,12 +2975,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2440,12 +2997,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2455,12 +3010,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2470,12 +3023,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2485,12 +3036,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2509,12 +3058,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2524,12 +3071,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2539,12 +3084,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2554,12 +3097,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2600,12 +3141,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2615,12 +3154,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2630,12 +3167,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2645,12 +3180,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2669,12 +3202,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2684,12 +3215,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2699,12 +3228,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2714,12 +3241,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2738,12 +3263,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2753,12 +3276,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2768,12 +3289,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2783,12 +3302,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2807,12 +3324,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2822,12 +3337,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2837,12 +3350,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2852,12 +3363,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2898,12 +3407,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2913,12 +3420,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2928,12 +3433,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2943,12 +3446,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2967,12 +3468,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2982,12 +3481,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -2997,12 +3494,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3012,12 +3507,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3036,12 +3529,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3051,12 +3542,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3066,12 +3555,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3081,12 +3568,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3105,12 +3590,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3120,12 +3603,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3135,12 +3616,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3150,12 +3629,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3196,12 +3673,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3211,12 +3686,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3226,12 +3699,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3241,12 +3712,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #24]
 LDR r0, =3
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3265,12 +3734,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3280,12 +3747,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3295,12 +3760,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3310,12 +3773,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =3
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3334,12 +3795,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3349,12 +3808,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3364,12 +3821,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3379,12 +3834,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, =3
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3403,12 +3856,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3418,12 +3869,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3433,12 +3882,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3448,12 +3895,10 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #12]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, =3
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3496,7 +3941,6 @@ BL f_LBlock
 PUSH {r0, r4}
 LDR r4, [sp, #8]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3506,7 +3950,6 @@ BL f_TBlock
 PUSH {r0, r4}
 LDR r4, [sp, #8]
 LDR r0, =1
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3516,7 +3959,6 @@ BL f_SBlock
 PUSH {r0, r4}
 LDR r4, [sp, #8]
 LDR r0, =2
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3526,7 +3968,6 @@ BL f_IBlock
 PUSH {r0, r4}
 LDR r4, [sp, #8]
 LDR r0, =3
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3536,7 +3977,6 @@ BL f_squareBlock
 PUSH {r0, r4}
 LDR r4, [sp, #8]
 LDR r0, =4
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3553,15 +3993,15 @@ LDR r0, [sp, #12]
 BL p_check_null_pointer
 LDR r0, [r0, #4]
 STR r0, [sp]
-B L53
-L52:
+B L85
+L84:
 SUB sp, sp, #4
 LDR r0, [sp, #16]
 BL p_check_null_pointer
 LDR r0, [r0]
 STR r0, [sp]
-B L55
-L54:
+B L87
+L86:
 LDR r0, [sp, #16]
 BL p_check_null_pointer
 LDR r0, [r0, #16]
@@ -3581,7 +4021,6 @@ MOV r1, r0
 POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3595,7 +4034,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L55:
+L87:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #20]
@@ -3615,7 +4054,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L54
+BEQ L86
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -3625,7 +4064,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L53:
+L85:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -3645,7 +4084,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L52
+BEQ L84
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -3730,8 +4169,8 @@ POP {pc}
 .ltorg 
 f_wait:
 PUSH {lr}
-B L57
-L56:
+B L89
+L88:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -3740,7 +4179,7 @@ POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L57:
+L89:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =0
@@ -3750,7 +4189,7 @@ CMP r0, r1
 MOVGT r0, #1
 MOVLE r0, #0
 CMP r0, #1
-BEQ L56
+BEQ L88
 LDR r0, =0
 POP {pc}
 .ltorg 
@@ -3778,8 +4217,8 @@ STR r0, [sp, #4]
 LDR r0, [sp, #12]
 LDR r0, [r0]
 STR r0, [sp]
-B L59
-L58:
+B L91
+L90:
 SUB sp, sp, #12
 LDR r0, [sp, #16]
 STR r0, [sp, #8]
@@ -3799,8 +4238,8 @@ BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 LDR r0, [sp, #8]
 STR r0, [sp]
-B L61
-L60:
+B L93
+L92:
 SUB sp, sp, #8
 LDR r0, [sp, #8]
 PUSH {r0}
@@ -3850,12 +4289,10 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #40]
 LDR r0, [sp, #24]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3891,12 +4328,10 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #24]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3920,7 +4355,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #40]
 LDR r0, [sp, #20]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
@@ -3931,7 +4365,6 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3941,12 +4374,10 @@ LDR r0, [sp]
 PUSH {r0, r4}
 LDR r4, [sp, #40]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #20]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -3961,7 +4392,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
 ADD sp, sp, #8
-L61:
+L93:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -3971,7 +4402,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L60
+BEQ L92
 LDR r0, [sp, #16]
 PUSH {r0}
 LDR r0, =1
@@ -3981,7 +4412,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #16]
 ADD sp, sp, #12
-L59:
+L91:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -3997,7 +4428,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L58
+BEQ L90
 LDR r0, =0
 ADD sp, sp, #8
 POP {pc}
@@ -4021,13 +4452,13 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L62
+BEQ L94
 LDR r0, =0
 ADD sp, sp, #16
 POP {pc}
-B L63
-L62:
-L63:
+B L95
+L94:
+L95:
 LDR r0, [sp, #12]
 PUSH {r0}
 LDR r0, =3
@@ -4037,14 +4468,14 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L64
+BEQ L96
 LDR r0, =1
 STR r0, [sp, #8]
 LDR r0, =2
 STR r0, [sp, #4]
-B L65
-L64:
-L65:
+B L97
+L96:
+L97:
 LDR r0, [sp, #12]
 PUSH {r0}
 LDR r0, =4
@@ -4054,23 +4485,23 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L66
+BEQ L98
 LDR r0, =2
 STR r0, [sp, #8]
 LDR r0, =2
 STR r0, [sp, #4]
-B L67
-L66:
-L67:
+B L99
+L98:
+L99:
 LDR r0, =0
 STR r0, [sp]
-B L69
-L68:
+B L101
+L100:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L71
-L70:
+B L103
+L102:
 SUB sp, sp, #4
 LDR r0, [sp, #28]
 PUSH {r4}
@@ -4118,12 +4549,10 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #36]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #12]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -4171,7 +4600,6 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #36]
 LDR r0, [sp, #12]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
@@ -4188,7 +4616,6 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -4236,7 +4663,6 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
@@ -4253,7 +4679,6 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -4275,12 +4700,10 @@ MOV r1, r0
 POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #16]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -4295,7 +4718,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L71:
+L103:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4305,7 +4728,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L70
+BEQ L102
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -4315,7 +4738,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L69:
+L101:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4325,7 +4748,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L68
+BEQ L100
 LDR r0, =0
 ADD sp, sp, #16
 POP {pc}
@@ -4387,13 +4810,13 @@ PUSH {lr}
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L73
-L72:
+B L105
+L104:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L75
-L74:
+B L107
+L106:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -4420,7 +4843,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L75:
+L107:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -4431,7 +4854,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L74
+BEQ L106
 LDR r0, =msg_1
 BL p_print_string
 BL p_print_ln
@@ -4444,7 +4867,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L73:
+L105:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4464,7 +4887,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L72
+BEQ L104
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -4572,13 +4995,13 @@ LDR r0, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L77
-L76:
+B L109
+L108:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L79
-L78:
+B L111
+L110:
 LDR r0, [sp, #24]
 PUSH {r4}
 MOV r4, r0
@@ -4611,7 +5034,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L79:
+L111:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4621,7 +5044,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L78
+BEQ L110
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -4631,7 +5054,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L77:
+L109:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4641,7 +5064,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L76
+BEQ L108
 LDR r0, =0
 ADD sp, sp, #12
 POP {pc}
@@ -4666,13 +5089,13 @@ LDR r0, [r0]
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L81
-L80:
+B L113
+L112:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L83
-L82:
+B L115
+L114:
 LDR r0, [sp, #24]
 PUSH {r4}
 MOV r4, r0
@@ -4696,7 +5119,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #0
-BEQ L84
+BEQ L116
 LDR r0, [sp, #36]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #36]
@@ -4719,9 +5142,9 @@ LDR r0, [sp, #32]
 STR r0, [sp, #-4]!
 BL f_drawGridSquare
 ADD sp, sp, #16
-B L85
-L84:
-L85:
+B L117
+L116:
+L117:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
@@ -4730,7 +5153,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L83:
+L115:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4740,7 +5163,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L82
+BEQ L114
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -4750,7 +5173,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L81:
+L113:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4760,7 +5183,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L80
+BEQ L112
 LDR r0, =0
 ADD sp, sp, #12
 POP {pc}
@@ -4770,13 +5193,13 @@ PUSH {lr}
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L87
-L86:
+B L119
+L118:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L89
-L88:
+B L121
+L120:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -4800,7 +5223,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #0
-BEQ L90
+BEQ L122
 LDR r0, [sp, #28]
 PUSH {r0, r4}
 LDR r4, [sp, #24]
@@ -4811,7 +5234,6 @@ MOV r1, r0
 POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
@@ -4822,15 +5244,14 @@ MOV r1, r0
 POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
 POP {r0, r4}
 STR r0, [r1]
-B L91
-L90:
-L91:
+B L123
+L122:
+L123:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
@@ -4839,7 +5260,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L89:
+L121:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -4859,7 +5280,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L88
+BEQ L120
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -4869,7 +5290,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L87:
+L119:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -4880,7 +5301,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L86
+BEQ L118
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -4890,13 +5311,13 @@ PUSH {lr}
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L93
-L92:
+B L125
+L124:
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L95
-L94:
+B L127
+L126:
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -4920,7 +5341,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #0
-BEQ L98
+BEQ L130
 LDR r0, [sp, #24]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -4936,7 +5357,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L99
+BEQ L131
 LDR r0, [sp, #24]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -4953,7 +5374,7 @@ CMP r0, r1
 MOVGE r0, #1
 MOVLT r0, #0
 CMP r0, #1
-BEQ L100
+BEQ L132
 LDR r0, [sp, #20]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -4969,7 +5390,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L101
+BEQ L133
 LDR r0, [sp, #20]
 PUSH {r0}
 LDR r0, [sp, #4]
@@ -4995,7 +5416,7 @@ CMP r0, r1
 MOVGE r0, #1
 MOVLT r0, #0
 CMP r0, #1
-BEQ L102
+BEQ L134
 LDR r0, [sp, #16]
 PUSH {r4}
 MOV r4, r0
@@ -5030,19 +5451,19 @@ POP {r0}
 CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
-L102:
-L101:
-L100:
-L99:
-L98:
+L134:
+L133:
+L132:
+L131:
+L130:
 CMP r0, #0
-BEQ L96
+BEQ L128
 LDR r0, =1
 ADD sp, sp, #8
 POP {pc}
-B L97
-L96:
-L97:
+B L129
+L128:
+L129:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
@@ -5051,7 +5472,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L95:
+L127:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -5071,7 +5492,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L94
+BEQ L126
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -5081,7 +5502,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
 ADD sp, sp, #4
-L93:
+L125:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -5092,7 +5513,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L92
+BEQ L124
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -5111,8 +5532,8 @@ POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-B L104
-L103:
+B L136
+L135:
 LDR r0, [sp, #16]
 PUSH {r4}
 MOV r4, r0
@@ -5137,7 +5558,7 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L105
+BEQ L137
 LDR r0, [sp, #12]
 PUSH {r4}
 MOV r4, r0
@@ -5161,8 +5582,8 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-B L106
-L105:
+B L138
+L137:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #8]
@@ -5179,7 +5600,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #0
-BEQ L107
+BEQ L139
 LDR r0, [sp, #4]
 STR r0, [sp, #-4]!
 LDR r0, [sp, #4]
@@ -5188,10 +5609,10 @@ LDR r0, [sp, #20]
 STR r0, [sp, #-4]!
 BL f_shiftRowDown
 ADD sp, sp, #12
-B L108
-L107:
-L108:
-L106:
+B L140
+L139:
+L140:
+L138:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
@@ -5200,7 +5621,7 @@ POP {r0}
 SUBS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L104:
+L136:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =0
@@ -5210,7 +5631,7 @@ CMP r0, r1
 MOVGE r0, #1
 MOVLT r0, #0
 CMP r0, #1
-BEQ L103
+BEQ L135
 LDR r0, =0
 ADD sp, sp, #8
 POP {pc}
@@ -5226,12 +5647,12 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L109
+BEQ L141
 LDR r0, =0
 POP {pc}
-B L110
-L109:
-L110:
+B L142
+L141:
+L142:
 LDR r0, [sp, #8]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -5248,7 +5669,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #0
-BEQ L111
+BEQ L143
 LDR r0, [sp, #8]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -5278,9 +5699,9 @@ LDR r0, =0
 STR r0, [sp, #-4]!
 BL f_fillIntArray
 ADD sp, sp, #8
-B L112
-L111:
-L112:
+B L144
+L143:
+L144:
 LDR r0, =0
 POP {pc}
 .ltorg 
@@ -5289,8 +5710,8 @@ PUSH {lr}
 SUB sp, sp, #4
 LDR r0, =0
 STR r0, [sp]
-B L114
-L113:
+B L146
+L145:
 LDR r0, [sp, #8]
 PUSH {r4}
 MOV r4, r0
@@ -5309,12 +5730,10 @@ POP {r4}
 PUSH {r0, r4}
 LDR r4, [sp, #16]
 LDR r0, [sp, #24]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 LDR r4, [r4]
 LDR r0, [sp, #8]
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -5328,7 +5747,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp]
-L114:
+L146:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #12]
@@ -5348,7 +5767,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L113
+BEQ L145
 LDR r0, =0
 ADD sp, sp, #4
 POP {pc}
@@ -5365,15 +5784,15 @@ ADD sp, sp, #8
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L116
-L115:
+B L148
+L147:
 SUB sp, sp, #8
 LDR r0, =0
 STR r0, [sp, #4]
 LDR r0, =0
 STR r0, [sp]
-B L118
-L117:
+B L150
+L149:
 LDR r0, [sp, #20]
 PUSH {r4}
 MOV r4, r0
@@ -5397,7 +5816,7 @@ CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
 CMP r0, #0
-BEQ L119
+BEQ L151
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #24]
@@ -5423,7 +5842,7 @@ CMP r0, r1
 MOVEQ r0, #1
 MOVNE r0, #0
 CMP r0, #0
-BEQ L121
+BEQ L153
 LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
@@ -5434,7 +5853,6 @@ MOV r1, r0
 POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
@@ -5446,20 +5864,19 @@ LDR r0, =1
 PUSH {r0, r4}
 LDR r4, [sp, #20]
 LDR r0, =0
-BL p_check_array_bounds
 ADD r4, r4, #4
 ADD r4, r4, r0, LSL #2
 MOV r1, r4
 POP {r0, r4}
 STR r0, [r1]
-B L122
-L121:
-L122:
-B L120
-L119:
+B L154
+L153:
+L154:
+B L152
+L151:
 LDR r0, =1
 STR r0, [sp]
-L120:
+L152:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, =1
@@ -5468,7 +5885,7 @@ POP {r0}
 ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #4]
-L118:
+L150:
 LDR r0, [sp, #4]
 PUSH {r0}
 LDR r0, [sp, #24]
@@ -5488,7 +5905,7 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #0
-BEQ L123
+BEQ L155
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, =1
@@ -5497,9 +5914,9 @@ POP {r0}
 CMP r0, r1
 MOVNE r0, #1
 MOVEQ r0, #0
-L123:
+L155:
 CMP r0, #1
-BEQ L117
+BEQ L149
 LDR r0, [sp, #8]
 PUSH {r0}
 LDR r0, =1
@@ -5509,7 +5926,7 @@ ADDS r0, r0, r1
 BLVS p_throw_overflow_error
 STR r0, [sp, #8]
 ADD sp, sp, #8
-L116:
+L148:
 LDR r0, [sp]
 PUSH {r0}
 LDR r0, [sp, #16]
@@ -5520,11 +5937,41 @@ CMP r0, r1
 MOVLT r0, #1
 MOVGE r0, #0
 CMP r0, #1
-BEQ L115
+BEQ L147
 LDR r0, [sp, #4]
 ADD sp, sp, #8
 POP {pc}
 .ltorg 
+putchar:
+PUSH {lr}
+POP {pc}
+p_print_int:
+PUSH {lr}
+POP {pc}
+p_print_ln:
+PUSH {lr}
+POP {pc}
+p_print_bool:
+PUSH {lr}
+POP {pc}
+__aeabi_idiv:
+PUSH {lr}
+POP {pc}
+p_print_string:
+PUSH {lr}
+POP {pc}
+p_check_null_pointer:
+PUSH {lr}
+CMP r0, #0
+LDREQ r0, =msg_2
+BLEQ p_throw_runtime_error
+POP {pc}
+p_throw_runtime_error:
+PUSH {lr}
+POP {pc}
+p_throw_overflow_error:
+LDR r0, =msg_3
+BL p_throw_runtime_error
 memset:
 PUSH {lr}
 MOV r2, #0
@@ -5535,51 +5982,29 @@ ADD r2, r2, #1
 CMP r2, r1
 BLE memset_continue
 POP {pc}
-p_throw_overflow_error:
-LDR r0, =msg_2
-BL p_throw_runtime_error
+malloc:
+PUSH {lr}
+PUSH {r1}
+PUSH {r2}
+PUSH {r3}
+LDR r2, =1048560
+LDR r1, [r2]
+ADD r3, r1, r0
+MOV r0, r1
+STR r3, [r2]
+POP {r3}
+POP {r2}
+POP {r1}
+POP {pc}
 p_check_array_bounds:
 PUSH {lr}
 CMP r0, #0
-LDRLT r0, =msg_3
+LDRLT r0, =msg_4
 BLLT p_throw_runtime_error
 LDR r1, [r4]
 CMP r0, r1
-LDRCS r0, =msg_4
+LDRCS r0, =msg_5
 BLCS p_throw_runtime_error
-POP {pc}
-p_print_int:
-PUSH {lr}
-MOV r1, r0
-LDR r0, =msg_5
-ADD r0, r0, #4
-BL printf
-MOV r0, #0
-BL fflush
-POP {pc}
-p_print_ln:
-PUSH {lr}
-LDR r0, =msg_6
-ADD r0, r0, #4
-BL puts
-MOV r0, #0
-BL fflush
-POP {pc}
-p_print_bool:
-PUSH {lr}
-CMP r0, #0
-LDRNE r0, =msg_7
-LDREQ r0, =msg_8
-ADD r0, r0, #4
-BL printf
-MOV r0, #0
-BL fflush
-POP {pc}
-p_check_null_pointer:
-PUSH {lr}
-CMP r0, #0
-LDREQ r0, =msg_9
-BLEQ p_throw_runtime_error
 POP {pc}
 gx_get_frame_buffer:
 CMP r0, #4096
@@ -5608,23 +6033,9 @@ POP {r4, pc}
 p_check_divide_by_zero:
 PUSH {lr}
 CMP r1, #0
-LDREQ r0, =msg_10
+LDREQ r0, =msg_6
 BLEQ p_throw_runtime_error
 POP {pc}
-p_print_string:
-PUSH {lr}
-LDR r1, [r0]
-ADD r2, r0, #4
-LDR r0, =msg_11
-ADD r0, r0, #4
-BL printf
-MOV r0, #0
-BL fflush
-POP {pc}
-p_throw_runtime_error:
-BL p_print_string
-MOV r0, #-1
-BL exit
 gx_mailbox_base:
 LDR r0, =536918144
 MOV pc, lr

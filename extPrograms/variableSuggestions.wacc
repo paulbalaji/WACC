@@ -1,0 +1,10 @@
+begin
+	# This program throws a semantic error, undefined ident "fibnocci"
+	# Demonstrates compiler variable suggestions for small typos in source
+	int fibonacci = 42;
+	int boomerange = 12;
+	int wacc_x_gl  = 12;
+
+	# Incorrect name fibnocci.  The compiler will throw a semantic error and suggest to use 'fibonacci' instead.
+	fibnocci = 1
+end
