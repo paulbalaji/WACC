@@ -10,7 +10,12 @@ grammar/grammar.ts
 src/frontend/grammar/grammar.ts
 credentials.py
 *.pyc
-
+extPrograms/tetris/build
+extPrograms/tetris/kernel.img
+extPrograms/tetris/kernel.list
+extPrograms/tetris/kernel.map
+extPrograms/tetris/tetris.s
+extPrograms/tetris/source
 input.wacc
 
 #ignore temp files

@@ -1,25 +1,77 @@
 # WACC Compiler
 
-WACC Compiler is a compiler for the WACC language.
-  - Front End COMPLETE
-  - Back End COMPLETE
-  - Front End Code Review COMPLETE
-  - Back End Code Review PENDING
-  - Extension - IN PROGRESS
+WACC Compiler is a compiler for the WACC language. In addition to the basic specification assigned to us in the first week, we have extended our compiler with numerous features. The end goal of adding these features is to extend WACC to the point where programmers can use the language to write programs that be compiled and directly run on the Raspberry Pi, complete with graphical output.
 
-### TODO:
- - LINES 245-250 SemanticChecker!!!!!! REMEMBER TO RE-COMMENT
- - FIX THE ABOVE
- - Allow files to be imported (pre-processor in effect)
- - Structs
- - Graphics Library
- - Implement assembly instructions for "Mailbox" system
- - Implement WACC library that utilises basic WACC instructions
- - Give users access to *WACC X GL*
- - Pokemon
+### Pending
+- Final Code Review
+
+### Complete
+- Front End
+- Front End Code Review
+- Back End
+- Back End Code Review
+- Compiler Extension
+
+### In Development
+- Advanced Tetris features
+  - Ability to move down
+  - Score counter
+  - Show upcoming blocks
+  - Clearer grid boundaries
+  - Generally neater presentation
+  - Fancier animations
+- JavaScript target
+  - General WACC programs
+  - Graphical WACC programs
 
 ### Current Version
-0.0.5
+0.6.66
+
+### Features in addition to base specification
+- Hex and Binary int literals
+- Syntactic sugar for binary operators (+=, -=, *=, /=, etc)
+- WACC syntax higlighting for *Sublime Text*
+- Semantic error variable suggestions
+- Initialise arrays with a run-time length
+- Function calls as statements
+- WACC header files (.wacch)
+- Include .wacch header files
+- Structs
+- Additional compiler flags
+- Standard Library
+- Implemented own stack and heap for potential Raspberry Pi programs
+- Polling RasPi's GPIO pins with a `gpio` operator
+- RasPi graphics (32-bit)
+- Tetris
+
+### Tetris
+##### Introduction
+Our extended compiler can now be made to compile WACC programs for the Raspberry Pi. To show case this, we decided to implement the classic game of Tetris. It is a full WACC implementation, and everything in the ./tetris folder compiles to assembly that can be assembled and run with full 32-bit colour output on the Raspberry Pi.
+
+##### Compilation
+To compile Tetris:
+```sh
+# -barebones flag to indicate program is to be run somewhere C standard library can't be called
+./compile -barebones tetris/tetris.wacc tetris/lib/tetrisUtil.wacch tetris/lib/gx.wacch tetris/lib/block.wacch tetris/lib/array.wacch
+```
+
+Alternatively, you could navigate into the tetris folder and then run make, as follows:
+```sh
+# first navigate into the wacc33 project folder
+cd tetris
+make
+```
+
+##### Pi time
+Now you have the assembly, you may assemble this using any appropriate assembler of your choice, keeping in mind a Raspberry Pi target. Once you have generated a kernel.img file, you should copy it onto the boot partition of the SD card that your Pi boots from, and behold you should see the game of Tetris.
+
+##### Playing the game
+We made a custom controller for the 1st Year summer project (Snake), and that is the same controller we use to play Tetris. This means that you will unfortunately not be able to actually play the game without our custom controller, but have provided GPIO pin numbers so that anyone can easily pick up a breadboard and make their own controller.
+
+##### GPIO pins
+- 24 - Move Left
+- 27 - Move Right
+- 25 - Rotate
 
 ### Tech
 Our compiler uses a number of open source projects to work properly:

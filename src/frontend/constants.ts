@@ -12,6 +12,4 @@ export var startOfStack = 0x8000;
 
 export var startOfHeap = 0xffff0;
 
-export var barebones = Globals.flags.barebones;
-
 export var validGPIOPins = [11, 21, 22, 23, 24, 25, 27];
