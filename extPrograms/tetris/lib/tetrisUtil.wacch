@@ -52,8 +52,11 @@ header
     end
 
     #initialise colours
-    int[] initialiseColours() is
+    int[][] initialiseColours() is
+
         int empty = 0x000000;
+    
+
         int brown = 0xF4A460;
         int red = 0xFF0000;
         int orange = 0xFFA500;
@@ -63,7 +66,19 @@ header
         int blue = 0x0000FF;
         int purple = 0x551A8B;
         int pink = 0xFF69B4;
-        int[] colours = [brown, red, orange, yellow, lime, green, blue, purple, pink];
+        int[] classic = [green, blue, red, purple, pink, orange, yellow];
+
+        # Neon Colour Scheme
+        int neonPink = 0xFF0099;
+        int neonYellow = 0xF3F315;
+        int neonGreen = 0x83F52C;
+        int neonOrange = 0xFF6600;
+        int neonPurple = 0x6E0DD0;
+        int neonWhite = 0xFFFFFF;
+        int[] neon = [neonPink, neonYellow, neonGreen, neonOrange, neonPurple, neonWhite];
+
+        int[][] colours =  [neon, classic];
+        
         return colours
     end
 
