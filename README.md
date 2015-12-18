@@ -45,10 +45,10 @@ WACC Compiler is a compiler for the WACC language. In addition to the basic spec
 - Tetris
 
 ### Tetris
-##### Introduction
+#### Introduction
 Our extended compiler can now be made to compile WACC programs for the Raspberry Pi. To show case this, we decided to implement the classic game of Tetris. It is a full WACC implementation, and everything in the ./tetris folder compiles to assembly that can be assembled and run with full 32-bit colour output on the Raspberry Pi.
 
-##### Compilation
+#### Compilation
 To compile Tetris:
 ```sh
 # -barebones flag to indicate program is to be run somewhere C standard library can't be called
@@ -62,13 +62,13 @@ cd tetris
 make
 ```
 
-##### Pi time
+#### Pi time
 Now you have the assembly, you may assemble this using any appropriate assembler of your choice, keeping in mind a Raspberry Pi target. Once you have generated a kernel.img file, you should copy it onto the boot partition of the SD card that your Pi boots from, and behold you should see the game of Tetris.
 
-##### Playing the game
+#### Playing the game
 We made a custom controller for the 1st Year summer project (Snake), and that is the same controller we use to play Tetris. This means that you will unfortunately not be able to actually play the game without our custom controller, but have provided GPIO pin numbers so that anyone can easily pick up a breadboard and make their own controller.
 
-##### GPIO pins
+#### GPIO pins
 - 24 - Move Left
 - 27 - Move Right
 - 25 - Rotate
