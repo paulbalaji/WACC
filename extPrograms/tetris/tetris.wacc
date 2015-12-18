@@ -1,4 +1,104 @@
 begin
+    struct PollResult {
+        int leftBtn,
+        int rightBtn,
+        int upBtn,
+        int downBtn
+    }
+    int pollBtns(struct PollResult btns, int pollTime) is
+        btns.leftBtn = 0;
+        btns.rightBtn = 0;
+        btns.upBtn = 0;
+        btns.downBtn = 0;
+        int count = 0;
+        int in = 0;
+        while (count < pollTime) do
+            in = gpio 24;
+            if (in == 1) then
+                btns.leftBtn = 1
+            else skip fi;
+
+            in = gpio 27;
+            if (in == 1 && btns.leftBtn == 0) then
+                btns.rightBtn = 1
+            else skip fi;
+
+            in = gpio 22;
+            if (in == 1 && btns.leftBtn == 0 && btns.rightBtn == 0) then
+                btns.upBtn = 1
+            else skip fi;
+
+            in = gpio 23;
+            if (in == 1 && btns.leftBtn == 0 && btns.rightBtn == 0 && btns.upBtn == 0) then
+                btns.downBtn = 1
+            else skip fi;
+
+            count += 1
+        done;
+
+        return 0
+    end
+
+    int pollLeftBtn(int pollTime) is
+        #GPIO 24
+        int count = 0;
+        while (count < pollTime) do
+            int in = gpio 24;
+            if (in == 1) then
+                return 1
+            else skip fi;
+           
+            count += 1 
+        done;
+        return 0
+    end
+
+    int pollRightBtn(int pollTime) is
+        #GPIO 27
+        int count = 0;
+        while (count < pollTime) do
+            int in = gpio 27;
+            if (in == 1) then
+                return 1
+            else skip fi;
+           
+            count += 1 
+        done;
+        return 0
+    end
+
+    int pollUpBtn(int pollTime) is
+        #GPIO 22
+        int count = 0;
+        while (count < pollTime) do
+            int in = gpio 22;
+            if (in == 1) then
+                return 1
+            else skip fi;
+           
+            count += 1 
+        done;
+        return 0
+    end
+
+    int pollDownBtn(int pollTime) is
+        #GPIO 23
+        int count = 0;
+        while (count < pollTime) do
+            int in = gpio 23;
+            if (in == 1) then
+                return 1
+            else skip fi;
+           
+            count += 1 
+        done;
+        return 0
+    end
+
+    # The time to wait before rendering a new frame
+    int waitTime = 560000;
+    int pollTime = 10000;
+
     #starting location for all new blocks
     int startX = 4;
     int startY = 0;
@@ -29,94 +129,91 @@ begin
 
     int[][] block = blocks[blockIndex][rotationIndex];
 
-    call drawBlock(fb, block, x, y, colours[colourIndex]);
+    struct PollResult btns = new PollResult;
 
-    int blah = 12;
+    call drawBlock(fb, block, x, y, colours[colourIndex]);
 
     int collision = 0;
     int keepLooping = 1;
     int count = 0;
     int in = 1;
-    int horizontal = 1;
+    int horizontal = 0;
+    int vertical = 0;
 
     while (keepLooping == 1) do
         in = 0;
         horizontal = 0;
+        vertical = 0;
+        count = 0;
+        while (count < pollTime) do
+            call pollBtns(btns, pollTime);
+            if (btns.leftBtn == 1) then
+                collision = call isColliding(block, grid, x - 1, y);
+                if (collision == 0) then # If there is no collision
+                    #erase square, 0 means black
+                    call drawBlock(fb, block, x, y, 0);
+                    x -= 1;
+                    #draw updated square
+                    call drawBlock(fb, block, x, y, colours[colourIndex])
+                else skip fi
+            
+            else skip fi;
 
-        int count = 0;
-        while (count < 10000) do
-            in = gpio 27;
-            if (in == 1) then
-                horizontal = 1;
-                call wait(2000)
-            else
-                skip
-            fi;
+            if (btns.rightBtn == 1) then
+                collision = call isColliding(block, grid, x + 1, y );
+                if (collision == 0) then # If there is no collision
+                    #erase square, 0 means black
+                    call drawBlock(fb, block, x, y, 0);
+                    x += 1;
+                    #draw updated square
+                    call drawBlock(fb, block, x, y, colours[colourIndex])
+                else skip fi
+            else skip fi;
 
-            in = gpio 24;
-            if (in == 1) then
-                horizontal = -1;
-                call wait(2000)
-            else
-                skip
-            fi;
+            if (btns.downBtn == 1) then
+                collision = call isColliding(block, grid, x, y + 1);
+                if (collision == 0) then # If there is no collision
+                      #erase square, 0 means black
+                    call drawBlock(fb, block, x, y, 0);
+                    y += 1;
+                    #draw updated square
+                    call drawBlock(fb, block, x, y, colours[colourIndex])
+                else skip fi
+            else skip fi;
 
-
-            # Rotating the current block
-            in = gpio 25;
-            if (in == 1) then
-
+            if (btns.upBtn == 1) then
                 #erase square, 0 means black
-                call drawBlock(fb, block, x, y, 0);
+                    call drawBlock(fb, block, x, y, 0);
 
-                #move block horizontally
-                
+                    int savedRotationIndex = rotationIndex;
 
-                int savedRotationIndex = rotationIndex;
+                    #rotate
+                    rotationIndex += 1;
+                    if (rotationIndex == 4) then
+                        rotationIndex = 0
+                    else
+                        rotationIndex = rotationIndex
+                    fi;
+                    
+                    block = blocks[blockIndex][rotationIndex];
 
-                #rotate
-                rotationIndex += 1;
-                if (rotationIndex == 4) then
-                    rotationIndex = 0
-                else
-                    rotationIndex = rotationIndex
-                fi;
-                
-                block = blocks[blockIndex][rotationIndex];
+                    #if there is a collision then don't rotate, else keep rotated shape
+                    collision = call isColliding(block, grid, x, y);
+                    if (collision == 1) then
+                        rotationIndex = savedRotationIndex;
+                        block = blocks[blockIndex][rotationIndex]
+                    else
+                        skip
+                    fi;
 
-                #if collision don't rotate, else keep rotated shape
-                collision = call isColliding(block, grid, x, y);
-                if (collision == 1) then
-                    rotationIndex = savedRotationIndex;
-                    block = blocks[blockIndex][rotationIndex]
-                else
-                    skip
-                fi;
+                    #draw updated square
+                    call drawBlock(fb, block, x, y, colours[colourIndex])
+            else skip fi;
 
-                #draw updated square
-                call drawBlock(fb, block, x, y, colours[colourIndex]);
-                call wait(2000)
-            else
-                skip
-            fi;
-
-            collision = call isColliding(block, grid, x + horizontal, y);
-            if (horizontal != 0 && collision == 0) then
-                #erase square, 0 means black
-                call drawBlock(fb, block, x, y, 0);
-
-                #move block horizontally
-                x += horizontal;
-
-                #draw updated square
-                call drawBlock(fb, block, x, y, colours[colourIndex])
-            else
-                skip
-            fi;
 
             count += 1
         done;
-
+       
         collision = call isColliding(block, grid, x, y + 1);
 
         if (collision == 1) then
@@ -176,8 +273,7 @@ begin
 
             #draw updated square
             call drawBlock(fb, block, x, y, colours[colourIndex])
-        fi;
-        skip
+        fi
     done;
 
     

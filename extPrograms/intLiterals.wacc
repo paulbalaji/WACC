@@ -6,5 +6,12 @@ begin
 
 	# Binary Int literals
 	int three   = 0b11;
-	int fifteen = 0b1111
+	int fifteen = 0b1111;
+
+	# Demonstrating Binary operator syntactic sugar statements
+	int count = 0;
+	count += three;
+	count *= 5;
+	count -= 1;
+	count /= 2
 end
