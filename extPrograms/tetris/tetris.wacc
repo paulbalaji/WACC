@@ -157,7 +157,7 @@ begin
 
             if (btns.f1Btn == 1) then
                 currentColourScheme += 1;
-
+                colourIndex = 0;
                 if (currentColourScheme >= (len colourSchemes)) then
                     currentColourScheme = 0
                 else skip fi;
