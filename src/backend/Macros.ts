@@ -8,8 +8,6 @@ import Const = require('../frontend/constants');
 
 var _ = require('underscore');
 
-var barebones = Const.barebones;
-
 export var sections = { dataSection: [], sysFuncSection: [] };
 
 var closingInsertions = [];
@@ -64,7 +62,7 @@ export var insertReadChar = _.once(() => {
 });
 
 export var insertPrintString = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
         closingInsertions.push(function() {
             var message = '%.*s\\0';
             var dataLabel = insertStringDataHeader(message);
@@ -79,7 +77,7 @@ export var insertPrintString = _.once(() => {
 });
 
 export var insertPrintBool = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
         closingInsertions.push(function() {
             var trueLabel = insertStringDataHeader("true\\0");
             var falseLabel = insertStringDataHeader("false\\0");
@@ -93,7 +91,7 @@ export var insertPrintBool = _.once(() => {
 });
 
 export var insertPrintInt = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
     	closingInsertions.push(function() {
     		var intFormatLabel = insertStringDataHeader("%d\\0");
     		sections.sysFuncSection.push(CodeGenUtil.funcDefs.printInt(intFormatLabel));
@@ -106,7 +104,7 @@ export var insertPrintInt = _.once(() => {
 });
 
 export var insertPrintRef = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
         closingInsertions.push(function() {
             var refFormatLabel = insertStringDataHeader('%p\\0');
             sections.sysFuncSection.push(CodeGenUtil.funcDefs.printRef(refFormatLabel));
@@ -121,7 +119,7 @@ export var insertPrintRef = _.once(() => {
 });
 
 export var insertPrintLn = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
         closingInsertions.push(function() {
             var terminatorLabel = insertStringDataHeader('\\0');
             sections.sysFuncSection.push(CodeGenUtil.funcDefs.printLn(terminatorLabel));
@@ -172,7 +170,7 @@ export var insertFreePair = _.once(() => {
 });
 
 export var insertRuntimeError = _.once(() => {
-    if (!barebones) {
+    if (!Const.Globals.flags.barebones) {
         closingInsertions.push(function() {
             sections.sysFuncSection.push(CodeGenUtil.funcDefs.runtimeError());
             insertPrintString();
@@ -216,7 +214,7 @@ export var insertGetFrameBuffer = _.once(() => {
 });
 
 export var insertMalloc = _.once(() => {
-    if (barebones) {
+    if (Const.Globals.flags.barebones) {
 		closingInsertions.push(function() {
         	sections.sysFuncSection.push(CodeGenUtil.funcDefs.malloc());
 		});
@@ -226,7 +224,7 @@ export var insertMalloc = _.once(() => {
 
 
 export var insertFree = _.once(() => {
-	if (barebones) {
+	if (Const.Globals.flags.barebones) {
 	    closingInsertions.push(function() {
 	        sections.sysFuncSection.push(CodeGenUtil.funcDefs.free());
 	    });
@@ -234,7 +232,7 @@ export var insertFree = _.once(() => {
 });
 
 export var insertPutChar = _.once(() => {
-    if (barebones) {
+    if (Const.Globals.flags.barebones) {
         sections.sysFuncSection.push([Instr.Label('putchar'),
                                       Instr.Push(Reg.LR),
                                       Instr.Pop(Reg.PC)]);
@@ -242,7 +240,7 @@ export var insertPutChar = _.once(() => {
 });
 
 export var insertDiv = _.once(() => {
-    if (barebones) {
+    if (Const.Globals.flags.barebones) {
         sections.sysFuncSection.push([Instr.Label('__aeabi_idiv'),
                                       Instr.Push(Reg.LR),
                                       Instr.Pop(Reg.PC)]);
@@ -250,7 +248,7 @@ export var insertDiv = _.once(() => {
 });
 
 export var insertDivMod = _.once(() => {
-    if (barebones) {
+    if (Const.Globals.flags.barebones) {
         sections.sysFuncSection.push([Instr.Label('__aeabi_idivmod'),
                                       Instr.Push(Reg.LR),
                                       Instr.Pop(Reg.PC)]);

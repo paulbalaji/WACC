@@ -68,7 +68,7 @@ export class CodeGenerator implements NodeType.Visitor {
         var {dataSection: dataSection, sysFuncSection: sysFuncSection} = Macros.runClosingInsertions(); // Run closing insertions on sections.
 
         var barebonesStackInit;
-        if (Const.barebones) {
+        if (Const.Globals.flags.barebones) {
             barebonesStackInit = [Instr.Ldr(Reg.SP, Instr.Liter(this.startOfStack)),
                                 Instr.Ldr(Reg.R5, Instr.Liter(this.startOfHeap + 4)),
                                 Instr.Ldr(Reg.R6, Instr.Liter(this.startOfHeap)),
@@ -82,7 +82,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
 
         var barebonesGpioInit;
-        if (false && Const.barebones) {
+        if (Const.Globals.flags.barebones) {
             barebonesGpioInit = [
                 Instr.Ldr(Reg.R0, Instr.Liter(0x20200004)),
                 Instr.Mov(Reg.R1, Instr.Const(0)),
@@ -92,12 +92,7 @@ export class CodeGenerator implements NodeType.Visitor {
             barebonesGpioInit = [];
 
         }
-
        
-
-
-
-
         var mainStart = [Instr.Directive('text'),
             Instr.Directive('global', 'main'),
             ];
@@ -275,7 +270,7 @@ export class CodeGenerator implements NodeType.Visitor {
 
         } else if (node.lhs instanceof NodeType.ArrayElemNode) {
             var checkArrayBounds;
-            if (!Const.barebones) {
+            if (!Const.Globals.flags.barebones) {
                 Macros.insertCheckArrayBounds();
                 checkArrayBounds = Instr.Bl('p_check_array_bounds');
             } else {

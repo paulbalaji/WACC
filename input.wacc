@@ -1,6 +1,5 @@
 begin
-	bool b = true;
-	print b
+	int[] xs = [1,2,3]
 
 end
 
