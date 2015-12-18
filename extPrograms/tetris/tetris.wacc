@@ -5,36 +5,32 @@ begin
         int upBtn,
         int downBtn
     }
-    int pollBtns(struct PollResult btns, int pollTime) is
+    int pollBtns(struct PollResult btns) is
         btns.leftBtn = 0;
         btns.rightBtn = 0;
         btns.upBtn = 0;
         btns.downBtn = 0;
-        int count = 0;
+        int c = 0;
         int in = 0;
-        while (count < pollTime) do
             in = gpio 24;
             if (in == 1) then
                 btns.leftBtn = 1
             else skip fi;
 
             in = gpio 27;
-            if (in == 1 && btns.leftBtn == 0) then
+            if (in == 1) then
                 btns.rightBtn = 1
             else skip fi;
 
             in = gpio 22;
-            if (in == 1 && btns.leftBtn == 0 && btns.rightBtn == 0) then
+            if (in == 1) then
                 btns.upBtn = 1
             else skip fi;
 
             in = gpio 23;
-            if (in == 1 && btns.leftBtn == 0 && btns.rightBtn == 0 && btns.upBtn == 0) then
+            if (in == 1) then
                 btns.downBtn = 1
             else skip fi;
-
-            count += 1
-        done;
 
         return 0
     end
@@ -97,7 +93,7 @@ begin
 
     # The time to wait before rendering a new frame
     int waitTime = 560000;
-    int pollTime = 10000;
+    int pollTime = 500;
 
     #starting location for all new blocks
     int startX = 4;
@@ -140,13 +136,18 @@ begin
     int horizontal = 0;
     int vertical = 0;
 
+    int leftDownStart = 0;
+    int leftDownEnd   = 0;
     while (keepLooping == 1) do
         in = 0;
         horizontal = 0;
         vertical = 0;
         count = 0;
-        while (count < pollTime) do
-            call pollBtns(btns, pollTime);
+        leftDownStart = 0;
+        leftDownEnd = 0;
+        while (count < 140000) do
+            call wait(10);
+            call pollBtns(btns);
             if (btns.leftBtn == 1) then
                 collision = call isColliding(block, grid, x - 1, y);
                 if (collision == 0) then # If there is no collision
@@ -210,10 +211,8 @@ begin
                     call drawBlock(fb, block, x, y, colours[colourIndex])
             else skip fi;
 
-
             count += 1
-        done;
-       
+        done;       
         collision = call isColliding(block, grid, x, y + 1);
 
         if (collision == 1) then
