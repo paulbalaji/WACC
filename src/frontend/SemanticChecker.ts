@@ -256,7 +256,6 @@ export class SemanticVisitor implements NodeType.Visitor {
                                          +'Actual: '    + node.rhs.type + '.'
                                          , node.rhs.errorLocation);
         }
-
         if (node.type instanceof NodeType.ArrayTypeNode) {
 
 
@@ -265,12 +264,14 @@ export class SemanticVisitor implements NodeType.Visitor {
                 if (expr instanceof NodeType.IdentNode) {
                     var t = this.currentST.lookupAll(expr).type;
                     return t instanceof NodeType.ArrayTypeNode ? t.depth: 0;
-                } else {
+                } else if (expr instanceof NodeType.StrLiterNode) {
+                    // Special case - depth of string liter is
+                    return (<NodeType.ArrayTypeNode>expr.type).depth;
+                }  else {
                     return 0;
                 }
 
                 }.bind(this));
-
                 if (_.some(exprDepths, ((depth) => (depth + 1) !== (<NodeType.ArrayTypeNode> node.type).depth) )) {
                     throw new Error.SemanticError('Declaration expression must be of correct type.' + 
                                                   '  Array depths of lhs and rhs expressions do not match.',

@@ -1,5 +1,5 @@
 begin
-	int xs = []
+	string[] xs = ["a", "b", "c"]
 
 end
 
