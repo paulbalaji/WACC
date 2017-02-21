@@ -2,8 +2,7 @@
 
 WACC Compiler is a compiler for the WACC language. In addition to the basic specification assigned to us in the first week, we have extended our compiler with numerous features. The end goal of adding these features is to extend WACC to the point where programmers can use the language to write programs that be compiled and directly run on the Raspberry Pi, complete with graphical output.
 
-### Pending
-- Final Code Review
+### No Task Pending
 
 ### Complete
 - Front End
@@ -11,6 +10,7 @@ WACC Compiler is a compiler for the WACC language. In addition to the basic spec
 - Back End
 - Back End Code Review
 - Compiler Extension
+- Final Code Review
 
 ### In Development
 - Advanced Tetris features
